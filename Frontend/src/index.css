@@ -1,0 +1,341 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Lobster&family=Madimi+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("/background.jpg"); */
+
+body {
+    background: linear-gradient(to bottom right, #0e103d, #69306d, #80cb2e);
+    min-height: 100vh;
+    transition: all 0.3s ease;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+  
+  .animate-float-slow {
+    animation: float-slow 6s ease-in-out infinite;
+  }
+  
+  .delay-1000 {
+    animation-delay: 1s;
+  }
+  
+  .nav-bubble {
+    position: relative;
+    overflow: hidden;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-bubble::before {
+    content: "";
+    position: absolute;
+    width: 120%;
+    height: 200%;
+    background: #80cb2e;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) scale(0.5);
+    border-radius: 50%;
+    z-index: 0;
+    transition: all 0.4s ease;
+  }
+  
+  .nav-bubble:hover::before {
+    top: 50%;
+    transform: translateX(-50%) scale(1.2);
+  }
+  
+  .nav-bubble span {
+    position: relative;
+    z-index: 10;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-bubble:hover span {
+    color: white;
+  }
+  
+  .blur-fade-layer {
+    width: 100%;
+    height: 100%;
+    /* gradient fading from transparent to black with blur */
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.6),
+      rgba(0, 0, 0, 0)
+    );
+    backdrop-filter: blur(15px);
+    animation: fadeInOut 5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes fadeInOut {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .card-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: flex-start; /* Align contents to left */
+    flex-direction: column;
+    gap: 5rem;
+    align-items: flex-start; /* Align items to left */
+    padding-left: 1rem; /* Optional slight padding */
+  }
+  
+  .card-wrapper {
+    display: flex;
+    justify-content: flex-start; /* Align wrapper content left */
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    margin-left: -40px; /* Move wrapper slightly left */
+  }
+  .card-section h2 {
+    align-self: center;
+  }
+  .parallelogram-card-content {
+    margin-left: 75px; /* extra safety if needed */
+  }
+  
+  /* Left-side circle image */
+  .image-wrapper {
+    z-index: 10;
+    position: relative;
+    flex: 1;
+    min-width: 260px;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 2rem;
+  }
+  
+  .circle-image {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #ffffffa8;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+  }
+  
+  /* Image overlaps into the card */
+  .overlap-image {
+    position: relative;
+    right: -50px;
+  }
+  
+  /* Right-side glass card */
+  .parallelogram-card {
+    flex: 1;
+    min-width: 300px;
+    margin-left: -80px;
+    transform: skew(-12deg);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    padding: 2rem;
+    color: white;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    z-index: 5;
+    max-width: 500px;
+    text-align: center;
+    padding-left: 15%;
+  }
+  
+  .parallelogram-card > * {
+    transform: skew(12deg);
+  }
+  
+  /* Read More button */
+  .readmore-btn {
+    display: inline-block;
+    background-color: #ffffff;
+    color: #4c1d95;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+  
+  .readmore-btn:hover {
+    background-color: #e5e7eb;
+    color: #2e1065;
+  }
+  
+  .children-img-wrapper {
+    position: absolute;
+    left: -50px;
+    top: 400px;
+    bottom: 0;
+    z-index: 10;
+  }
+  
+  .children-img {
+     width: 250px;
+    height: 300px;
+    max-width: 100%;
+    opacity: 0.9;
+  }
+  /* Responsive layout */
+  @media (max-width: 768px) {
+    .card-wrapper {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .image-wrapper {
+      justify-content: center;
+      padding-right: 0;
+    }
+  .children-img-wrapper {
+    position: absolute;
+    
+    size-adjust: none;
+    left: -50px;
+    top: 400px;
+    bottom: 0;
+    z-index: 10;
+  }
+    .overlap-image {
+      position: static;
+      margin-bottom: -40px;
+    }
+  
+    .parallelogram-card {
+      margin-left: 0;
+      transform: none;
+      text-align: center;
+      padding-top: 4rem;
+    }
+  
+    .parallelogram-card > * {
+      transform: none;
+    }
+  }
+  
+  @layer base {
+  :root {
+        --sidebar-background: 0 0% 98%;
+        --sidebar-foreground: 240 5.3% 26.1%;
+        --sidebar-primary: 240 5.9% 10%;
+        --sidebar-primary-foreground: 0 0% 98%;
+        --sidebar-accent: 240 4.8% 95.9%;
+        --sidebar-accent-foreground: 240 5.9% 10%;
+        --sidebar-border: 220 13% 91%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+    }
+  .dark {
+        --sidebar-background: 240 5.9% 10%;
+        --sidebar-foreground: 240 4.8% 95.9%;
+        --sidebar-primary: 224.3 76.3% 48%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 240 3.7% 15.9%;
+        --sidebar-accent-foreground: 240 4.8% 95.9%;
+        --sidebar-border: 240 3.7% 15.9%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+    }
+}
+  
+  @layer base {
+  * {
+    @apply border-border;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+}
+.present-day {
+  background-color: #4ade80 !important; /* green */
+  color: white !important;
+  border-radius: 8px;
+}
+
+.absent-day {
+  background-color: #f87171 !important; /* red */
+  color: white !important;
+  border-radius: 8px;
+}
+
+.leave-day {
+  background-color: #facc15 !important; /* yellow */
+  color: black !important;
+  border-radius: 8px;
+}
+
+.badge-glow {
+  animation: glow 1s infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px gold;
+  }
+  to {
+    box-shadow: 0 0 10px gold, 0 0 20px orange;
+  }
+}
+
+.react-calendar__tile--now {
+  background: #ffe7ba;
+}
+
+/* Highlight selected date */
+.react-calendar__tile--active {
+  background: #d6e4ff !important;
+  color: #000;
+}
+
+.holiday-day::after,
+.special-day::after {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: 0 auto;
+  margin-top: 2px;
+}
+
+.holiday-day::after {
+  background-color: #ef4444; /* red-500 */
+}
+
+.special-day::after {
+  background-color: #3b82f6; /* blue-500 */
+}

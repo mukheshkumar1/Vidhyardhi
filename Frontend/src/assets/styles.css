@@ -1,0 +1,662 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Poppins:wght@300;400;500&display=swap');
+
+.hover-effect {
+  position: relative;
+  display: inline-block;
+  transition: color 0.3s ease-in-out;
+}
+.hover-effect::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, #69306d ,#80cb2e); 
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+}
+.hover-effect:hover {
+  color: #80cb2e;
+}
+.hover-effect:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+.home-hover-effect {
+  position: relative;
+  display: inline-block;
+  transition: color 0.3s ease-in-out;
+}
+.home-hover-effect::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: #69306d;
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+}
+.home-hover-effect:hover {
+  color: #69306d;
+}
+.home-hover-effect:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+.button-hover-effect {
+  position: relative;
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 5px;
+  color: white;
+  background: transparent; 
+  overflow: hidden;
+  transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.button-hover-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #69306d; 
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease-in-out;
+  z-index: -1; 
+}
+
+.button-hover-effect:hover {
+  color: white; 
+}
+
+.button-hover-effect:hover::before {
+  transform: scaleX(1);
+}
+.logo-shadow {
+   filter: brightness(2.5) contrast(10.2) drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.4)); 
+  
+}
+
+.tooltip {
+position: relative;
+display: inline-block;
+}
+
+.tooltip::after {
+content: attr(data-title);
+position: absolute;
+bottom: 130%; 
+left: 50%;
+transform: translateX(-50%);
+background-color: #1E40AF; 
+color: white; 
+padding: 6px 10px;
+font-size: 12px;
+border-radius: 5px;
+white-space: nowrap;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.3s ease-in-out;
+}
+
+/* Tooltip arrow */
+.tooltip::before {
+content: "";
+position: absolute;
+bottom: 120%;
+left: 50%;
+transform: translateX(-50%);
+border: 6px solid transparent;
+border-top-color: #1E40AF; 
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.3s ease-in-out;
+}
+
+/* Show tooltip on hover */
+.tooltip:hover::after,
+.tooltip:hover::before {
+opacity: 1;
+visibility: visible;
+}
+
+/* Different background colors for each icon tooltip */
+.tooltip[data-title="LinkedIn"]::after,
+.tooltip[data-title="LinkedIn"]::before {
+background-color: #0077b5;
+border-top-color: #0077b5;
+}
+
+.tooltip[data-title="Facebook"]::after,
+.tooltip[data-title="Facebook"]::before {
+background-color: #1877F2;
+border-top-color: #1877F2;
+} 
+
+.tooltip[data-title="Instagram"]::after,
+.tooltip[data-title="Instagram"]::before {
+background-color: #E1306C;
+border-top-color: #E1306C;
+}
+
+.tooltip[data-title="YouTube"]::after,
+.tooltip[data-title="YouTube"]::before {
+background-color: #FF0000;
+border-top-color: #FF0000;
+}
+.fredoka {
+  font-family: "Fredoka", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: normal;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.poppins-thin {
+  font-family: "Poppins", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.poppins-extralight {
+  font-family: "Poppins", sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.poppins-light {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.poppins-regular {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.poppins-medium {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.poppins-semibold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.poppins-bold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.poppins-extrabold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.poppins-black {
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.poppins-thin-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.poppins-extralight-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.poppins-light-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.poppins-regular-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.poppins-medium-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.poppins-semibold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.poppins-bold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.poppins-extrabold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.poppins-black-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.gallery-image-wrapper img {
+  transition: all 0.5s ease-in-out;
+}
+
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 165, 0, 0.8); 
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 0;
+}
+
+
+.glass-card:hover {
+  transform: scale(0.1);
+}
+.glass-card > .relative {
+  position: relative;
+  z-index: 10;
+}
+
+.card-container:hover .focus-card {
+  transform: scale(0.95);
+  opacity: 0.6;
+  filter: blur(1px);
+  z-index: 0;
+}
+
+.card-container .focus-card:hover {
+  transform: scale(1.07);
+  opacity: 1;
+  filter: none;
+  z-index: 10;
+}
+
+.card-container .focus-card {
+  transition: all 0.5s ease;
+}
+
+card-container.hover-effect .focus-card:not(.hovered) {
+  transform: scale(0.95);
+  opacity: 0.5;
+  transition: all 0.3s ease-in-out;
+  filter: blur(1px);
+}
+
+.card-container.hover-effect .focus-card.hovered {
+  transform: scale(1.07);
+  z-index: 10;
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease-in-out;
+} 
+
+.hover-group:hover .card-item:not(:hover) {
+  filter: blur(2px) brightness(0.8);
+  transform: scale(0.95);
+  transition: all 0.3s ease-in-out;
+}
+
+.card-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+h1, h2, h3 {
+  font-family: 'Fredoka', sans-serif;
+}
+
+p {
+  font-family: 'Poppins', sans-serif;
+}
+
+
+
+
+@keyframes fadeInUp {
+  from {
+      opacity: 0;
+      transform: translateY(30px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+} 
+
+.fade-in-up {
+  animation: fadeInUp 1s ease-in-out;
+}
+
+@keyframes fadeInDown {
+from {
+    opacity: 0;
+    transform: translateY(-30px);
+}
+to {
+    opacity: 1;
+    transform: translateY(0);
+}
+}
+
+.fade-in-down {
+animation: fadeInDown 1s ease-in-out;
+} 
+
+
+.scale-on-hover {
+  transition: transform 0.3s ease-in-out;
+}
+
+.scale-on-hover:hover {
+  transform: scale(1.05);
+}
+
+.slide-down {
+  animation: slideDown 1s ease-in-out;
+}
+
+@keyframes slideDown {
+  from {
+      opacity: 0;
+      transform: translateY(-20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+from {
+    opacity: 0;
+    transform: translateY(20px);
+}
+to {
+    opacity: 1;
+    transform: translateY(0);
+}
+}
+
+.slide-up {
+animation: slideUp 1s ease-in-out;
+}
+
+cloud-shape {
+clip-path: path("M59.5 10.5c-4.5-8.5-14.5-13.5-24-11-3.5-5.5-10-8.5-17-8.5-9 0-16.5 6-18.5 14C-4.5 7-2.5 19 4 25c-4 5.5-3.5 13 1.5 18 5.5 5.5 14 6.5 20.5 3.5 6 7.5 17 9 25 3.5 6.5-4.5 9.5-13 6-20 7-4.5 9.5-14 3.5-20.5-3-3-6.5-4.5-10-5z");
+}
+
+/* Optional: animated ping (slow) */
+.animate-ping-slow {
+animation: ping-slow 2s infinite;
+}
+
+@keyframes ping-slow {
+0% {
+  transform: scale(1);
+  opacity: 1;
+}
+75% {
+  transform: scale(1.3);
+  opacity: 0;
+}
+100% {
+  transform: scale(1);
+  opacity: 0;
+}
+}
+
+.faq-cloud {
+background: white;
+position: relative;
+border-radius: 20px;
+padding: 12px 18px;
+}
+.faq-cloud::before,
+.faq-cloud::after {
+content: "";
+position: absolute;
+background: white;
+border-radius: 50%;
+}
+.faq-cloud::before {
+width: 20px;
+height: 20px;
+bottom: -10px;
+left: 20px;
+}
+.faq-cloud::after {
+width: 15px;
+height: 15px;
+bottom: -20px;
+left: 30px;
+}
+
+/* .gallery-image {
+transition: transform 0.5s ease, opacity 0.5s ease;
+opacity: 0;
+transform: scale(0.75);
+}
+
+.gallery-image.center {
+transform: scale(1.1);
+box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+z-index: 20;
+}
+
+.gallery-image.active {
+opacity: 1;
+transform: scale(1.1);
+z-index: 20;
+box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.gallery-image.side {
+opacity: 0.6;
+z-index: 10;
+}
+
+#galleryDisplay img {
+pointer-events: auto;
+} */
+
+.scrollbar-hide::-webkit-scrollbar {
+display: none;
+}
+
+.gallery-img {
+transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.gallery-img.active {
+transform: scale(1.1);
+border-radius: 15px;
+}
+
+.gallery-img.side {
+transform: scale(0.85);
+filter: blur(1px) brightness(0.6);
+}
+
+
+#chat-content::-webkit-scrollbar {
+width: 8px;
+}
+
+#chat-content::-webkit-scrollbar-thumb {
+background: linear-gradient(to bottom, #69306d, #80cb2e);
+border-radius: 10px;
+}
+
+#chat-content::-webkit-scrollbar-track {
+background: transparent;
+}
+
+/* 🌈 Global Stylish Scrollbar */
+body::-webkit-scrollbar {
+width: 10px;
+}
+
+body::-webkit-scrollbar-track {
+background: #1f1f2e; /* dark background */
+border-radius: 10px;
+}
+
+body::-webkit-scrollbar-thumb {
+background: linear-gradient(to bottom, #69306d, #80cb2e);
+border-radius: 10px;
+border: 2px solid #1f1f2e; /* adds space around thumb */
+}
+
+body::-webkit-scrollbar-thumb:hover {
+background: linear-gradient(to bottom, #80cb2e, #69306d);
+}
+
+@keyframes slideInRight {
+from {
+  opacity: 0;
+  transform: translateX(100%);
+}
+to {
+  opacity: 1;
+  transform: translateX(0%);
+}
+}
+
+@keyframes slideInLeft {
+from {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+to {
+  opacity: 1;
+  transform: translateX(0%);
+}
+}
+
+.animate-slide-in-right {
+animation: slideInRight 0.5s ease-out forwards;
+}
+
+.animate-slide-in-left {
+animation: slideInLeft 0.5s ease-out forwards;
+}
+
+@keyframes bounce-slow {
+0%, 100% {
+  transform: translateY(0);
+}
+50% {
+  transform: translateY(-5px);
+}
+}
+
+.bounce-once {
+animation: bounce-slow 0.6s ease-in-out 2;
+}
+
+.about-img {
+position: relative;
+width: 100%;
+max-width: 22rem;
+aspect-ratio: 1 / 1;
+margin: auto;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.circle-spin {
+position: absolute;
+width: 100%;
+height: 100%;
+border-radius: 9999px;
+border-top: 4px solid transparent;
+border-right: 4px solid#69306d;
+border-bottom: 4px solid transparent;
+border-left: 4px solid #80cb2e;
+animation: aboutSpinner 6s linear infinite;
+ /* Show only lower part of spinner */
+}
+
+.about-img img {
+width: 85%;
+height: 85%;
+border-radius: 9999px;
+object-fit: cover;
+background-color: rgba(255, 255, 255, 0.05);
+box-shadow:
+  inset 0 0 10px rgba(255, 255, 255, 0.2),
+  0 5px 15px rgba(0, 0, 0, 0.3);
+border: 4px solid rgba(255, 255, 255, 0.2);
+z-index: 10;
+}
+
+/* Spinner animation */
+@keyframes aboutSpinner {
+0% {
+  transform: rotate(0deg);
+}
+50% {
+  transform: rotate(180deg);
+}
+100% {
+  transform: rotate(0deg);
+}
+}
+
+.modal {
+transition: none;
+}
+body.modal-open {
+overflow: hidden;
+}
+.modal-content {
+animation: fadeIn 0.2s ease-in-out;
+}
+@keyframes fadeIn {
+from { transform: scale(0.95); opacity: 0; }
+to { transform: scale(1); opacity: 1; }
+}
