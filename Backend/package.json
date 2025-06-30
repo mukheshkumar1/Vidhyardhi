@@ -35,7 +35,7 @@
     "nodemailer": "^7.0.3",
     "pdf-lib": "^1.17.1",
     "pizzip": "^3.2.0",
-    "puppeteer": "^24.10.0",
+    "puppeteer": "^24.11.1",
     "razorpay": "^2.9.6",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
