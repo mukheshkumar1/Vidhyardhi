@@ -9,7 +9,7 @@ import { Loader2, Pencil } from "lucide-react";
 const subjects = ["Telugu", "Hindi", "English", "Maths", "Science", "Social Studies"];
 const classes = [
   "Nursery", "LKG", "UKG", "Grade 1", "Grade 2", "Grade 3", "Grade 4",
-  "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10"
+  "Grade 5", "Grade 6", "Grade 7", 
 ];
 
 type Marks = Record<string, number>;
@@ -36,7 +36,7 @@ const UpdatePerformance = () => {
       if (!className) return;
       try {
         const res = await fetch(
-          `http://localhost:5000/api/staff/class/${encodeURIComponent(className)}`,
+          `https://vidhyardhi.onrender.com/api/staff/class/${encodeURIComponent(className)}`,
           { credentials: "include" }
         );
         const data = await res.json();
@@ -73,7 +73,7 @@ const UpdatePerformance = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/staff/${selectedStudent._id}/grades`,
+        `https://vidhyardhi.onrender.com/api/staff/${selectedStudent._id}/grades`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -93,7 +93,7 @@ const UpdatePerformance = () => {
         halfYearly: {} as Marks,
         annual: {} as Marks,
       });
-      // If you want to reset className too, uncomment below
+    
       //setClassName("");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
