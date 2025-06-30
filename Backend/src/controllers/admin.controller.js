@@ -1682,7 +1682,7 @@ export const recordDirectFeePayment = async (req, res) => {
     await student.save();
 
     // Generate PDF receipt
-    let pdfBuffer;
+  let pdfBuffer;
     try {
       pdfBuffer = await generateFeeReceiptPDF({
         name: student.fullName,
@@ -1700,11 +1700,10 @@ export const recordDirectFeePayment = async (req, res) => {
       return res.status(500).json({ error: "Failed to generate PDF receipt" });
     }
 
-    // Return the PDF as a blob
+    // ✅ Return PDF to browser
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=FeeReceipt-${student.fullName}-${Date.now()}.pdf`);
     res.send(pdfBuffer);
-
   } catch (err) {
     console.error("Manual Fee Payment Error:", err);
     return res.status(500).json({ error: "Failed to record payment" });
