@@ -1,6 +1,11 @@
-// src/components/ClassSelector.tsx
 import React, { useEffect, useState } from 'react';
-import { MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import {
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent, // ✅ Import this
+} from '@mui/material';
 
 interface ClassSelectorProps {
   onSelect: (selectedClass: string) => void;
@@ -33,13 +38,12 @@ const ClassSelector: React.FC<ClassSelectorProps> = ({ onSelect }) => {
         }
       })
       .catch(() => {
-        // fallback to default classes if fetch fails
         setClassList(defaultClasses);
       });
   }, []);
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    const value = event.target.value as string;
+  const handleChange = (event: SelectChangeEvent) => {
+    const value = event.target.value;
     setSelected(value);
     onSelect(value);
   };
@@ -49,7 +53,7 @@ const ClassSelector: React.FC<ClassSelectorProps> = ({ onSelect }) => {
       <InputLabel>Select Class</InputLabel>
       <Select
         value={selected}
-        onChange={handleChange}
+        onChange={handleChange} // ✅ Now correctly typed
         label="Select Class"
       >
         {classList.map((cls) => (
