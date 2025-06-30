@@ -24,6 +24,7 @@
     "express-fileupload": "^1.5.1",
     "formidable": "^3.5.4",
     "googleapis": "^149.0.0",
+    "html-pdf-node": "^1.0.8",
     "jsonwebtoken": "^9.0.2",
     "libreoffice-convert": "^1.6.1",
     "mime-types": "^3.0.1",
