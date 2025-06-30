@@ -1,6 +1,6 @@
 import React from "react";
 import PerformanceUpdateForm from "../Components/PerformanceUpdate";
-import AttendanceManager from "../Components/AttendanceUpdate"; 
+import AttendanceManager from "../Components/AttendanceUpdate"; // ✅ Imported new manager
 import StudentsByClassList from "../Components/studentsByClass";
 
 type Props = {
