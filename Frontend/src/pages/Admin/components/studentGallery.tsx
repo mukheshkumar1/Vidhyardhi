@@ -59,7 +59,7 @@ export default function StudentGalleryUploader({
   const fetchGallery = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/student/${studentId}/gallery`
+        `https://vidhyardhi.onrender.com/api/student/${studentId}/gallery`
       );
       const data = await res.json();
       setGallery(data.gallery || []);
