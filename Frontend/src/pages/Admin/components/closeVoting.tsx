@@ -12,7 +12,7 @@ const CloseVoting = () => {
 
   const fetchStatus = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/voting/status?className=${encodeURIComponent(className)}`);
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/voting/status?className=${encodeURIComponent(className)}`);
       const data = await res.json();
       setIsOpen(data.isOpen);
     } catch {
@@ -28,7 +28,7 @@ const CloseVoting = () => {
   const handleClose = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/admin/voting/close", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/voting/close", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
