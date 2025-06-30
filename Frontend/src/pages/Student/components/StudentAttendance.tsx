@@ -31,7 +31,7 @@ type MonthlyDataMap = {
   [month: string]: MonthlyAttendance;
 };
 
-// ✅ Correct formatDate to local date instead of UTC
+
 const formatDate = (date: Date): string => {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
   return local.toISOString().split("T")[0];
@@ -48,7 +48,7 @@ export default function StudentAttendance() {
   useEffect(() => {
     async function fetchAttendance() {
       try {
-        const res = await fetch("http://localhost:5000/api/student/attendance", {
+        const res = await fetch("https://vidhyardhi.onrender.com/api/student/attendance", {
           credentials: "include",
         });
         if (!res.ok) throw new Error("Failed to fetch");
