@@ -32,7 +32,7 @@ const StudentPerformanceCharts = ({ studentId }: { studentId: string }) => {
 
   useEffect(() => {
     const fetchStudent = async () => {
-        const res = await fetch(`http://localhost:5000/api/admin/students/${studentId}/details`, {
+        const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/students/${studentId}/details`, {
           credentials: "include", // ✅ Proper placement
         });
         const json = await res.json();
