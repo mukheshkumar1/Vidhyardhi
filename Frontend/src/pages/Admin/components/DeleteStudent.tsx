@@ -18,7 +18,7 @@ const DeleteStudent: React.FC<DeleteStudentProps> = ({ studentId, studentName, o
 
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/student/${studentId}/delete`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/student/${studentId}/delete`, {
         method: "DELETE",
         credentials: "include",
       });
