@@ -33,7 +33,7 @@ export default function MyHomeworkPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch("http://localhost:5000/api/homework/student-class", {
+    fetch("https://vidhyardhi.onrender.com/api/homework/student-class", {
       credentials: "include",
     })
       .then((res) => {
@@ -73,7 +73,7 @@ export default function MyHomeworkPage() {
     formData.append("file", file);
 
     try {
-      const res = await fetch(`http://localhost:5000/api/homework/submit/${homeworkId}`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/homework/submit/${homeworkId}`, {
         method: "POST",
         body: formData,
         credentials: "include",
