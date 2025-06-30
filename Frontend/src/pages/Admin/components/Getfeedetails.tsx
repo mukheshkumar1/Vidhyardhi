@@ -59,9 +59,7 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({
   const [feePayments, setFeePayments] = useState<FeePayment[]>([]);
   const [studentName, setStudentName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [paymentBreakdown, setPaymentBreakdown] = useState<{
-    [key: string]: number;
-  }>({});
+  const [paymentBreakdown, setPaymentBreakdown] = useState<{ [key: string]: number }>({});
   const [paymentMode, setPaymentMode] = useState<"cash" | "upi" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -71,18 +69,14 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({
   const fetchFeeDetails = async () => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `https://vidhyardhi.onrender.com/api/admin/student/${studentId}/fees`,
-        {
-          credentials: "include",
-        }
-      );
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/student/${studentId}/fees`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to fetch fee details");
       const data = await res.json();
       setFeeSummary(data.feeSummary);
       setFeePayments(data.feePayments);
       setStudentName(data.fullName);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       toast.error(err.message || "Error fetching fee details");
     } finally {
@@ -126,16 +120,19 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({
           }),
         }
       );
+
       if (!res.ok) throw new Error("Payment failed");
+
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       setReceiptUrl(url);
+
       toast.success("Payment recorded and receipt downloaded");
       setPaymentBreakdown({});
       setPaymentMode(null);
       setShowPaymentDialog(false);
       fetchFeeDetails();
-    } catch {
+    } catch (err) {
       toast.error("Error recording payment");
     } finally {
       setIsSubmitting(false);
@@ -168,43 +165,20 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({
                 <h3 className="font-semibold text-sky-700 mb-3">🎓 Tuition Fee</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   {["firstTerm", "secondTerm"].map((term) => (
-                    <div
-                      key={term}
-                      className="bg-white p-3 rounded border shadow"
-                    >
+                    <div key={term} className="bg-white p-3 rounded border shadow">
                       <h4 className="font-semibold text-blue-600">
                         {term === "firstTerm" ? "First Term" : "Second Term"}
                       </h4>
-                      <p>
-                        Amount: ₹
-                        {feeSummary.tuition[term as "firstTerm" | "secondTerm"]
-                          .amount}
-                      </p>
-                      <p>
-                        Status:{" "}
-                        {renderStatus(
-                          feeSummary.tuition[
-                            term as "firstTerm" | "secondTerm"
-                          ].status
-                        )}
-                      </p>
-                      <p>
-                        Paid: ₹
-                        {
-                          feeSummary.tuition[
-                            term as "firstTerm" | "secondTerm"
-                          ].paidAmount
-                        }
-                      </p>
+                      <p>Amount: ₹{feeSummary.tuition[term as "firstTerm" | "secondTerm"].amount}</p>
+                      <p>Status: {renderStatus(feeSummary.tuition[term as "firstTerm" | "secondTerm"].status)}</p>
+                      <p>Paid: ₹{feeSummary.tuition[term as "firstTerm" | "secondTerm"].paidAmount}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div className="border rounded-lg p-4 bg-gray-50">
-                <h3 className="font-semibold text-yellow-700 mb-2">
-                  🚌 Transport Fee
-                </h3>
+                <h3 className="font-semibold text-yellow-700 mb-2">🚌 Transport Fee</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <p>Amount: ₹{feeSummary.transport.amount}</p>
                   <p>Status: {renderStatus(feeSummary.transport.status)}</p>
@@ -213,32 +187,18 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({
               </div>
 
               <div className="border rounded-lg p-4 bg-gray-100">
-                <h3 className="font-semibold text-green-700 mb-2">
-                  📜 Previous Payments
-                </h3>
+                <h3 className="font-semibold text-green-700 mb-2">📜 Previous Payments</h3>
                 {feePayments.length === 0 ? (
-                  <p className="text-gray-500 text-sm">
-                    No transactions available.
-                  </p>
+                  <p className="text-gray-500 text-sm">No transactions available.</p>
                 ) : (
                   <ul className="space-y-3 text-sm">
                     {feePayments.map((pay, idx) => (
-                      <li
-                        key={idx}
-                        className="border-b pb-2 flex items-start gap-3"
-                      >
+                      <li key={idx} className="border-b pb-2 flex items-start gap-3">
                         <CalendarCheck className="text-green-500 mt-1" size={18} />
                         <div>
-                          <p>
-                            <strong>Date:</strong>{" "}
-                            {new Date(pay.date).toLocaleDateString()}
-                          </p>
-                          <p>
-                            <strong>Amount:</strong> ₹{pay.amount}
-                          </p>
-                          <p>
-                            <strong>Mode:</strong> {pay.mode}
-                          </p>
+                          <p><strong>Date:</strong> {new Date(pay.date).toLocaleDateString()}</p>
+                          <p><strong>Amount:</strong> ₹{pay.amount}</p>
+                          <p><strong>Mode:</strong> {pay.mode}</p>
                         </div>
                       </li>
                     ))}
@@ -273,15 +233,13 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({
         </ScrollArea>
 
         <DialogFooter className="mt-4">
-          <Button onClick={onClose} variant="outline">
-            Close
-          </Button>
+          <Button onClick={onClose} variant="outline">Close</Button>
         </DialogFooter>
 
         {/* Manual Payment Dialog */}
         {showPaymentDialog && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="backdrop-blur-md bg-white/10 border  text-white rounded-xl shadow-xl p-6 w-[90%] max-w-lg">
+            <div className="backdrop-blur-md bg-white/10 border text-white rounded-xl shadow-xl p-6 w-[90%] max-w-lg">
               <h3 className="text-lg font-bold mb-4">Manual Fee Payment</h3>
 
               <RadioGroup
@@ -302,41 +260,34 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({
               <div className="grid gap-4 mb-4">
                 {feeSummary?.tuition.firstTerm.status === "Pending" && (
                   <div>
-                   <Label className=" text-violet-900"><strong>First Term Tuition Fee</strong></Label>
+                    <Label className="text-violet-900"><strong>First Term Tuition Fee</strong></Label>
                     <Input
                       type="number"
                       min={0}
                       placeholder="Enter amount"
-                      onChange={(e) =>
-                        handleBreakdownChange("tuition.firstTerm", e.target.value)
-                      }
+                      onChange={(e) => handleBreakdownChange("tuition.firstTerm", e.target.value)}
                     />
                   </div>
                 )}
                 {feeSummary?.tuition.secondTerm.status === "Pending" && (
                   <div>
-                    <Label className=" text-violet-900"><strong>Second Term Tuition Fee</strong></Label>
+                    <Label className="text-violet-900"><strong>Second Term Tuition Fee</strong></Label>
                     <Input
                       type="number"
                       min={0}
                       placeholder="Enter amount"
-                      onChange={(e) =>
-                        handleBreakdownChange("tuition.secondTerm", e.target.value)
-                      }
+                      onChange={(e) => handleBreakdownChange("tuition.secondTerm", e.target.value)}
                     />
                   </div>
                 )}
                 {feeSummary?.transport.status === "Pending" && (
                   <div>
-                    <Label className=" text-violet-900"><strong>Transport Fee</strong></Label>
+                    <Label className="text-violet-900"><strong>Transport Fee</strong></Label>
                     <Input
                       type="number"
-                      className="rounded-xl "
                       min={0}
                       placeholder="Enter amount"
-                      onChange={(e) =>
-                        handleBreakdownChange("transport", e.target.value)
-                      }
+                      onChange={(e) => handleBreakdownChange("transport", e.target.value)}
                     />
                   </div>
                 )}
@@ -344,18 +295,16 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({
 
               <div className="flex justify-end gap-2">
                 <Button
-                   className="bg-red-500 hover:bg-red-500 text-white rounded-xl shadow-lg 
-             hover:animate-bounceOnce active:scale-95 transition-transform duration-150"
+                  className="bg-red-500 hover:bg-red-500 text-white rounded-xl shadow-lg"
                   onClick={() => setShowPaymentDialog(false)}
                 >
                   Cancel
                 </Button>
                 <Button
-             className="bg-blue-500 hover:bg-green-500 text-white rounded-xl shadow-lg 
-             hover:animate-bounceOnce active:scale-95 transition-transform duration-150"
-             onClick={() => setShowConfirm(true)}
-             disabled={isSubmitting}
-              >
+                  className="bg-blue-500 hover:bg-green-500 text-white rounded-xl shadow-lg"
+                  onClick={() => setShowConfirm(true)}
+                  disabled={isSubmitting}
+                >
                   <IndianRupee size={18} className="mr-2" /> Submit
                 </Button>
               </div>
