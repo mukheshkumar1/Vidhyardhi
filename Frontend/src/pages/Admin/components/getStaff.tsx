@@ -43,7 +43,7 @@ const GetStaff: React.FC = () => {
     setLoading(true);
     try {
       const endpoint = showAdmins ? "admin" : "staff";
-      const res = await fetch(`http://localhost:5000/api/admin/${endpoint}`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/${endpoint}`, {
         credentials: "include",
       });
       const data = await res.json();
