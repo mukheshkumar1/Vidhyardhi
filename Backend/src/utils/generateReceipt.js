@@ -1,7 +1,4 @@
-import pdf from "html-pdf-node";
-
-const logoUrl =
-  "https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 export const generateFeeReceiptPDF = async ({
   name,
@@ -14,169 +11,81 @@ export const generateFeeReceiptPDF = async ({
   balance,
   breakdown,
 }) => {
-  const breakdownHtml = `
-    ${
-      breakdown["tuition.firstTerm"]
-        ? `<tr><td>🎓 Tuition - First Term</td><td>₹${breakdown["tuition.firstTerm"]}</td></tr>`
-        : ""
-    }
-    ${
-      breakdown["tuition.secondTerm"]
-        ? `<tr><td>📘 Tuition - Second Term</td><td>₹${breakdown["tuition.secondTerm"]}</td></tr>`
-        : ""
-    }
-    ${
-      breakdown["transport"]
-        ? `<tr><td>🚌 Transport</td><td>₹${breakdown["transport"]}</td></tr>`
-        : ""
-    }
-  `;
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([595.28, 841.89]); // A4
 
-  const htmlContent = `
-    <html>
-      <head>
-        <style>
-          body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 40px;
-            color: #2c3e50;
-            background-color: #fdfdfd;
-          }
-          .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 3px solid #8e44ad;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-          }
-          .header .left h1 {
-            font-size: 26px;
-            color: #8e44ad;
-            margin: 0;
-          }
-          .header .left p {
-            margin: 4px 0;
-            font-size: 14px;
-            color: #555;
-          }
-          .header img {
-            height: 70px;
-            border-radius: 8px;
-          }
-          .section {
-            margin-bottom: 30px;
-            padding: 15px 20px;
-            border: 1px solid #ddd;
-            border-left: 5px solid #8e44ad;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-          }
-          .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #8e44ad;
-            margin-bottom: 12px;
-            border-bottom: 1px dashed #ccc;
-            padding-bottom: 5px;
-          }
-          .section p {
-            font-size: 14px;
-            margin: 6px 0;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            background: #fff;
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-          }
-          th, td {
-            border: 1px solid #eee;
-            padding: 10px 14px;
-            text-align: left;
-          }
-          th {
-            background-color: #f4e1f2;
-            color: #333;
-          }
-          tbody tr:nth-child(even) {
-            background-color: #fdf7ff;
-          }
-          .footer {
-            margin-top: 50px;
-            font-size: 13px;
-            text-align: center;
-            color: #888;
-          }
-          h1 {
-            color: #8e44ad;
-            font-weight: bold;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <div class="left">
-            <h1>Vidhyardhi School</h1>
-            <p>🏫 Near Current Office Railyway</p>
-            <p> Gayatri Nagar </p>
-            <p> Nellore, Andhra Pradesh, India, 524004</p>
-            <p>📞 +91-9876543210 | ✉️ vidhyardhie.m.school25@gmail.com</p>
-          </div>
-          <img src="${logoUrl}" alt="School Logo" />
-        </div>
+  const { width, height } = page.getSize();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  let y = height - 50;
 
-        <div class="section">
-          <div class="section-title">👤 Student Details</div>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Class:</strong> ${className}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Phone:</strong> ${contact}</p>
-        </div>
+  // Header
+  page.drawText("Vidhyardhi School", {
+    x: 50,
+    y,
+    size: 22,
+    font: boldFont,
+    color: rgb(0.55, 0.2, 0.7),
+  });
 
-        <div class="section">
-          <div class="section-title">💳 Transaction Details</div>
-          <p><strong>Date:</strong> ${date}</p>
-          <p><strong>Transaction ID:</strong> ${transactionId}</p>
-        </div>
+  y -= 25;
+  page.drawText("🏫 Near Current Office Railway", { x: 50, y, size: 12, font });
+  y -= 15;
+  page.drawText("Gayatri Nagar, Nellore, Andhra Pradesh, 524004", { x: 50, y, size: 12, font });
+  y -= 15;
+  page.drawText("📞 +91-9876543210 | ✉️ vidhyardhie.m.school25@gmail.com", { x: 50, y, size: 12, font });
 
-        <div class="section">
-          <div class="section-title">💰 Payment Breakdown</div>
-          <table>
-            <thead>
-              <tr><th>Component</th><th>Amount (₹)</th></tr>
-            </thead>
-            <tbody>
-              ${breakdownHtml}
-              <tr><th>Total Paid</th><th>₹${amount}</th></tr>
-              <tr><td><strong>Remaining Balance</strong></td><td><strong>₹${balance}</strong></td></tr>
-            </tbody>
-          </table>
-        </div>
+  // Student Info
+  y -= 35;
+  page.drawText("👤 Student Details", { x: 50, y, size: 14, font: boldFont });
+  y -= 20;
+  page.drawText(`Name: ${name}`, { x: 60, y, size: 12, font });
+  y -= 15;
+  page.drawText(`Class: ${className}`, { x: 60, y, size: 12, font });
+  y -= 15;
+  page.drawText(`Email: ${email}`, { x: 60, y, size: 12, font });
+  y -= 15;
+  page.drawText(`Phone: ${contact}`, { x: 60, y, size: 12, font });
 
-        <div class="footer">
-          Thank you for your payment!<br/>
-          This is a system-generated receipt — no signature required.
-        </div>
-      </body>
-    </html>
-  `;
+  // Transaction Info
+  y -= 30;
+  page.drawText("💳 Transaction Details", { x: 50, y, size: 14, font: boldFont });
+  y -= 20;
+  page.drawText(`Date: ${date}`, { x: 60, y, size: 12, font });
+  y -= 15;
+  page.drawText(`Transaction ID: ${transactionId}`, { x: 60, y, size: 12, font });
 
-  const file = { content: htmlContent };
-  const options = {
-    format: "A4",
-    margin: {
-      top: "20px",
-      bottom: "20px",
-      left: "30px",
-      right: "30px",
-    },
+  // Breakdown
+  y -= 30;
+  page.drawText("💰 Payment Breakdown", { x: 50, y, size: 14, font: boldFont });
+  y -= 20;
+
+  const renderRow = (label, value) => {
+    page.drawText(label, { x: 60, y, size: 12, font });
+    page.drawText(`₹${value}`, { x: 350, y, size: 12, font });
+    y -= 15;
   };
 
-  const pdfBuffer = await pdf.generatePdf(file, options);
-  return pdfBuffer;
+  if (breakdown["tuition.firstTerm"]) renderRow("🎓 Tuition - First Term", breakdown["tuition.firstTerm"]);
+  if (breakdown["tuition.secondTerm"]) renderRow("📘 Tuition - Second Term", breakdown["tuition.secondTerm"]);
+  if (breakdown["transport"]) renderRow("🚌 Transport", breakdown["transport"]);
+
+  y -= 10;
+  renderRow("Total Paid", amount);
+  renderRow("Remaining Balance", balance);
+
+  // Footer
+  y -= 40;
+  page.drawText("Thank you for your payment!", { x: 50, y, size: 12, font, color: rgb(0.2, 0.5, 0.2) });
+  y -= 15;
+  page.drawText("This is a system-generated receipt — no signature required.", {
+    x: 50,
+    y,
+    size: 10,
+    font,
+    color: rgb(0.5, 0.5, 0.5),
+  });
+
+  const pdfBytes = await pdfDoc.save();
+  return pdfBytes;
 };
