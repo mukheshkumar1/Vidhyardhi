@@ -1,5 +1,4 @@
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import pdf from "html-pdf-node";
 
 const logoUrl =
   "https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png";
@@ -33,7 +32,7 @@ export const generateFeeReceiptPDF = async ({
     }
   `;
 
-  const html = `
+  const htmlContent = `
     <html>
       <head>
         <style>
@@ -65,7 +64,6 @@ export const generateFeeReceiptPDF = async ({
             height: 70px;
             border-radius: 8px;
           }
-
           .section {
             margin-bottom: 30px;
             padding: 15px 20px;
@@ -87,7 +85,6 @@ export const generateFeeReceiptPDF = async ({
             font-size: 14px;
             margin: 6px 0;
           }
-
           table {
             width: 100%;
             border-collapse: collapse;
@@ -115,10 +112,10 @@ export const generateFeeReceiptPDF = async ({
             text-align: center;
             color: #888;
           }
-            h1{
-                color: #8e44ad;
-                text: bold;
-            }
+          h1 {
+            color: #8e44ad;
+            font-weight: bold;
+          }
         </style>
       </head>
       <body>
@@ -169,25 +166,17 @@ export const generateFeeReceiptPDF = async ({
     </html>
   `;
 
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
-
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: "networkidle0" });
-
-  const pdfBuffer = await page.pdf({
+  const file = { content: htmlContent };
+  const options = {
     format: "A4",
-    printBackground: true,
     margin: {
       top: "20px",
       bottom: "20px",
       left: "30px",
       right: "30px",
     },
-  });
+  };
 
-  await browser.close();
+  const pdfBuffer = await pdf.generatePdf(file, options);
   return pdfBuffer;
 };
