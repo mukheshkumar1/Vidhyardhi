@@ -43,7 +43,7 @@ const AttendanceManager = () => {
     const fetchStudents = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/staff/class/${encodeURIComponent(selectedClass)}`,
+          `https://vidhyardhi.onrender.com/api/staff/class/${encodeURIComponent(selectedClass)}`,
           { credentials: "include" }
         );
         const data = await res.json();
@@ -74,7 +74,7 @@ const AttendanceManager = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/staff/attendance/daily/${selectedClass}`,
+        `https://vidhyardhi.onrender.com/api/staff/attendance/daily/${selectedClass}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -95,7 +95,7 @@ const AttendanceManager = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/staff/attendance/monthly/${selectedClass}/${month}`,
+        `https://vidhyardhi.onrender.com/api/staff/attendance/monthly/${selectedClass}/${month}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
