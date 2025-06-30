@@ -15,7 +15,7 @@ const DeleteStaff: React.FC<DeleteStaffProps> = ({ staffId, role, onDeleted }) =
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/staff/${staffId}/delete`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/staff/${staffId}/delete`, {
         method: "DELETE",
         credentials: "include",
       });
