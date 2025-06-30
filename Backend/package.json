@@ -12,7 +12,6 @@
   "description": "",
   "dependencies": {
     "@nativedocuments/docx-wasm": "^2.2.13-1561490777",
-    "@sparticuz/chromium": "^137.0.1",
     "bcryptjs": "^3.0.2",
     "busboy": "^1.6.0",
     "cloudinary": "^1.30.0",
@@ -37,7 +36,6 @@
     "nodemailer": "^7.0.3",
     "pdf-lib": "^1.17.1",
     "pizzip": "^3.2.0",
-    "puppeteer-core": "^24.11.1",
     "razorpay": "^2.9.6",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
