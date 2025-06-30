@@ -33,7 +33,7 @@ const StudentList: React.FC<StudentListProps> = ({ selectedClass, onSelectStuden
 
     setLoading(true);
 
-    fetch('http://localhost:5000/api/staff/students')
+    fetch('https://vidhyardhi.onrender.com/api/staff/students')
       .then(res => res.json())
       .then(data => {
         // data is an object grouped by class, e.g. { "Nursery": [...], "Grade 1": [...] }
