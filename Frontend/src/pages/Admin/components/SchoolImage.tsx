@@ -31,7 +31,7 @@ const ManageSchoolImages: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("http://localhost:5000/api/admin/school-images", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/school-images", {
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch images");
@@ -73,7 +73,7 @@ const ManageSchoolImages: React.FC = () => {
       formData.append("description", description);
       formData.append("image", imageFile);
 
-      const res = await fetch("http://localhost:5000/api/admin/school-images/add", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/school-images/add", {
         method: "POST",
         credentials: "include",
         body: formData,
@@ -105,7 +105,7 @@ const ManageSchoolImages: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`http://localhost:5000/api/admin/school-images/${_id}`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/school-images/${_id}`, {
         method: "DELETE",
         credentials: "include",
       });
