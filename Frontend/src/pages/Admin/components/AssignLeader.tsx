@@ -14,7 +14,7 @@ const AssignClassLeader = () => {
     if (!className) return;
 
     const encodedClass = encodeURIComponent(className);
-    fetch(`http://localhost:5000/api/admin/voting/candidates?className=${encodedClass}`, {
+    fetch(`https://vidhyardhi.onrender.com/api/admin/voting/candidates?className=${encodedClass}`, {
       method: "GET",
       credentials: "include",
     })
@@ -47,7 +47,7 @@ const AssignClassLeader = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/admin/voting/assign", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/voting/assign", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
