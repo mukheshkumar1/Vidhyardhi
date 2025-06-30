@@ -1,15 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import useLogout from "@/hooks/useLogout";
-import StudentPanel from './components/studentsidebar';
+import StudentPanel from "./components/studentsidebar";
 
-export default function StaffDashboard() {
+export default function StudentPage() {
   const { logout, loading } = useLogout();
   const [backWarning, setBackWarning] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Prevent back to login
@@ -56,7 +55,9 @@ export default function StaffDashboard() {
             className="flex items-center gap-2 px-5 py-2 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 bg-red-600 hover:bg-red-700"
           >
             <LogOut className="h-5 w-5" />
-            <span className="hidden sm:inline">{loading ? "Logging out..." : "Logout"}</span>
+            <span className="hidden sm:inline">
+              {loading ? "Logging out..." : "Logout"}
+            </span>
           </Button>
         </div>
 
