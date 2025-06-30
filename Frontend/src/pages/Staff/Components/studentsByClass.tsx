@@ -23,7 +23,7 @@ const StudentsByClassList: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`http://localhost:5000/api/staff/class/${encodeURIComponent(className)}`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/staff/class/${encodeURIComponent(className)}`, {
         credentials: "include",
       });
       const data = await res.json();
