@@ -1617,6 +1617,7 @@ export const recordDirectFeePayment = async (req, res) => {
       tuition: false,
       transport: false,
     };
+
     let term;
 
     for (const [component, amountRaw] of Object.entries(paymentBreakdown)) {
@@ -1646,6 +1647,7 @@ export const recordDirectFeePayment = async (req, res) => {
         term = "Second Term";
       }
 
+      // Set to 0 if fully paid
       if (fee.paidComponents[component] >= maxAllowed) {
         if (sub) {
           if (fee[main]) fee[main][sub] = 0;
@@ -1656,10 +1658,7 @@ export const recordDirectFeePayment = async (req, res) => {
     }
 
     fee.paid += totalPaidNow;
-    const firstTermLeft = fee.tuition.firstTerm;
-    const secondTermLeft = fee.tuition.secondTerm;
-    const transportLeft = fee.transport;
-    fee.balance = Math.max(0, firstTermLeft + secondTermLeft + transportLeft);
+    fee.balance = Math.max(0, (fee.tuition.firstTerm || 0) + (fee.tuition.secondTerm || 0) + (fee.transport || 0));
 
     const paymentDate = new Date();
     const transactionId = `${mode}-${Date.now()}`;
@@ -1682,51 +1681,29 @@ export const recordDirectFeePayment = async (req, res) => {
 
     await student.save();
 
-    const breakdownHtml = Object.entries(paymentBreakdown)
-      .map(([k, v]) => `<li>${k}: ₹${v}</li>`)
-      .join("");
+    // Generate PDF receipt
+    let pdfBuffer;
+    try {
+      pdfBuffer = await generateFeeReceiptPDF({
+        name: student.fullName,
+        email: student.email,
+        contact: student.phone,
+        className: student.className,
+        date: paymentDate.toLocaleString(),
+        transactionId,
+        amount: totalPaidNow,
+        balance: fee.balance,
+        breakdown: paymentBreakdown,
+      });
+    } catch (pdfErr) {
+      console.error("PDF Generation Error:", pdfErr);
+      return res.status(500).json({ error: "Failed to generate PDF receipt" });
+    }
 
-    const pdfBuffer = await generateFeeReceiptPDF({
-      name: student.fullName,
-      email: student.email,
-      contact: student.phone,
-      className: student.className,
-      date: paymentDate.toLocaleString(),
-      transactionId,
-      amount: totalPaidNow,
-      balance: fee.balance,
-      breakdown: paymentBreakdown,
-    });
-
-    await sendEmail(
-      student.email,
-      "Vidhyardhi School - Fee Payment Receipt",
-      `
-        <div style="max-width: 600px; margin: auto; padding: 20px; font-family: Arial; background: #fff; border-radius: 8px;">
-          <h2 style="text-align: center; color: #4CAF50;">Payment Confirmation</h2>
-          <p>Dear <strong>${student.fullName}</strong>,</p>
-          <p>We have recorded your payment of <strong>₹${totalPaidNow}</strong> via <strong>${mode.toUpperCase()}</strong> on <strong>${paymentDate.toLocaleString()}</strong>.</p>
-          <p><strong>Transaction ID:</strong> ${transactionId}</p>
-          <p><strong>Breakdown:</strong></p>
-          <ul>${breakdownHtml}</ul>
-          <p><strong>Remaining Balance:</strong> ₹${fee.balance}</p>
-          <p>Thank you for your payment.</p>
-        </div>
-      `,
-      [
-        {
-          filename: `FeeReceipt-${student.fullName}-${Date.now()}.pdf`,
-          content: Buffer.from(pdfBuffer),
-          contentType: "application/pdf",
-        },
-      ]
-    );
-
-    return res.status(200).json({
-      message: "Payment recorded and receipt sent",
-      balance: fee.balance,
-      paidComponents: fee.paidComponents,
-    });
+    // Return the PDF as a blob
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename=FeeReceipt-${student.fullName}-${Date.now()}.pdf`);
+    res.send(pdfBuffer);
 
   } catch (err) {
     console.error("Manual Fee Payment Error:", err);
