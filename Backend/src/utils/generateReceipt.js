@@ -41,7 +41,7 @@ export const generateFeeReceiptPDF = async ({
   y -= 14;
   page.drawText("Nellore, Andhra Pradesh, India, 524004", { x: 40, y, size: 10, font });
   y -= 14;
-  page.drawText(" +91-9876543210 | ✉️ vidhyardhie.m.school25@gmail.com", { x: 40, y, size: 10, font });
+  page.drawText(" +91-9876543210 | vidhyardhie.m.school25@gmail.com", { x: 40, y, size: 10, font });
   y -= 30;
 
   // Section: Student Info
