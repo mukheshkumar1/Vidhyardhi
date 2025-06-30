@@ -20,7 +20,7 @@ const classes = [
   'Nursery', 'LKG', 'UKG',
   'Grade 1', 'Grade 2', 'Grade 3',
   'Grade 4', 'Grade 5', 'Grade 6',
-  'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10',
+  'Grade 7',
 ];
 
 const subjects = ['Telugu', 'Hindi', 'English', 'Maths', 'Science', 'Social Studies'];
@@ -50,7 +50,7 @@ export default function AssignHomeworkPage() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/homework/assign', {
+      const res = await fetch('https://vidhyardhi.onrender.com/api/homework/assign', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
