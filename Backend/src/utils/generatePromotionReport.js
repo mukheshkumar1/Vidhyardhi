@@ -1,4 +1,5 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 
 const logoUrl = "https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png";
 
