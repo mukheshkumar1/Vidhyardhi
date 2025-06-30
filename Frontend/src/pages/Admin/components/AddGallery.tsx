@@ -74,7 +74,7 @@ const GalleryAdmin: React.FC<Props> = ({ isAdmin }) => {
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/admin/gallery/add", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/gallery/add", {
         method: "POST",
         body: formData,
         credentials: "include",
