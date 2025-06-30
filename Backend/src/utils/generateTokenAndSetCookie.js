@@ -8,8 +8,8 @@ const generateTokenAndSetCookie = (userId, res, role = "staff") => {
   res.cookie("jwt", token, {
     maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
     httpOnly: true,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV !== "development",
+    secure: true,               // 🔒 Important for HTTPS (Render uses HTTPS)
+    sameSite: "None",  
   });
 };
 
