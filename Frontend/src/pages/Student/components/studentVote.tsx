@@ -44,7 +44,7 @@ const ClassLeaderVoting = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/student/leader?className=${encodeURIComponent(cls)}`,
+        `https://vidhyardhi.onrender.com/api/student/leader?className=${encodeURIComponent(cls)}`,
         { credentials: "include" }
       );
       const data = await res.json();
@@ -60,7 +60,7 @@ const ClassLeaderVoting = () => {
   const vote = async (candidateId: string, className: string) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/student/vote", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/student/vote", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
