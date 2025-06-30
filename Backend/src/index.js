@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
 const allowedOrigins = [
   "http://localhost:5173",              // Local dev
-  "vidhyardhi.vercel.app",  // Render frontend
+  "https://vidhyardhi.vercel.app",  // Render frontend
 ];
 
 app.use(cors({
