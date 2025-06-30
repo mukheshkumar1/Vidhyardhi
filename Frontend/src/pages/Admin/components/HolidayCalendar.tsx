@@ -38,7 +38,7 @@ export default function AdminHolidayCalendar() {
 
   const fetchEvents = async (month: number, year: number) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/holiday/events/by-month?month=${month + 1}&year=${year}`);
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/holiday/events/by-month?month=${month + 1}&year=${year}`);
       const data = await res.json();
       setEvents(data);
     } catch (err) {
@@ -59,7 +59,7 @@ export default function AdminHolidayCalendar() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:5000/api/holiday/admin/holiday-event", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/holiday/admin/holiday-event", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
