@@ -32,10 +32,21 @@ cron.schedule('0 * * * *', () => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 app.use(cookieParser())
+const allowedOrigins = [
+  "http://localhost:5173",              // Local dev
+  "https://vidhyardhi-1.onrender.com",  // Render frontend
+];
+
 app.use(cors({
-    origin: 'https://vidhyardhi-1.onrender.com',
-    credentials: true,
-  }));
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
 
   app.use(fileUpload({
     useTempFiles: true,
