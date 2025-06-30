@@ -1,5 +1,4 @@
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import pdf from "html-pdf-node";
 
 const logoUrl = "https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png";
 
@@ -123,15 +122,8 @@ export const generatePromotionReportPDF = async ({
     </html>
   `;
 
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
-
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: "networkidle0" });
-
-  const pdfBuffer = await page.pdf({
+  const file = { content: html };
+  const options = {
     format: "A4",
     printBackground: true,
     margin: {
@@ -140,8 +132,8 @@ export const generatePromotionReportPDF = async ({
       left: "30px",
       right: "30px",
     },
-  });
+  };
 
-  await browser.close();
+  const pdfBuffer = await pdf.generatePdf(file, options);
   return pdfBuffer;
 };
