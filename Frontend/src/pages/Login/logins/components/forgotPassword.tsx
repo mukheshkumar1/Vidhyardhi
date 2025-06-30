@@ -29,7 +29,7 @@ const ForgotPassword = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/staff/forgotpassword", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/staff/forgotpassword", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mobileNumber }),
