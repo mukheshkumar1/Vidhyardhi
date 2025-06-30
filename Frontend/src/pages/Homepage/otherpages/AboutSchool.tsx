@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Container,
-  Grid,
   Card,
   CardContent,
   CardMedia,
@@ -12,10 +11,10 @@ import {
   Toolbar,
   IconButton,
 } from '@mui/material';
+import Grid from '@mui/material/Grid'; // ✅ Corrected import
 import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from 'react-router-dom';
 
-// Assuming you have Vidyardhi logo file imported or url
 import vidyardhiLogo from '@/assets/images/logo5.png';
 
 interface SchoolImage {
