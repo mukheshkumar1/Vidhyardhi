@@ -13,7 +13,7 @@ const GallerySection: React.FC = () => {
   const [items, setItems] = useState<SlideItem[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/admin/gallery')
+    fetch('https://vidhyardhi.onrender.com/api/admin/gallery')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
