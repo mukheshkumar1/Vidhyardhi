@@ -18,7 +18,7 @@ const DeleteGalleryImage: React.FC<DeleteGalleryImageProps> = ({
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:5000/api/admin/gallery/delete?publicId=${encodeURIComponent(publicId)}`,
+        `https://vidhyardhi.onrender.com/api/admin/gallery/delete?publicId=${encodeURIComponent(publicId)}`,
         {
           method: "DELETE",
           credentials: "include",
