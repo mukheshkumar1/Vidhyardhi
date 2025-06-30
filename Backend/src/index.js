@@ -25,19 +25,12 @@ const PORT = process.env.PORT;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-cron.schedule('0 * * * *', () => {
-    deleteExpiredHomeworks();
-  });
-  
-app.use(express.json());
-app.use(express.urlencoded({ extended: true })); 
-app.use(cookieParser())
 const allowedOrigins = [
-  "http://localhost:5173",              // Local dev
-  "https://vidhyardhi.vercel.app",  // Render frontend
+  "http://localhost:5173",               // Local dev
+  "https://vidhyardhi.vercel.app",       // Deployed frontend
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -46,7 +39,19 @@ app.use(cors({
     }
   },
   credentials: true,
-}));
+};
+
+app.use(cors(corsOptions));
+
+// ✅ Handles CORS preflight (important!)
+app.options("*", cors(corsOptions));
+cron.schedule('0 * * * *', () => {
+    deleteExpiredHomeworks();
+  });
+  
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
+app.use(cookieParser())
 
   app.use(fileUpload({
     useTempFiles: true,
