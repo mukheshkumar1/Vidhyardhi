@@ -26,9 +26,8 @@ type Student = {
 
 const AttendanceManager = () => {
   const [classes] = useState<string[]>([
-    "Nursery", "LKG", "UKG", "Grade 1", "Grade 2", "Grade 3",
-    "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8",
-    "Grade 9", "Grade 10"
+     "Grade 1", "Grade 2", "Grade 3",
+    "Grade 4", "Grade 5", "Grade 6", "Grade 7", 
   ]);
   const [selectedClass, setSelectedClass] = useState("");
   const [date, setDate] = useState("");
@@ -43,7 +42,7 @@ const AttendanceManager = () => {
     const fetchStudents = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/staff/class/${encodeURIComponent(selectedClass)}`,
+          `https://vidhyardhi.onrender.com/api/staff/class/${encodeURIComponent(selectedClass)}`,
           { credentials: "include" }
         );
         const data = await res.json();
@@ -74,7 +73,7 @@ const AttendanceManager = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/staff/attendance/daily/${selectedClass}`,
+        `https://vidhyardhi.onrender.com/api/staff/attendance/daily/${selectedClass}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -95,7 +94,7 @@ const AttendanceManager = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/staff/attendance/monthly/${selectedClass}/${month}`,
+        `https://vidhyardhi.onrender.com/api/staff/attendance/monthly/${selectedClass}/${month}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

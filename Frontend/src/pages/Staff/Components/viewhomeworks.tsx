@@ -26,7 +26,7 @@ export default function HomeworkSubmissionsWrapper() {
       setLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5000/api/homework/by-staff', {
+        const res = await fetch('https://vidhyardhi.onrender.com/api/homework/by-staff', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

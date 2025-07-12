@@ -13,7 +13,7 @@ export default function DeleteEventButton({ eventId, onDelete }: DeleteEventButt
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/${eventId}/delete`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/${eventId}/delete`, {
         method: "DELETE",
         credentials: "include",
       });

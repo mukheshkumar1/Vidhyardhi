@@ -32,7 +32,7 @@ export default function AddBulkStudentsDialog() {
   const submitBase64Excel = async (fileBase64: string) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/admin/add-bulk", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/add-bulk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

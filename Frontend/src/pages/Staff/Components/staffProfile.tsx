@@ -33,7 +33,7 @@ const StaffProfile: React.FC = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/staff/profile/staff', {
+        const res = await fetch('https://vidhyardhi.onrender.com/api/staff/profile/staff', {
           credentials: 'include',
         });
 

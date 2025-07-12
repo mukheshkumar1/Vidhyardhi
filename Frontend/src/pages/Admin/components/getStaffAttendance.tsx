@@ -39,7 +39,7 @@ export default function StaffAttendanceReport({ staffId }: { staffId: string }) 
     try {
       const formattedMonth = format(month, "yyyy-MM");
       const res = await fetch(
-        `http://localhost:5000/api/admin/staff/${staffId}/attendance/report?month=${formattedMonth}`,
+        `https://vidhyardhi.onrender.com/api/admin/staff/${staffId}/attendance/report?month=${formattedMonth}`,
         { credentials: "include" }
       );
       const data = await res.json();

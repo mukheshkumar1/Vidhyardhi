@@ -75,7 +75,7 @@ const PromoteStudentDialog: React.FC<PromoteStudentDialogProps> = ({
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/admin/students/${studentId}/promote`,
+        `https://vidhyardhi.onrender.com/api/admin/students/${studentId}/promote`,
         {
           method: "POST",
           credentials: "include",

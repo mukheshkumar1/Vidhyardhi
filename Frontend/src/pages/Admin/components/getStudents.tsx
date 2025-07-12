@@ -85,7 +85,7 @@ const StudentsByClass: React.FC = () => {
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/admin/students", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/students", {
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch students");

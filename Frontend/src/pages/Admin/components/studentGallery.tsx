@@ -59,7 +59,7 @@ export default function StudentGalleryUploader({
   const fetchGallery = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/student/${studentId}/gallery`
+        `https://vidhyardhi.onrender.com/api/student/${studentId}/gallery`
       );
       const data = await res.json();
       setGallery(data.gallery || []);
@@ -77,7 +77,7 @@ export default function StudentGalleryUploader({
   const fetchImageBlob = async (fileId: string, key: string) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/proxy/proxy-drive-image?fileId=${fileId}`
+        `https://vidhyardhi.onrender.com/api/proxy/proxy-drive-image?fileId=${fileId}`
       );
       const blob = await res.blob();
       const objectURL = URL.createObjectURL(blob);
@@ -102,7 +102,7 @@ export default function StudentGalleryUploader({
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admin/students/${studentId}/gallery`,
+        `https://vidhyardhi.onrender.com/api/admin/students/${studentId}/gallery`,
         {
           method: "POST",
           body: formData,
@@ -131,7 +131,7 @@ export default function StudentGalleryUploader({
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admin/student/gallery/${studentId}/delete`,
+        `https://vidhyardhi.onrender.com/api/admin/student/gallery/${studentId}/delete`,
         {
           method: "DELETE",
           credentials: "include",

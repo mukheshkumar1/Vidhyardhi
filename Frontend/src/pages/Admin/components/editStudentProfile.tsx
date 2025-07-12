@@ -109,7 +109,7 @@ const EditStudentProfile: React.FC<Props> = ({
         updatedFeeStructure.kit = feeStructure.kit;
       }
 
-      const res = await fetch(`http://localhost:5000/api/admin/students/update/${studentId}`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/students/update/${studentId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

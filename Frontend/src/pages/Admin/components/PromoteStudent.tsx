@@ -53,7 +53,7 @@ const PromoteStudent = () => {
 
   useEffect(() => {
     if (currentClass) {
-      fetch(`http://localhost:5000/api/admin/students/by-class?className=${encodeURIComponent(currentClass)}`, {
+      fetch(`https://vidhyardhi.onrender.com/api/admin/students/by-class?className=${encodeURIComponent(currentClass)}`, {
         credentials: "include",
       })
         .then((res) => res.json())
@@ -93,7 +93,7 @@ const PromoteStudent = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/admin/students/promote", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/students/promote", {
         method: "POST",
         credentials: "include",
         headers: {

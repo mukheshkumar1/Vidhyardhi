@@ -12,9 +12,6 @@ interface ClassSelectorProps {
 }
 
 const defaultClasses = [
-  'Nursery',
-  'LKG',
-  'UKG',
   'Grade 1',
   'Grade 2',
   'Grade 3',
@@ -29,7 +26,7 @@ const ClassSelector: React.FC<ClassSelectorProps> = ({ onSelect }) => {
   const [selected, setSelected] = useState<string>('');
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/staff/students')
+    fetch('https://vidhyardhi.onrender.com/api/staff/students')
       .then(res => res.json())
       .then(data => {
         const classNames = Object.keys(data);

@@ -25,7 +25,7 @@ const Registrations = () => {
 
   const fetchRegistrations = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/register/", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/register/", {
         method: "GET",
         credentials: "include",
       });
@@ -47,7 +47,7 @@ const Registrations = () => {
   const handleDelete = async () => {
     if (!selectedId) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/register/${selectedId}`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/register/${selectedId}`, {
         method: "DELETE",
         credentials: "include",
       });

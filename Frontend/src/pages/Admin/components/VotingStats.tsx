@@ -35,7 +35,7 @@ const VotingStats = () => {
   const fetchStats = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admin/voting/stats/${className}`,
+        `https://vidhyardhi.onrender.com/api/admin/voting/stats/${className}`,
         {
           method: "GET",
           credentials: "include",

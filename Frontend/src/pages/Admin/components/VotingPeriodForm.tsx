@@ -17,7 +17,7 @@ const VotingPeriodForm = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/admin/voting/deadline", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/voting/deadline", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

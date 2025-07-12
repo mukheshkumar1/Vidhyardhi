@@ -33,7 +33,7 @@ export default function StudentGalleryView({ studentId }: Props) {
 
   const fetchGallery = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/student/${studentId}/gallery`);
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/student/${studentId}/gallery`);
       const data = await res.json();
       setGallery(data.gallery || []);
     } catch {
@@ -48,7 +48,7 @@ export default function StudentGalleryView({ studentId }: Props) {
 
   const fetchImageBlob = async (fileId: string, key: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/proxy/proxy-drive-image?fileId=${fileId}`);
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/proxy/proxy-drive-image?fileId=${fileId}`);
       const blob = await res.blob();
       const objectURL = URL.createObjectURL(blob);
       setImageBlobs((prev) => ({ ...prev, [key]: objectURL }));

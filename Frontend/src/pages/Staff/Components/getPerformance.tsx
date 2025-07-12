@@ -49,7 +49,7 @@ export default function Results() {
 
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/staff/results/${className}`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/staff/results/${className}`, {
         method: "GET",
         credentials: "include",
       });

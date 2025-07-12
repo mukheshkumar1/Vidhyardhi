@@ -30,7 +30,7 @@ const PerformanceUpdateForm = () => {
 
     const fetchStudents = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/staff/class/${className}`, {
+        const res = await fetch(`https://vidhyardhi.onrender.com/api/staff/class/${className}`, {
           credentials: "include",
         });
         const data = await res.json();
@@ -49,7 +49,7 @@ const PerformanceUpdateForm = () => {
 
     const fetchMarks = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/staff/${selectedStudentId}/grades`, {
+        const res = await fetch(`https://vidhyardhi.onrender.com/api/staff/${selectedStudentId}/grades`, {
           credentials: "include",
         });
         const data = await res.json();
@@ -89,7 +89,7 @@ const PerformanceUpdateForm = () => {
 
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/staff/${selectedStudentId}/grades`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/staff/${selectedStudentId}/grades`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

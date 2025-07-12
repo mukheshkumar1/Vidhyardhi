@@ -38,8 +38,8 @@ export default function EventModal({ open, onOpenChange, event, refresh }: any) 
 
     try {
       const url = event?._id
-        ? `http://localhost:5000/api/admin/${event._id}/update`
-        : "http://localhost:5000/api/admin/addevents";
+        ? `https://vidhyardhi.onrender.com/api/admin/${event._id}/update`
+        : "https://vidhyardhi.onrender.com/api/admin/addevents";
 
       const response = await fetch(url, options);
 

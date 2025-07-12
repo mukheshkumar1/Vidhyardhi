@@ -36,7 +36,7 @@ export default function ViewSubmissionsPage({ homeworkId }: { homeworkId: string
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/homework/submissions/${homeworkId}/submissions`)
+    fetch(`https://vidhyardhi.onrender.com/api/homework/submissions/${homeworkId}/submissions`)
       .then((res) => res.json())
       .then((data: Submission[]) => {
         setSubmissions(data);
@@ -68,7 +68,7 @@ export default function ViewSubmissionsPage({ homeworkId }: { homeworkId: string
         comments: inputData[student.studentId]?.comments || '',
       };
 
-      const response = await fetch('http://localhost:5000/api/homework/mark', {
+      const response = await fetch('https://vidhyardhi.onrender.com/api/homework/mark', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -101,7 +101,7 @@ export default function ViewSubmissionsPage({ homeworkId }: { homeworkId: string
     setDeleteLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/homework/${homeworkId}`, {
+      const response = await fetch(`https://vidhyardhi.onrender.com/api/homework/${homeworkId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

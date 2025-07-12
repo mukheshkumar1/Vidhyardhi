@@ -56,7 +56,7 @@ export default function AddStaffCard() {
           : []
       };
 
-      const res = await fetch("http://localhost:5000/api/admin/staff/add", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/staff/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

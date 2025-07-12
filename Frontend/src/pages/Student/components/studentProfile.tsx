@@ -22,7 +22,7 @@ export default function StudentProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/student/profile", {
+        const res = await fetch("https://vidhyardhi.onrender.com/api/student/profile", {
           method: "GET",
           credentials: "include",
           headers: {

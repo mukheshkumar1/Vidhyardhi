@@ -21,7 +21,7 @@ const ToggleEditPermissionButton: React.FC<Props> = ({
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admin/staff/${staffId}/permissions`,
+        `https://vidhyardhi.onrender.com/api/admin/staff/${staffId}/permissions`,
         {
           method: "PUT",
           credentials: "include",

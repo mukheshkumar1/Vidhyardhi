@@ -27,7 +27,7 @@ export default function StaffAttendancePanel() {
 
   const fetchStaff = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/staff", { credentials: "include" });
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/staff", { credentials: "include" });
       const data = await res.json();
       if (res.ok) setStaffList(data.staff);
       else toast.error("Failed to load staff list");
@@ -46,7 +46,7 @@ export default function StaffAttendancePanel() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/admin/staff/attendance/bulk", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/staff/attendance/bulk", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

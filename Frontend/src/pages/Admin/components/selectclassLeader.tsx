@@ -35,7 +35,7 @@ const SetClassLeaderCandidates = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admin/students/${selectedClass}`,
+        `https://vidhyardhi.onrender.com/api/admin/students/${selectedClass}`,
         {
           credentials: "include",
         }
@@ -69,7 +69,7 @@ const SetClassLeaderCandidates = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/admin/select-classleader", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/select-classleader", {
         method: "POST",
         credentials: "include",
         headers: {

@@ -87,7 +87,7 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admin/student/${studentId}/fees`,
+        `https://vidhyardhi.onrender.com/api/admin/student/${studentId}/fees`,
         {
           credentials: "include",
         }
@@ -129,7 +129,7 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({
     try {
       setIsSubmitting(true);
       const res = await fetch(
-        `http://localhost:5000/api/admin/students/${studentId}/fee-payment`,
+        `https://vidhyardhi.onrender.com/api/admin/students/${studentId}/fee-payment`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

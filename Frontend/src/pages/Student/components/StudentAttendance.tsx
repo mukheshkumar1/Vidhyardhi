@@ -48,7 +48,7 @@ export default function StudentAttendance() {
   useEffect(() => {
     async function fetchAttendance() {
       try {
-        const res = await fetch("http://localhost:5000/api/student/attendance", {
+        const res = await fetch("https://vidhyardhi.onrender.com/api/student/attendance", {
           credentials: "include",
         });
         if (!res.ok) throw new Error("Failed to fetch");

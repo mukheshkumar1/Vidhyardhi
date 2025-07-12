@@ -28,7 +28,7 @@ const StudentsByClassList: React.FC<StudentsByClassListProps> = ({ onSelectStude
     setError("");
     try {
       const res = await fetch(
-        `http://localhost:5000/api/staff/class/${encodeURIComponent(className)}`,
+        `https://vidhyardhi.onrender.com/api/staff/class/${encodeURIComponent(className)}`,
         {
           credentials: "include",
         }

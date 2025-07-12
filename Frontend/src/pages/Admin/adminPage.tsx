@@ -62,10 +62,10 @@ const AdminPage = () => {
     const fetchCounts = async () => {
       try {
         const [studentsRes, staffRes] = await Promise.all([
-          fetch("http://localhost:5000/api/admin/students", {
+          fetch("https://vidhyardhi.onrender.com/api/admin/students", {
             credentials: "include",
           }).then((res) => res.json()),
-          fetch("http://localhost:5000/api/admin/staff", {
+          fetch("https://vidhyardhi.onrender.com/api/admin/staff", {
             credentials: "include",
           }).then((res) => res.json()),
         ]);
@@ -98,7 +98,7 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchAdmin = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/profile", {
+        const res = await fetch("https://vidhyardhi.onrender.com/api/admin/profile", {
           credentials: "include",
         });
         const data = await res.json();

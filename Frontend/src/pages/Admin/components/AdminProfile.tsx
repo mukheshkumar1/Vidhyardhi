@@ -32,7 +32,7 @@ const AdminProfile: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/admin/profile", {
+    fetch("https://vidhyardhi.onrender.com/api/admin/profile", {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -54,7 +54,7 @@ const AdminProfile: React.FC = () => {
   };
 
   const handleProfileUpdate = async () => {
-    const res = await fetch("http://localhost:5000/api/admin/admin/profile", {
+    const res = await fetch("https://vidhyardhi.onrender.com/api/admin/admin/profile", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -78,7 +78,7 @@ const AdminProfile: React.FC = () => {
     const formData = new FormData();
     formData.append("image", selectedImage);
 
-    const res = await fetch("http://localhost:5000/api/admin/admin/image", {
+    const res = await fetch("https://vidhyardhi.onrender.com/api/admin/admin/image", {
       method: "PUT",
       body: formData,
       credentials: "include",

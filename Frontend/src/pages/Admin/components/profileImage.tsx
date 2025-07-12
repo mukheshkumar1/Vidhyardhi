@@ -46,7 +46,7 @@ const StudentProfileImage: React.FC<StudentProfileImageProps> = ({ studentId, cu
 
       setUploading(true);
 
-      const res = await fetch(`http://localhost:5000/api/admin/students/${studentId}/update-profile-picture`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/students/${studentId}/update-profile-picture`, {
         method: "PUT",
         credentials: "include",
         body: formData,

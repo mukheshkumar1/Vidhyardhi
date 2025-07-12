@@ -18,7 +18,7 @@ const AssignHomework: React.FC<AssignHomeworkProps> = ({ student }) => {
 
   const handleAssign = async () => {
     try {
-      await axios.post('http://localhost:5000/api/staff/assign', {
+      await axios.post('https://vidhyardhi.onrender.com/api/staff/assign', {
         studentId: student._id,
         title,
         driveLink,

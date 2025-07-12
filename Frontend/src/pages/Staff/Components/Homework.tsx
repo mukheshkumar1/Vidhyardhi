@@ -49,7 +49,7 @@ export default function AssignHomeworkPage() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/homework/assign', {
+      const res = await fetch('https://vidhyardhi.onrender.com/api/homework/assign', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

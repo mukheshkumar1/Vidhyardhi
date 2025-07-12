@@ -28,7 +28,7 @@ export default function Calendar({ isAdmin }: { isAdmin?: boolean }) {
 
   const fetchEvents = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/getevents");
+      const res = await fetch("https://vidhyardhi.onrender.com/api/admin/getevents");
       const data = await res.json();
       setEvents(data);
     } catch (error) {

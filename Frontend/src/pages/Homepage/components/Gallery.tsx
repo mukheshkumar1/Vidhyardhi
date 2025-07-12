@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './imageSlider.css';
+import './ImageSlider.css';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 
@@ -28,7 +28,7 @@ const GallerySection: React.FC = () => {
   };
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/admin/gallery')
+    fetch('https://vidhyardhi.onrender.com/api/admin/gallery')
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setItems(data);

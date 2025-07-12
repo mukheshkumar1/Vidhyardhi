@@ -59,7 +59,7 @@
 //   useEffect(() => {
 //     if (!studentId) return;
 //     setLoading(true);
-//     fetch(`http://localhost:5000/api/student/${studentId}/academic-details`, {
+//     fetch(`https://vidhyardhi.onrender.com/api/student/${studentId}/academic-details`, {
 //       credentials: "include",
 //       headers: { "Content-Type": "application/json" },
 //     })
@@ -76,7 +76,7 @@
 //     try {
 //       const breakdown: Record<string, number> = { [component]: amount };
 
-//       const res = await fetch(`http://localhost:5000/api/student/create-order`, {
+//       const res = await fetch(`https://vidhyardhi.onrender.com/api/student/create-order`, {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
 //         credentials: "include",
@@ -98,7 +98,7 @@
 //         order_id: data.order.id,
 //         handler: async function (response: any) {
 //           try {
-//             const verifyRes = await fetch(`http://localhost:5000/api/student/verify-payment`, {
+//             const verifyRes = await fetch(`https://vidhyardhi.onrender.com/api/student/verify-payment`, {
 //               method: "POST",
 //               headers: { "Content-Type": "application/json" },
 //               credentials: "include",
@@ -300,7 +300,7 @@ export default function StudentFeeDetails({ studentId }: StudentFeeDetailsProps)
     if (!studentId) return;
 
     setLoading(true);
-    fetch(`http://localhost:5000/api/student/${studentId}/academic-details`, {
+    fetch(`https://vidhyardhi.onrender.com/api/student/${studentId}/academic-details`, {
       credentials: "include",
       headers: { "Content-Type": "application/json" },
     })

@@ -17,7 +17,7 @@ const ToggleAdmin: React.FC<ToggleAdminProps> = ({ staffId, currentRole, onToggl
   const handleConfirmToggle = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/staff/${staffId}/toggle-admin`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/staff/${staffId}/toggle-admin`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

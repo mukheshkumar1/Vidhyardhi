@@ -65,7 +65,7 @@ export default function AddStudentDialog() {
     });
 
     try {
-      const res = await fetch('http://localhost:5000/api/admin/student/add', {
+      const res = await fetch('https://vidhyardhi.onrender.com/api/admin/student/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

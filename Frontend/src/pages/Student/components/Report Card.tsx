@@ -65,7 +65,7 @@ export default function ReportCard({ studentId }: { studentId: string }) {
       setLoading(true);
       try {
         const res = await fetch(
-          `http://localhost:5000/api/student/${studentId}/academic-details`,
+          `https://vidhyardhi.onrender.com/api/student/${studentId}/academic-details`,
           { method: "GET", credentials: "include" }
         );
         if (!res.ok) throw new Error("Failed to fetch data");

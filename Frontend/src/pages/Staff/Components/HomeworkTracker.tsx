@@ -29,7 +29,7 @@ const HomeworkTracker: React.FC<HomeworkTrackerProps> = ({ selectedClass }) => {
 
     setLoading(true);
 
-    fetch(`/api/staff/class/${selectedClass}/homework`)
+    fetch(`https://vidhyardhi.onrender.com/api/staff/class/${selectedClass}/homework`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data.homeworks)) {
