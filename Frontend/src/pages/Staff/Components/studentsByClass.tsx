@@ -9,7 +9,11 @@ interface Student {
   phone?: string;
 }
 
-const StudentsByClassList: React.FC = () => {
+interface StudentsByClassListProps {
+  onSelectStudent?: (studentId: string) => void;
+}
+
+const StudentsByClassList: React.FC<StudentsByClassListProps> = ({ onSelectStudent }) => {
   const [className, setClassName] = useState("");
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
@@ -23,13 +27,15 @@ const StudentsByClassList: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`http://localhost:5000/api/staff/class/${encodeURIComponent(className)}`, {
-        credentials: "include",
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/staff/class/${encodeURIComponent(className)}`,
+        {
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch students");
       setStudents(data.students);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -39,7 +45,7 @@ const StudentsByClassList: React.FC = () => {
 
   useEffect(() => {
     fetchStudentsByClass();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [className]);
 
   return (
@@ -48,7 +54,7 @@ const StudentsByClassList: React.FC = () => {
 
       <input
         type="text"
-        placeholder="Enter class name (e.g. 10A)"
+        placeholder="Enter class name (e.g. Grade 4)"
         value={className}
         onChange={(e) => setClassName(e.target.value)}
         className="border rounded px-3 py-2 mb-4 w-60"
@@ -67,14 +73,22 @@ const StudentsByClassList: React.FC = () => {
             <tr className="bg-gray-100">
               <th className="border border-gray-300 px-2 py-1">Name</th>
               <th className="border border-gray-300 px-2 py-1">Class</th>
-              {/* Add email and phone columns only if backend sends those fields */}
+              <th className="border border-gray-300 px-2 py-1">Action</th>
             </tr>
           </thead>
           <tbody>
             {students.map((s) => (
-              <tr key={s.id || s._id}>
+              <tr key={s._id}>
                 <td className="border border-gray-300 px-2 py-1">{s.fullName}</td>
                 <td className="border border-gray-300 px-2 py-1">{s.className}</td>
+                <td className="border border-gray-300 px-2 py-1 text-center">
+                  <button
+                    className="bg-teal-600 text-white text-xs px-2 py-1 rounded hover:bg-teal-700"
+                    onClick={() => onSelectStudent?.(s._id)}
+                  >
+                    Select for Performance
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

@@ -1,6 +1,7 @@
-import puppeteer from "puppeteer";
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import fetch from 'node-fetch';
 
-const logoUrl = "https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png";
+const logoUrl = 'https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png';
 
 export const generatePromotionReportPDF = async ({
   fullName,
@@ -11,136 +12,203 @@ export const generatePromotionReportPDF = async ({
   feeStructure,
   promotedAt,
 }) => {
-  const html = `
-    <html>
-      <head>
-        <style>
-          body {
-            font-family: 'Arial', sans-serif;
-            padding: 40px;
-            color: #333;
-          }
-          .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-          }
-          .logo {
-            height: 60px;
-          }
-          .section {
-            margin-bottom: 20px;
-          }
-          .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            border-bottom: 1px solid #aaa;
-            margin-bottom: 10px;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-          }
-          th, td {
-            border: 1px solid #ccc;
-            padding: 8px 12px;
-            text-align: left;
-          }
-          th {
-            background-color: #f9f9f9;
-          }
-          .footer {
-            margin-top: 40px;
-            font-size: 14px;
-            text-align: center;
-            color: #777;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>Promotion Report</h1>
-          <img src="${logoUrl}" class="logo" alt="School Logo"/>
-        </div>
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([595, 842]); // A4
+  const { width, height } = page.getSize();
 
-        <div class="section">
-          <div class="section-title">Student Information</div>
-          <p><strong>Name:</strong> ${fullName}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Phone:</strong> ${phone}</p>
-          <p><strong>Promoted From:</strong> ${fromClass}</p>
-          <p><strong>Promoted To:</strong> ${toClass}</p>
-          <p><strong>Date:</strong> ${new Date(promotedAt).toLocaleString()}</p>
-        </div>
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const logoBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
+  const logo = await pdfDoc.embedPng(logoBytes);
 
-        <div class="section">
-          <div class="section-title">Updated Fee Structure</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Component</th>
-                <th>Amount (₹)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Tuition - First Term</td>
-                <td>₹${feeStructure.tuition?.firstTerm || 0}</td>
-              </tr>
-              <tr>
-                <td>Tuition - Second Term</td>
-                <td>₹${feeStructure.tuition?.secondTerm || 0}</td>
-              </tr>
-              <tr>
-                <td>Transport (One Time)</td>
-                <td>₹${feeStructure.transport || 0}</td>
-              </tr>
-              <tr>
-                <th>Total</th>
-                <th>₹${feeStructure.total || 0}</th>
-              </tr>
-              <tr>
-                <td>Paid</td>
-                <td>₹0</td>
-              </tr>
-              <tr>
-                <td><strong>Balance</strong></td>
-                <td><strong>₹${feeStructure.total || 0}</strong></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="footer">
-          This is an auto-generated promotion report from Vidhyardhi School.
-        </div>
-      </body>
-    </html>
-  `;
-
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  // === Watermark ===
+  const wmDims = logo.scale(0.5);
+  page.drawImage(logo, {
+    x: width / 2 - wmDims.width / 2,
+    y: height / 2 - wmDims.height / 2,
+    width: wmDims.width,
+    height: wmDims.height,
+    opacity: 0.05,
   });
 
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: "networkidle0" });
-
-  const pdfBuffer = await page.pdf({
-    format: "A4",
-    printBackground: true,
-    margin: {
-      top: "20px",
-      bottom: "20px",
-      left: "30px",
-      right: "30px",
-    },
+  // === Header ===
+  let y = height - 50;
+  const headerLogoDims = logo.scale(0.18);
+  page.drawImage(logo, {
+    x: width - headerLogoDims.width - 40,
+    y: y - headerLogoDims.height + 10,
+    width: headerLogoDims.width,
+    height: headerLogoDims.height,
   });
 
-  await browser.close();
-  return pdfBuffer;
+  page.drawText('Vidhyardhi English Medium School', {
+    x: 40,
+    y,
+    size: 18,
+    font: bold,
+    color: rgb(0.5, 0, 0.5),
+  });
+
+  y -= 22;
+  page.drawText('Door no: 26-175/1', { x: 40, y, size: 12, font });
+  y -= 15;
+  page.drawText('Gayatri Nagar, Near Current Office Railway', { x: 40, y, size: 12, font });
+  y -= 15;
+  page.drawText('Nellore, Andhra Pradesh, India, 524004', { x: 40, y, size: 12, font });
+  y -= 15;
+  page.drawText('+91-9849244277 | vidhyardhie.m.school25@gmail.com', { x: 40, y, size: 12, font });
+
+  // === Title ===
+  y -= 50;
+  const title = 'Promotion Report';
+  const titleWidth = bold.widthOfTextAtSize(title, 16);
+  page.drawText(title, {
+    x: (width - titleWidth) / 2,
+    y,
+    size: 16,
+    font: bold,
+    color: rgb(0.5, 0, 0.5),
+  });
+
+  // === Student Info Table ===
+  y -= 40;
+  const tableX = 40;
+  const rowHeight = 25;
+  const colWidths = [200, 300];
+
+  const infoRows = [
+    ['Student Name', fullName],
+    ['Email', email],
+    ['Phone', phone],
+    ['From Class', fromClass],
+    ['To Class', toClass],
+    ['Promoted On', new Date(promotedAt).toLocaleString()],
+  ];
+
+  let rowY = y;
+  page.drawRectangle({
+    x: tableX,
+    y: rowY,
+    width: colWidths[0] + colWidths[1],
+    height: rowHeight,
+    color: rgb(0.93, 0.88, 0.96),
+    borderColor: rgb(0.5, 0, 0.5),
+    borderWidth: 1,
+  });
+
+  page.drawText('Field', { x: tableX + 10, y: rowY + 7, size: 12, font: bold });
+  page.drawText('Details', { x: tableX + colWidths[0] + 10, y: rowY + 7, size: 12, font: bold });
+
+  let lastRowY = rowY;
+  infoRows.forEach(([label, value], i) => {
+    rowY = y - rowHeight * (i + 1);
+    lastRowY = rowY;
+    page.drawRectangle({
+      x: tableX,
+      y: rowY,
+      width: colWidths[0] + colWidths[1],
+      height: rowHeight,
+      borderColor: rgb(0.5, 0, 0.5),
+      borderWidth: 1,
+    });
+    page.drawText(label, { x: tableX + 10, y: rowY + 7, size: 12, font });
+    page.drawText(String(value), { x: tableX + colWidths[0] + 10, y: rowY + 7, size: 12, font });
+  });
+
+  // Vertical line
+  page.drawLine({
+    start: { x: tableX + colWidths[0], y },
+    end: { x: tableX + colWidths[0], y: lastRowY },
+    thickness: 1,
+    color: rgb(0.5, 0, 0.5),
+  });
+
+  // === Fee Structure Table ===
+y = lastRowY - 30;
+page.drawText('Updated Fee Structure', {
+  x: tableX,
+  y,
+  size: 14,
+  font: bold,
+  color: rgb(0.5, 0, 0.5),
+});
+
+y -= 20;
+rowY = y;
+
+
+  const feeRows = [
+    ['Tuition - First Term', `Rs.${feeStructure?.tuition?.firstTerm ?? 0}`],
+    ['Tuition - Second Term', `Rs.${feeStructure?.tuition?.secondTerm ?? 0}`],
+    ['Transport (One Time)', `Rs.${feeStructure?.transport ?? 0}`],
+    ['Kit Fee', `Rs.${feeStructure?.kit ?? 0}`],
+    ['Total', `Rs.${feeStructure?.total ?? 0}`],
+    ['Paid', `Rs.0`],
+    ['Balance', `Rs.${feeStructure?.total ?? 0}`],
+  ];
+
+  page.drawRectangle({
+    x: tableX,
+    y: rowY,
+    width: colWidths[0] + colWidths[1],
+    height: rowHeight,
+    color: rgb(0.95, 0.9, 0.95),
+    borderColor: rgb(0.5, 0, 0.5),
+    borderWidth: 1,
+  });
+
+  page.drawText('Component', { x: tableX + 10, y: rowY + 7, size: 12, font: bold });
+  page.drawText('Amount (Rs.)', { x: tableX + colWidths[0] + 10, y: rowY + 7, size: 12, font: bold });
+
+  let lastFeeRowY = rowY;
+
+  feeRows.forEach(([label, value], i) => {
+    rowY = y - rowHeight * (i + 1);
+    lastFeeRowY = rowY;
+    page.drawRectangle({
+      x: tableX,
+      y: rowY,
+      width: colWidths[0] + colWidths[1],
+      height: rowHeight,
+      borderColor: rgb(0.5, 0, 0.5),
+      borderWidth: 1,
+    });
+    page.drawText(label, { x: tableX + 10, y: rowY + 7, size: 12, font });
+    page.drawText(value, { x: tableX + colWidths[0] + 10, y: rowY + 7, size: 12, font });
+  });
+
+  page.drawLine({
+    start: { x: tableX + colWidths[0], y },
+    end: { x: tableX + colWidths[0], y: lastFeeRowY },
+    thickness: 1,
+    color: rgb(0.5, 0, 0.5),
+  });
+
+  // === Footer ===
+  y = lastFeeRowY - 40;
+  page.drawText('Authorized Signature:', {
+    x: width - 250,
+    y,
+    size: 12,
+    font: bold,
+    color: rgb(0.2, 0.2, 0.2),
+  });
+  page.drawLine({
+    start: { x: width - 120, y: y + 2 },
+    end: { x: width - 40, y: y + 2 },
+    thickness: 1,
+    color: rgb(0.4, 0.4, 0.4),
+  });
+
+  y -= 40;
+  page.drawText('This is a system-generated promotion report. No signature required.', {
+    x: tableX,
+    y,
+    size: 10,
+    font,
+    color: rgb(0.5, 0.5, 0.5),
+  });
+
+  const pdfBytes = await pdfDoc.save();
+  return pdfBytes;
 };

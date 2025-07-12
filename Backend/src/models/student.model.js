@@ -60,7 +60,12 @@ const studentSchema = new mongoose.Schema({
       firstTerm: { type: Number, default: 0 },
       secondTerm: { type: Number, default: 0 },
     },
+    
     transport: {
+      type: Number,
+      default: 0,
+    },
+    kit: {
       type: Number,
       default: 0,
     },
@@ -76,6 +81,7 @@ const studentSchema = new mongoose.Schema({
       "tuition.firstTerm": { type: Number, default: 0 },
       "tuition.secondTerm": { type: Number, default: 0 },
       transport: { type: Number, default: 0 },
+      kit: { type: Number, default: 0 },
     }
   },
 
@@ -92,6 +98,7 @@ const studentSchema = new mongoose.Schema({
       paidFor: {
         tuition: { type: Boolean, default: false },
         transport: { type: Boolean, default: false },
+        kit: { type: Boolean, default: false },
       },
       date: Date
     }
@@ -170,15 +177,6 @@ const studentSchema = new mongoose.Schema({
   otpExpires: { type: Date },
 
   createdAt: { type: Date, default: Date.now }
-});
-
-studentSchema.pre("save", function (next) {
-  if (this.isModified("feeStructure.total")) {
-    const half = this.feeStructure.total / 2;
-    this.feeStructure.tuition.firstTerm = half;
-    this.feeStructure.tuition.secondTerm = half;
-  }
-  next();
 });
 
 const Student = mongoose.model("Student", studentSchema);

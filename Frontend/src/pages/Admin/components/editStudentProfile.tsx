@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import {
   Dialog,
@@ -16,6 +15,7 @@ interface FeeStructure {
     secondTerm: number;
   };
   transport: number;
+  kit: number;
   paid: number;
   balance: number;
 }
@@ -44,42 +44,79 @@ const EditStudentProfile: React.FC<Props> = ({
       firstTerm: initialFee.tuition?.firstTerm ?? 0,
       secondTerm: initialFee.tuition?.secondTerm ?? 0,
     },
+    kit: initialFee.kit ?? 0,
   });
+
   const [saving, setSaving] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
-  const handleTotalChange = (value: number) => {
-    const half = Math.floor(value / 2);
+  const recalculateTotalAndBalance = (firstTerm: number, secondTerm: number, transport: number, kit: number, paid: number) => {
+    const total = firstTerm + secondTerm + transport + kit;
+    const balance = total - paid;
     setFeeStructure((prev) => ({
       ...prev,
-      total: value,
-      tuition: {
-        firstTerm: half,
-        secondTerm: value - half,
-      },
-      balance: value + prev.transport - prev.paid,
+      total,
+      balance,
     }));
+  };
+
+  const handleTuitionChange = (value: number) => {
+    const firstTerm = Math.floor(value / 2);
+    const secondTerm = value - firstTerm;
+    setFeeStructure((prev) => ({
+      ...prev,
+      tuition: { firstTerm, secondTerm },
+    }));
+    recalculateTotalAndBalance(firstTerm, secondTerm, feeStructure.transport, feeStructure.kit, feeStructure.paid);
   };
 
   const handleTransportChange = (value: number) => {
     setFeeStructure((prev) => ({
       ...prev,
       transport: value,
-      balance: prev.total + value - prev.paid,
     }));
+    recalculateTotalAndBalance(feeStructure.tuition!.firstTerm, feeStructure.tuition!.secondTerm, value, feeStructure.kit, feeStructure.paid);
+  };
+
+  const handleKitChange = (value: number) => {
+    setFeeStructure((prev) => ({
+      ...prev,
+      kit: value,
+    }));
+    recalculateTotalAndBalance(feeStructure.tuition!.firstTerm, feeStructure.tuition!.secondTerm, feeStructure.transport, value, feeStructure.paid);
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
+      const tuitionTotal = (feeStructure.tuition?.firstTerm ?? 0) + (feeStructure.tuition?.secondTerm ?? 0);
+      const initialTuitionTotal = (initialFee.tuition?.firstTerm ?? 0) + (initialFee.tuition?.secondTerm ?? 0);
+
+      const updatedFeeStructure: any = {};
+
+      if (tuitionTotal !== initialTuitionTotal) {
+        updatedFeeStructure.tuition = {
+          firstTerm: feeStructure.tuition?.firstTerm ?? 0,
+          secondTerm: feeStructure.tuition?.secondTerm ?? 0,
+        };
+      }
+
+      if (feeStructure.transport !== initialFee.transport) {
+        updatedFeeStructure.transport = feeStructure.transport;
+      }
+
+      if (feeStructure.kit !== initialFee.kit) {
+        updatedFeeStructure.kit = feeStructure.kit;
+      }
+
       const res = await fetch(`http://localhost:5000/api/admin/students/update/${studentId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          fullName: fullNameState,
-          feeStructure,
+          fullName: fullNameState !== fullName ? fullNameState : undefined,
+          feeStructure: Object.keys(updatedFeeStructure).length > 0 ? updatedFeeStructure : undefined,
         }),
       });
 
@@ -118,8 +155,8 @@ const EditStudentProfile: React.FC<Props> = ({
             <label className="block font-medium mb-1">Total Tuition Fee</label>
             <input
               type="number"
-              value={feeStructure.total}
-              onChange={(e) => handleTotalChange(Number(e.target.value))}
+              value={(feeStructure.tuition?.firstTerm ?? 0) + (feeStructure.tuition?.secondTerm ?? 0)}
+              onChange={(e) => handleTuitionChange(Number(e.target.value))}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
@@ -151,6 +188,16 @@ const EditStudentProfile: React.FC<Props> = ({
               type="number"
               value={feeStructure.transport}
               onChange={(e) => handleTransportChange(Number(e.target.value))}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">Kit Fee</label>
+            <input
+              type="number"
+              value={feeStructure.kit}
+              onChange={(e) => handleKitChange(Number(e.target.value))}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>

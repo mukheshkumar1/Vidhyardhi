@@ -12,6 +12,9 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 
+// ✅ Import the logo image
+import logo from "../../../assets/images/logo5.jpg";
+
 const AdminLogin = () => {
   const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +27,6 @@ const AdminLogin = () => {
     e.preventDefault();
     setFormError("");
 
-    // Client-side validation for 10-digit mobile number
     const mobileRegex = /^[6-9]\d{9}$/;
     if (!mobileRegex.test(mobileNumber)) {
       setFormError("Please enter a valid 10-digit mobile number");
@@ -36,7 +38,6 @@ const AdminLogin = () => {
       return;
     }
 
-    // Proceed with login
     login({ mobileNumber, password });
   };
 
@@ -45,11 +46,11 @@ const AdminLogin = () => {
       <Card className="w-full max-w-md bg-white bg-opacity-40 backdrop-blur-xl shadow-xl shadow-gray-900 text-white">
         <form onSubmit={handleSubmit}>
           <CardHeader className="flex flex-col items-center space-y-4">
-            {/* Logo at top */}
+            {/* ✅ Logo at top */}
             <img
-              src="../../src/assets/images/logo5.jpg"
+              src={logo}
               alt="School Logo"
-              className="w-40 shadow-md bg-white p-1"
+              className="w-40 shadow-md bg-white p-1 rounded-md"
             />
 
             <CardTitle className="text-2xl text-center text-blue-600 dark:text-blue-400">

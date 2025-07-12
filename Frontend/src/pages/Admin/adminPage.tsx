@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import useLogout from "@/hooks/useLogout";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
-
+import { ChevronDown, ChevronUp } from "lucide-react";
 import AdminSidebar from "./components/AdminSidebar";
 import StudentsByClass from "./components/getStudents";
 import AddStudent from "./components/AddStudent";
@@ -13,7 +13,6 @@ import AddStaffSection from "./components/AddStaffButton";
 import GalleryAdmin from "./components/AddGallery";
 import Calendar from "./components/AdminEventCalender";
 import Registrations from "./components/Registration";
-import ManageSchoolImages from "./components/SchoolImage";
 import AddBulkStudentsDialog from "./components/AddBulkStudent";
 import SetClassLeaderCandidates from "./components/selectclassLeader";
 import VotingPeriodForm from "./components/VotingPeriodForm";
@@ -22,18 +21,25 @@ import AssignClassLeader from "./components/AssignLeader";
 import CloseVoting from "./components/closeVoting";
 import AdminHolidayCalendar from "./components/HolidayCalendar";
 import StaffAttendancePanel from "./components/staffAttendancePanel";
+import AdminProfile from "./components/AdminProfile";
 
 const AdminPage = () => {
 
   const [activeTab, setActiveTab] = useState<
-    "students" | "staff" |"staffattendance"| "gallery" | "registrations" | "schoolimages" | "selectclassleader" |"holidaycalendar"
+    "students" | "staff" |"staffattendance"| "gallery" | "registrations"  | "selectclassleader" |"holidaycalendar" | "profile"
   >("students");
 
   const [studentsCount, setStudentsCount] = useState(0);
   const [staffCount, setStaffCount] = useState(0);
   const { logout, loading } = useLogout();
   const [backWarning, setBackWarning] = useState(false);
+  const [admin, setAdmin] = useState(null);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
+  const toggleSection = (section: string) => {
+    setExpandedSection((prev) => (prev === section ? null : section));
+  };
+   
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
       e.preventDefault();
@@ -89,9 +95,26 @@ const AdminPage = () => {
     fetchCounts();
   }, []);
 
+  useEffect(() => {
+    const fetchAdmin = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/admin/profile", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        setAdmin(data);
+      } catch (err) {
+        console.error("Failed to fetch admin profile", err);
+      }
+    };
+    fetchAdmin();
+  }, []);
+  
+
   return (
     <div className="flex min-h-screen bg-[#58931d]  text-white">
-      <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} admin={admin} />
+
 
       <motion.main className="flex-1 p-8 overflow-y-auto">
         {backWarning && (
@@ -202,7 +225,7 @@ const AdminPage = () => {
             </motion.div>
           )}
 
-          {activeTab === "schoolimages" && (
+          {/* {activeTab === "schoolimages" && (
             <motion.div
               key="schoolimages"
               initial={{ y: 20, opacity: 0 }}
@@ -213,7 +236,7 @@ const AdminPage = () => {
             >
               <ManageSchoolImages />
             </motion.div>
-          )}
+          )} */}
 
 {activeTab === "selectclassleader" && (
   <motion.div
@@ -225,33 +248,96 @@ const AdminPage = () => {
     className="space-y-6"
   >
     
-    <h2 className="text-2xl font-bold text-gray-800">Class Leader Elections</h2>
-    <div className="bg-white text-black shadow-sm rounded-lg p-4 border border-gray-200">
-    <h3 className="text-lg font-semibold mb-2 text-blue-700">🗓️ Select Candidate</h3>
-    <SetClassLeaderCandidates/>
+    <div
+  className="rounded-xl border border-gray-200 bg-white/10 backdrop-blur-md shadow-lg text-black"
+>
+<button
+  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-purple-700 rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
+  onClick={() => toggleSection("selectCandidate")}
+>
+    🗳️ Select Candidate
+    {expandedSection === "selectCandidate" ? <ChevronUp /> : <ChevronDown />}
+  </button>
+  {expandedSection === "selectCandidate" && (
+    <div className="px-4 pb-4">
+      <SetClassLeaderCandidates />
     </div>
-    <div className="bg-white text-black shadow-sm rounded-lg p-4 border border-gray-200">
-    <h3 className="text-lg font-semibold mb-2 text-blue-700">🗓️ Select Candidate</h3>
-    <CloseVoting/>
+  )}
+</div>
+
+<div
+  className="rounded-xl border border-gray-200 bg-white/10 backdrop-blur-md shadow-lg text-black"
+>
+<button
+  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-purple-700 rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
+  onClick={() => toggleSection("closeVoting")}
+>
+    ⛔ Close Voting
+    {expandedSection === "closeVoting" ? <ChevronUp /> : <ChevronDown />}
+  </button>
+  {expandedSection === "closeVoting" && (
+    <div className="px-4 pb-4">
+      <CloseVoting />
     </div>
+  )}
+</div>
 
     {/* Voting Period Setup */}
-    <div className="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
-      <h3 className="text-lg font-semibold mb-2 text-blue-700">🗓️ Set Voting Period</h3>
+    <div
+  className="rounded-xl border border-gray-200 bg-white/10 backdrop-blur-md shadow-lg text-black"
+>
+<button
+  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-purple-700 rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
+  onClick={() => toggleSection("votingPeriod")}
+>
+    🗓️ Set Voting Period
+    {expandedSection === "votingPeriod" ? <ChevronUp /> : <ChevronDown />}
+  </button>
+  {expandedSection === "votingPeriod" && (
+    <div className="px-4 pb-4">
       <VotingPeriodForm />
     </div>
+  )}
+</div>
+
 
     {/* Voting Stats */}
-    <div className="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
-      <h3 className="text-lg font-semibold mb-2 text-green-700">📊 Voting Statistics</h3>
+    <div
+  className="rounded-xl border border-gray-200 bg-white/10 backdrop-blur-md shadow-lg text-black"
+>
+<button
+  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-purple-700 rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
+  onClick={() => toggleSection("votingStats")}
+>
+    📊 Voting Statistics
+    {expandedSection === "votingStats" ? <ChevronUp /> : <ChevronDown />}
+  </button>
+  {expandedSection === "votingStats" && (
+    <div className="px-4 pb-4">
       <VotingStats />
     </div>
+  )}
+</div>
+
 
     {/* Assign Leader */}
-    <div className="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
-      <h3 className="text-lg font-semibold mb-2 text-purple-700">🏆 Assign Class Leader</h3>
+    <div
+  className="rounded-xl border border-gray-200 bg-white/10 backdrop-blur-md shadow-lg text-black"
+>
+<button
+  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-purple-700 rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
+  onClick={() => toggleSection("assignLeader")}
+>
+    🏆 Assign Class Leader
+    {expandedSection === "assignLeader" ? <ChevronUp /> : <ChevronDown />}
+  </button>
+  {expandedSection === "assignLeader" && (
+    <div className="px-4 pb-4">
       <AssignClassLeader />
     </div>
+  )}
+</div>
+
     
   </motion.div>
 )}
@@ -267,6 +353,18 @@ const AdminPage = () => {
               <AdminHolidayCalendar />
             </motion.div>
           )}
+          {activeTab === "profile" && (
+  <motion.div
+    key="profile"
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    exit={{ y: -20, opacity: 0 }}
+    transition={{ duration: 0.4 }}
+    className="space-y-6"
+  >
+    <AdminProfile />
+  </motion.div>
+)}
 
         </AnimatePresence>
       </motion.main>

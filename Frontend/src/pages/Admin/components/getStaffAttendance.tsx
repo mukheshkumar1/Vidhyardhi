@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { CalendarDays, BarChart2, UserCheck } from "lucide-react";
 
 type AttendanceSummary = {
   present: number;
@@ -42,7 +43,6 @@ export default function StaffAttendanceReport({ staffId }: { staffId: string }) 
         { credentials: "include" }
       );
       const data = await res.json();
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       res.ok ? setMonthly(data) : toast.error(data.message);
     } catch {
       toast.error("Failed to fetch monthly report");
@@ -51,17 +51,32 @@ export default function StaffAttendanceReport({ staffId }: { staffId: string }) 
 
   useEffect(() => {
     fetchMonthly(selectedMonth);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMonth]);
 
-  return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-center">Staff Attendance Report</h2>
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "present":
+        return "bg-green-100 text-green-800 border-green-300";
+      case "absent":
+        return "bg-red-100 text-red-800 border-red-300";
+      case "holiday":
+        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-300";
+    }
+  };
 
-      {/* Date Picker for Month Selection */}
-      <Card>
+  return (
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <h2 className="text-4xl font-bold text-center text-indigo-700 mb-6">🗓️ Staff Attendance Report</h2>
+
+      {/* Month Picker */}
+      <Card className="border border-indigo-300 shadow-lg">
         <CardHeader>
-          <CardTitle>Select Month</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-indigo-700 text-lg">
+            <CalendarDays className="w-5 h-5" /> Select Month
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <DatePicker
@@ -69,46 +84,75 @@ export default function StaffAttendanceReport({ staffId }: { staffId: string }) 
             onChange={(date) => date && setSelectedMonth(date)}
             dateFormat="MM/yyyy"
             showMonthYearPicker
-            showFullMonthYearPicker
-            className="p-2 border rounded w-full bg-black text-white"
+            className="p-2 border rounded w-full bg-indigo-50 text-indigo-800 font-semibold"
           />
         </CardContent>
       </Card>
 
-      {/* Monthly + Yearly Report */}
+      {/* Monthly Summary */}
       {monthly && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{monthly.month} Monthly & Yearly Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <h3 className="font-semibold">Monthly Summary</h3>
-            <ul>
-              <li>Present: {monthly.summary.present}</li>
-              <li>Absent: {monthly.summary.absent}</li>
-              <li>Holiday: {monthly.summary.holiday}</li>
-            </ul>
-
-            <h3 className="mt-4 font-semibold">Yearly Summary</h3>
-            <ul>
-              <li>Total Working Days: {monthly.yearly.workingDays}</li>
-              <li>Days Present: {monthly.yearly.presentDays}</li>
-              <li>Attendance Percentage: {monthly.yearly.percentage}%</li>
-            </ul>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-sm">
-              {monthly.dailyRecords.map((rec) => (
-                <div
-                  key={rec.date}
-                  className="border rounded px-3 py-2 text-center bg-white/5 backdrop-blur-md"
-                >
-                  <div className="font-semibold">{rec.date}</div>
-                  <div className="capitalize text-sm text-gray-300">{rec.status}</div>
+        <>
+          <Card className="border-l-4 border-indigo-500 bg-indigo-50 shadow-md">
+            <CardHeader>
+              <CardTitle className="text-indigo-800 text-xl font-semibold flex items-center gap-2">
+                <BarChart2 className="w-5 h-5" /> {monthly.month} Monthly Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                <div className="bg-green-200 text-green-800 p-4 rounded-xl shadow-inner">
+                  <div className="text-lg font-bold">✅ Present</div>
+                  <div className="text-2xl">{monthly.summary.present}</div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                <div className="bg-red-200 text-red-800 p-4 rounded-xl shadow-inner">
+                  <div className="text-lg font-bold">❌ Absent</div>
+                  <div className="text-2xl">{monthly.summary.absent}</div>
+                </div>
+                <div className="bg-yellow-200 text-yellow-800 p-4 rounded-xl shadow-inner">
+                  <div className="text-lg font-bold">🏖️ Holiday</div>
+                  <div className="text-2xl">{monthly.summary.holiday}</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pt-4">
+                {monthly.dailyRecords.map((rec) => (
+                  <div
+                    key={rec.date}
+                    className={`rounded-lg px-3 py-2 text-center text-sm font-medium border ${getStatusColor(
+                      rec.status
+                    )} shadow`}
+                  >
+                    <div className="font-mono">{rec.date}</div>
+                    <div className="capitalize">{rec.status}</div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Yearly Summary */}
+          <Card className="border-l-4 border-teal-500 bg-teal-50 shadow-md">
+            <CardHeader>
+              <CardTitle className="text-teal-800 text-xl font-semibold flex items-center gap-2">
+                <UserCheck className="w-5 h-5" /> Yearly Attendance Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+              <div className="bg-teal-200 text-teal-900 p-4 rounded-xl shadow-inner">
+                <div className="text-md font-semibold">📆 Working Days</div>
+                <div className="text-xl">{monthly.yearly.workingDays}</div>
+              </div>
+              <div className="bg-blue-200 text-blue-900 p-4 rounded-xl shadow-inner">
+                <div className="text-md font-semibold">✅ Present Days</div>
+                <div className="text-xl">{monthly.yearly.presentDays}</div>
+              </div>
+              <div className="bg-purple-200 text-purple-900 p-4 rounded-xl shadow-inner">
+                <div className="text-md font-semibold">📊 Attendance %</div>
+                <div className="text-xl">{monthly.yearly.percentage}%</div>
+              </div>
+            </CardContent>
+          </Card>
+        </>
       )}
     </div>
   );

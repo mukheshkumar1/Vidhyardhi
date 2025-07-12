@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   Card,
@@ -7,7 +7,14 @@ import {
   CardTitle,
   CardContent,
 } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { Avatar, TextField, MenuItem } from "@mui/material";
 
 type Candidate = {
@@ -18,7 +25,7 @@ type Candidate = {
 };
 
 const VotingStats = () => {
-  const [className, setClassName] = useState("10");
+  const [className, setClassName] = useState("Grade 1");
   const [candidates, setCandidates] = useState<Candidate[]>([]);
 
   useEffect(() => {
@@ -27,7 +34,8 @@ const VotingStats = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/voting/stats/${className}`,
+      const res = await fetch(
+        `http://localhost:5000/api/admin/voting/stats/${className}`,
         {
           method: "GET",
           credentials: "include",
@@ -42,20 +50,26 @@ const VotingStats = () => {
   };
 
   return (
-    <Card className="max-w-5xl mx-auto mt-8">
+    <Card className="max-w-6xl mx-auto mt-10 bg-gradient-to-br from-indigo-100 via-purple-50 to-white shadow-xl rounded-2xl border border-purple-200">
       <CardHeader className="flex justify-between items-center">
-        <CardTitle>Live Voting Stats - Class {className}</CardTitle>
+        <CardTitle className="text-xl font-extrabold text-purple-800">
+          🔥 Live Voting Stats - {className}
+        </CardTitle>
         <TextField
           select
           size="small"
           value={className}
           onChange={(e) => setClassName(e.target.value)}
+          variant="outlined"
+          sx={{ backgroundColor: "#fff", borderRadius: 1 }}
         >
-          {["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"].map((cls) => (
-            <MenuItem key={cls} value={cls}>
-              {cls}
-            </MenuItem>
-          ))}
+          {["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"].map(
+            (cls) => (
+              <MenuItem key={cls} value={cls}>
+                {cls}
+              </MenuItem>
+            )
+          )}
         </TextField>
       </CardHeader>
 
@@ -65,20 +79,30 @@ const VotingStats = () => {
             <XAxis dataKey="fullName" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="votes" fill="#4f46e5" />
+            <Bar dataKey="votes" fill="#a855f7" radius={[10, 10, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+        <h3 className="mt-8 text-lg font-bold text-purple-800 mb-4">
+          🧑‍🎓 Candidates
+        </h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {candidates.map((c) => (
             <div
               key={c._id}
-              className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 p-3 rounded-lg"
+              className="flex items-center gap-4 p-4 rounded-xl shadow-lg backdrop-blur-md bg-white/30 border border-white/40 transition-all hover:scale-[1.02]"
             >
-              <Avatar src={c.profilePicture?.imageUrl} />
+              <Avatar
+                src={c.profilePicture?.imageUrl}
+                alt={c.fullName}
+                sx={{ width: 50, height: 50 }}
+              />
               <div>
-                <p className="font-semibold">{c.fullName}</p>
-                <p className="text-sm text-muted-foreground">{c.votes} votes</p>
+                <p className="font-bold text-purple-900 text-lg">
+                  {c.fullName}
+                </p>
+                <p className="text-sm text-gray-700">{c.votes} votes</p>
               </div>
             </div>
           ))}

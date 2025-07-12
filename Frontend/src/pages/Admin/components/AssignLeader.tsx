@@ -63,27 +63,25 @@ const AssignClassLeader = () => {
   };
 
   return (
-    <Card className="max-w-3xl mx-auto mt-8">
+    <Card className="max-w-3xl mx-auto mt-8 backdrop-blur-md bg-white/70 border rounded-2xl shadow-xl">
       <CardHeader>
-        <CardTitle>Assign Class Leader</CardTitle>
+        <CardTitle className="text-indigo-800 text-lg font-bold">🏆 Assign Class Leader</CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-4">
         <TextField
           select
-          label="Class"
+          label="🎓 Select Class"
           value={className}
           onChange={(e) => setClassName(e.target.value)}
           fullWidth
+          size="small"
+          sx={{
+            background: "rgba(255,255,255,0.9)",
+            borderRadius: "12px",
+          }}
         >
-          {[
-            "Grade 1",
-            "Grade 2",
-            "Grade 3",
-            "Grade 4",
-            "Grade 5",
-            "Grade 6",
-            "Grade 7",
-          ].map((cls) => (
+          {["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"].map((cls) => (
             <MenuItem key={cls} value={cls}>
               {cls}
             </MenuItem>
@@ -94,9 +92,14 @@ const AssignClassLeader = () => {
           <TextField
             select
             fullWidth
-            label="Select Candidate"
+            label="👤 Select Candidate"
             value={selected}
             onChange={(e) => setSelected(e.target.value)}
+            size="small"
+            sx={{
+              background: "rgba(255,255,255,0.9)",
+              borderRadius: "12px",
+            }}
           >
             {candidates.map((c) => (
               <MenuItem key={c._id} value={c._id}>
@@ -105,19 +108,23 @@ const AssignClassLeader = () => {
                     src={c.profilePicture?.imageUrl || "/default-avatar.png"}
                     sx={{ width: 30, height: 30 }}
                   />
-                  {c.fullName} ({c.votes} votes)
+                  <span className="text-sm font-medium">
+                    {c.fullName} ({c.votes} votes)
+                  </span>
                 </div>
               </MenuItem>
             ))}
           </TextField>
         ) : (
-          <p className="text-gray-500 text-sm">
-            No candidates available for this class.
-          </p>
+          <p className="text-gray-500 text-sm italic">No candidates available for this class.</p>
         )}
 
-        <Button onClick={assignLeader} disabled={!selected}>
-          Assign as Class Leader
+        <Button
+          onClick={assignLeader}
+          disabled={!selected}
+          className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl shadow-md hover:opacity-90"
+        >
+          ✅ Assign as Class Leader
         </Button>
       </CardContent>
     </Card>

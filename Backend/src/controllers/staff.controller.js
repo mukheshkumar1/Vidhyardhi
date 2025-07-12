@@ -51,27 +51,34 @@ export const updatePerformance = async (req, res) => {
       return merged;
     };
 
-    // Ensure performance object exists
+    // Initialize performance if not present
     if (!student.performance) {
       student.performance = {};
     }
 
+    // Preserve old data, update only if new data is present
     if (quarterly) {
       const existing = student.performance.quarterly?.subjects || {};
       const merged = mergeMarks(existing, quarterly);
       student.performance.quarterly = calculateStats(merged);
+    } else if (student.performance.quarterly) {
+      student.performance.quarterly = student.performance.quarterly; // retain old
     }
 
     if (halfYearly) {
       const existing = student.performance.halfYearly?.subjects || {};
       const merged = mergeMarks(existing, halfYearly);
       student.performance.halfYearly = calculateStats(merged);
+    } else if (student.performance.halfYearly) {
+      student.performance.halfYearly = student.performance.halfYearly;
     }
 
     if (annual) {
       const existing = student.performance.annual?.subjects || {};
       const merged = mergeMarks(existing, annual);
       student.performance.annual = calculateStats(merged);
+    } else if (student.performance.annual) {
+      student.performance.annual = student.performance.annual;
     }
 
     await student.save();
@@ -83,6 +90,7 @@ export const updatePerformance = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 
   //--------------------------get Performance------------------------

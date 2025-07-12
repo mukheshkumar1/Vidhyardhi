@@ -32,40 +32,173 @@ const generateHashedPassword = async () => {
 };
 
 
+//--------------------------------update profile image admin-----------------
+
+export const updateAdminProfileImage = async (req, res) => {
+  try {
+    const adminId  = req.user.id;
+
+    if (!adminId || !req.files || !req.files.image) {
+      return res.status(400).json({ error: "Missing admin ID or image file" });
+    }
+
+    const admin = await Staff.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    const file = req.files.image;
+
+    // Save file temporarily
+    const tempDir = path.join(__dirname, "../tmp");
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+
+    const tempPath = path.join(tempDir, `${Date.now()}_${file.name}`);
+    await file.mv(tempPath);
+
+    // Upload to Cloudinary
+    const uploadResult = await uploadToCloudinary(tempPath, "admin_profiles");
+
+    // Delete previous image from Cloudinary
+    const oldPublicId = admin.profilePicture?.publicId;
+    if (oldPublicId) {
+      await deleteFromCloudinary(oldPublicId);
+    }
+
+    // Update DB with new image
+    admin.profilePicture = {
+      imageUrl: uploadResult.secure_url,
+      publicId: uploadResult.public_id,
+    };
+    await admin.save();
+
+    // Clean up temp file
+    fs.unlinkSync(tempPath);
+
+    return res.status(200).json({
+      message: "Admin profile image updated successfully",
+      imageUrl: uploadResult.secure_url,
+    });
+  } catch (error) {
+    console.error("Admin Image Upload Error:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+//--------------------------------edit profile admin
+
+export const editAdminProfile = async (req, res) => {
+  try {
+    const adminId = req.user.id; // from auth middleware
+    const { fullName, email, mobileNumber, gender, salary, profilePicture } = req.body;
+
+    const updated = await Staff.findByIdAndUpdate(
+      adminId,
+      {
+        fullName,
+        email,
+        mobileNumber,
+        gender,
+        salary,
+        ...(profilePicture && { profilePicture }),
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    res.json({
+      message: "Profile updated successfully",
+      admin: {
+        _id: updated._id,
+        fullName: updated.fullName,
+        email: updated.email,
+        mobileNumber: updated.mobileNumber,
+        gender: updated.gender,
+        profilePicture: updated.profilePicture,
+        salary: updated.salary,
+        role: updated.role,
+      },
+    });
+  } catch (err) {
+    console.error("Edit Profile Error:", err.message);
+    res.status(500).json({ error: "Server Error" });
+  }
+};
+//------------------------------get admin profile-----------------------------
+export const getAdminProfile = async (req, res) => {
+  try {
+    const adminId = req.user.id; // populated by middleware (from token)
+
+    const admin = await Staff.findById(adminId).select("-password"); // remove password from response
+
+    if (!admin || admin.role !== "admin") {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    res.status(200).json({
+      _id: admin._id,
+      fullName: admin.fullName,
+      email: admin.email,
+      mobileNumber: admin.mobileNumber,
+      gender: admin.gender,
+      salary: admin.salary,
+      role: admin.role,
+      profilePicture: admin.profilePicture,
+      createdAt: admin.createdAt,
+    });
+  } catch (error) {
+    console.error("Get Admin Profile Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 export const addStudent = async (req, res) => {
   try {
-    const { fullName, className, email, phone, feeStructure = {} } = req.body;
+    const { fullName, className, email, phone, feeStructure = {}, transportOpted = false } = req.body;
 
     const { rawPassword, hashedPassword } = await generateHashedPassword();
 
     // Default Fee Structure
     const defaultFeeStructureByClass = {
-    "Grade 1": { tuition: 55000, transport: 0 },
-      "Grade 2": { tuition: 55000, transport: 0 },
-      "Grade 3": { tuition: 55000, transport: 0 },
-      "Grade 4": { tuition: 55000, transport: 0 },
-      "Grade 5": { tuition: 55000, transport: 0 },
-      "Grade 6": { tuition: 75000, transport: 0 },
-      "Grade 7": { tuition: 75000, transport: 0 },
+      "Grade 1": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 2": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 3": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 4": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 5": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 6": { tuition: 75000, transport: 0, kit: 15000 },
+      "Grade 7": { tuition: 75000, transport: 0, kit: 15000 },
     };
 
-    const defaults = defaultFeeStructureByClass[className] || { tuition: 30000, transport: 0 };
-    const tuition = feeStructure.tuition || defaults.tuition;
-    const transport = feeStructure.transport || defaults.transport;
+    const defaults = defaultFeeStructureByClass[className] || { tuition: 30000, transport: 0, kit: 15000 };
+    const tuition = feeStructure.tuition ?? defaults.tuition;
+    const transport = transportOpted ? (feeStructure.transport ?? defaults.transport) : 0;
+    const kit = feeStructure.kit ?? defaults.kit;
+
+    const firstTermTuition = Math.floor(tuition / 2);
+    const secondTermTuition = Math.ceil(tuition / 2);
+    const total = firstTermTuition + secondTermTuition + transport + kit;
+
     const mergedFeeStructure = {
       tuition: {
-        firstTerm: Math.floor(tuition / 2),
-        secondTerm: Math.ceil(tuition / 2),
+        firstTerm: firstTermTuition,
+        secondTerm: secondTermTuition,
       },
-      transport: transport,
-      total: tuition + transport,
+      transport,
+      kit,
+      total,
       paid: 0,
-      balance: tuition + transport,
+      balance: total,
+      paidComponents: {
+        "tuition.firstTerm": 0,
+        "tuition.secondTerm": 0,
+        transport: 0,
+        kit: 0,
+      },
     };
 
-
-   
     const initial = fullName?.trim()?.charAt(0).toUpperCase() || "S";
     const defaultAvatar = `https://ui-avatars.com/api/?name=${initial}&background=random&color=fff&size=128`;
 
@@ -81,17 +214,25 @@ export const addStudent = async (req, res) => {
         english: "",
         maths: "",
         Science: "",
-        Social: ""
+        Social: "",
       },
       performance: {
         quarterly: {},
         halfYearly: {},
-        annual: {}
+        annual: {},
+      },
+      attendance: {
+        yearly: {
+          workingDays: 0,
+          presentDays: 0,
+          percentage: 0,
+        },
       },
       profilePicture: {
         imageUrl: defaultAvatar,
       },
-      feeStructure: mergedFeeStructure
+      feeStructure: mergedFeeStructure,
+      history: [],
     });
 
     await student.save();
@@ -99,48 +240,48 @@ export const addStudent = async (req, res) => {
     await sendEmail(
       email,
       "Your Vidhyardhi School Student Login Credentials",
-  `
-    <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;">
-      <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 30px;">
-        
-        <div style="text-align: center;">
-          <img src="https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png" alt="Vidhyardhi School Logo" style="max-width: 120px; margin-bottom: 20px;" />
-          <h2 style="color: #2a7ae2;">Welcome to Vidhyardhi School, ${fullName}!</h2>
+      `
+      <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;">
+        <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 30px;">
+          <div style="text-align: center;">
+            <img src="https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png" alt="Vidhyardhi School Logo" style="max-width: 120px; margin-bottom: 20px;" />
+            <h2 style="color: #2a7ae2;">Welcome to Vidhyardhi School, ${fullName}!</h2>
+          </div>
+
+          <p style="font-size: 16px; color: #333;">We are excited to have you on board. Below are your login credentials:</p>
+
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 16px;">
+            <tr>
+              <td style="padding: 10px; font-weight: bold; width: 120px;">Login ID:</td>
+              <td style="padding: 10px;">${phone}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold;">Password:</td>
+              <td style="padding: 10px;">${rawPassword}</td>
+            </tr>
+          </table>
+
+          <div style="text-align: center; margin: 20px 0;">
+            <a href="https://localhost:5173/forgot-password" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+              Go to Student Portal
+            </a>
+          </div>
+
+          <p style="font-size: 16px;">Please log in and change your password after your first login to keep your account secure.</p>
+
+          <p style="margin-top: 40px; font-size: 16px;">Best regards,<br/>Vidhyardhi School Admin Team</p>
         </div>
-
-        <p style="font-size: 16px; color: #333;">We are excited to have you on board. Below are your login credentials:</p>
-        
-        <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 16px;">
-          <tr>
-            <td style="padding: 10px; font-weight: bold; width: 120px;">Login ID:</td>
-            <td style="padding: 10px;">${phone}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; font-weight: bold;">Password:</td>
-            <td style="padding: 10px;">${rawPassword}</td>
-          </tr>
-        </table>
-
-        <div style="text-align: center; margin: 20px 0;">
-          <a href="https://localhost:5173/forgot-password" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
-            Go to Student Portal
-          </a>
-        </div>
-
-        <p style="font-size: 16px;">Please log in and change your password after your first login to keep your account secure.</p>
-
-        <p style="margin-top: 40px; font-size: 16px;">Best regards,<br/>Vidhyardhi School Admin Team</p>
       </div>
-    </div>
-  `
+      `
     );
 
-    res.status(201).json({ message: "Student created with default avatar." });
+    res.status(201).json({ message: "Student created successfully with fee structure and credentials sent." });
   } catch (error) {
     console.error("Add Student Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 //------------------------Delete Students-----------------------------
 export const deleteStudent = async (req, res) => {
@@ -214,6 +355,7 @@ export const getStudentsGroupedByClass = async (req, res) => {
             firstTerm: student.feeStructure.tuition.firstTerm,
             secondTerm: student.feeStructure.tuition.secondTerm,
             transport: student.feeStructure.transport,
+            kit: student.feeStructure.kit, 
             paid: student.feeStructure.paid,
             balance: student.feeStructure.balance
           }
@@ -239,6 +381,7 @@ export const getStudentsGroupedByClass = async (req, res) => {
             firstTerm: student.feeStructure.tuition.firstTerm,
             secondTerm: student.feeStructure.tuition.secondTerm,
             transport: student.feeStructure.transport,
+            kit: student.feeStructure.kit, 
             paid: student.feeStructure.paid,
             balance: student.feeStructure.balance
           }
@@ -259,7 +402,12 @@ export const getStudentsGroupedByClass = async (req, res) => {
 export const promoteSingleStudent = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const { currentClass, nextClass, updatedFees = {} } = req.body;
+    const {
+      currentClass,
+      nextClass,
+      updatedFees = {},
+      includeTransport = true, // ✅ Prompt-style flag
+    } = req.body;
 
     if (!studentId || !currentClass || !nextClass) {
       return res.status(400).json({ error: "studentId, currentClass, and nextClass are required." });
@@ -270,7 +418,6 @@ export const promoteSingleStudent = async (req, res) => {
       return res.status(404).json({ error: "Student not found or current class mismatch." });
     }
 
-    // If already in "Old Students", block further promotion
     if (student.className === "Old Students") {
       return res.status(400).json({ error: "This student is already marked as an Old Student. No further promotion allowed." });
     }
@@ -284,14 +431,14 @@ export const promoteSingleStudent = async (req, res) => {
       promotedAt: new Date(),
     };
 
-    // If nextClass is "Old Students", finalize and exit
+    // Handle Old Student finalization
     if (nextClass === "Old Students" || currentClass === "Grade 7") {
       const updatedStudent = await Student.findByIdAndUpdate(
         studentId,
         {
           $set: {
             className: "Old Students",
-            active: false, // optional flag if needed
+            active: false,
           },
           $push: {
             history: previousData,
@@ -306,30 +453,47 @@ export const promoteSingleStudent = async (req, res) => {
       });
     }
 
-    // Normal promotion with fee setup
+    // ✅ Default fee structure including KIT
     const defaultFeeStructureByClass = {
-      "Grade 1": { tuition: 55000, transport: 0 },
-      "Grade 2": { tuition: 55000, transport: 0 },
-      "Grade 3": { tuition: 55000, transport: 0 },
-      "Grade 4": { tuition: 55000, transport: 0 },
-      "Grade 5": { tuition: 55000, transport: 0 },
-      "Grade 6": { tuition: 75000, transport: 0 },
-      "Grade 7": { tuition: 75000, transport: 0 },
+      "Grade 1": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 2": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 3": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 4": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 5": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 6": { tuition: 75000, transport: 0, kit: 15000 },
+      "Grade 7": { tuition: 75000, transport: 0, kit: 15000 },
     };
 
-    const defaults = defaultFeeStructureByClass[nextClass] || { tuition: 30000, transport: 0 };
+    const defaults = defaultFeeStructureByClass[nextClass] || {
+      tuition: 30000,
+      transport: 0,
+      kit: 10000,
+    };
+
     const tuition = updatedFees.tuition ?? defaults.tuition;
-    const transport = updatedFees.transport ?? defaults.transport;
+    const transport = includeTransport ? (updatedFees.transport ?? defaults.transport) : 0;
+    const kit = updatedFees.kit ?? defaults.kit;
+
+    const firstTerm = Math.floor(tuition / 2);
+    const secondTerm = Math.ceil(tuition / 2);
+    const total = firstTerm + secondTerm + transport + kit;
 
     const newFeeStructure = {
       tuition: {
-        firstTerm: Math.floor(tuition / 2),
-        secondTerm: Math.ceil(tuition / 2),
+        firstTerm,
+        secondTerm,
       },
       transport,
-      total: tuition + transport,
+      kit,
+      total,
       paid: 0,
-      balance: tuition + transport,
+      balance: total,
+      paidComponents: {
+        "tuition.firstTerm": 0,
+        "tuition.secondTerm": 0,
+        transport: 0,
+        kit: 0,
+      },
     };
 
     const updatedStudent = await Student.findByIdAndUpdate(
@@ -406,47 +570,63 @@ export const updateProfile = async (req, res) => {
     const student = await Student.findById(studentId);
     if (!student) return res.status(404).json({ error: "Student not found" });
 
+    // ✅ Update full name
     if (fullName) student.fullName = fullName;
 
+    // ✅ Update feeStructure only if provided
     if (feeStructure) {
-      // Ensure tuition is an object
-      if (typeof feeStructure.tuition === "object") {
-        student.feeStructure.tuition = {
-          firstTerm: feeStructure.tuition.firstTerm ?? 0,
-          secondTerm: feeStructure.tuition.secondTerm ?? 0,
-        };
-      } else if (typeof feeStructure.tuition === "number") {
-        // fallback fix
-        const half = Math.floor(feeStructure.tuition / 2);
-        student.feeStructure.tuition = {
-          firstTerm: half,
-          secondTerm: feeStructure.tuition - half,
-        };
-      } else {
-        // if tuition is missing
-        student.feeStructure.tuition = {
-          firstTerm: 0,
-          secondTerm: 0,
-        };
+      const existing = student.feeStructure;
+
+      // Tuition: can be object or number
+      if (feeStructure.tuition) {
+        if (typeof feeStructure.tuition === "object") {
+          existing.tuition.firstTerm =
+            feeStructure.tuition.firstTerm ?? existing.tuition.firstTerm ?? 0;
+          existing.tuition.secondTerm =
+            feeStructure.tuition.secondTerm ?? existing.tuition.secondTerm ?? 0;
+        } else if (typeof feeStructure.tuition === "number") {
+          const half = Math.floor(feeStructure.tuition / 2);
+          existing.tuition.firstTerm = half;
+          existing.tuition.secondTerm = feeStructure.tuition - half;
+        }
       }
 
-      student.feeStructure.transport = feeStructure.transport ?? 0;
+      // Transport
+      if (feeStructure.hasOwnProperty("transport")) {
+        existing.transport = feeStructure.transport;
+      }
 
-      const tuitionTotal =
-        student.feeStructure.tuition.firstTerm + student.feeStructure.tuition.secondTerm;
-      student.feeStructure.total = tuitionTotal + student.feeStructure.transport;
-      student.feeStructure.balance =
-        student.feeStructure.total - (student.feeStructure.paid ?? 0);
+      // Kit
+      if (feeStructure.hasOwnProperty("kit")) {
+        existing.kit = feeStructure.kit;
+      }
+
+      // Recalculate total and balance
+      const tuitionTotal = existing.tuition.firstTerm + existing.tuition.secondTerm;
+      const total = tuitionTotal + (existing.transport || 0) + (existing.kit || 0);
+      existing.total = total;
+      existing.balance = total - (existing.paid || 0);
+
+      // Ensure paidComponents exists
+      existing.paidComponents = {
+        "tuition.firstTerm": existing.paidComponents?.["tuition.firstTerm"] || 0,
+        "tuition.secondTerm": existing.paidComponents?.["tuition.secondTerm"] || 0,
+        transport: existing.paidComponents?.transport || 0,
+        kit: existing.paidComponents?.kit || 0,
+      };
+
+      student.feeStructure = existing;
     }
 
     await student.save();
     res.status(200).json({ message: "Profile updated", student });
 
   } catch (err) {
-    console.error("Update Error:", err);
+    console.error("Update Profile Error:", err);
     res.status(500).json({ error: "Failed to update student profile" });
   }
 };
+
 
 
 //-----------------------student profile image--------------------
@@ -511,7 +691,7 @@ export const updateStudentProfileImage = async (req, res) => {
 
 export const promoteAllStudentsToNextGrade = async (req, res) => {
   try {
-    const { currentClass, nextClass, updatedFees = {} } = req.body;
+    const { currentClass, nextClass, updatedFees = {}, transportOptedIds = [] } = req.body;
 
     if (!currentClass || !nextClass) {
       return res.status(400).json({ error: "currentClass and nextClass are required." });
@@ -523,13 +703,13 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
     }
 
     const defaultFeeStructureByClass = {
-      "Grade 1": { tuition: 55000, transport: 0 },
-      "Grade 2": { tuition: 55000, transport: 0 },
-      "Grade 3": { tuition: 55000, transport: 0 },
-      "Grade 4": { tuition: 55000, transport: 0 },
-      "Grade 5": { tuition: 55000, transport: 0 },
-      "Grade 6": { tuition: 75000, transport: 0 },
-      "Grade 7": { tuition: 75000, transport: 0 },
+      "Grade 1": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 2": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 3": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 4": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 5": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 6": { tuition: 75000, transport: 0, kit: 15000 },
+      "Grade 7": { tuition: 75000, transport: 0, kit: 15000 },
     };
 
     const promotedStudents = [];
@@ -551,7 +731,7 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
           {
             $set: {
               className: "Old Students",
-              active: false, // optional flag
+              active: false,
             },
             $push: {
               history: previousData,
@@ -561,17 +741,19 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
         );
 
         promotedStudents.push(updated);
-        continue; // skip fee/performance update and email
+        continue;
       }
 
-      // Regular promotion logic
       const defaults = defaultFeeStructureByClass[nextClass] || {};
-      const tuition = updatedFees.tuition || defaults.tuition || 30000;
-      const transport = updatedFees.transport ?? defaults.transport ?? 0;
+      const tuition = updatedFees.tuition ?? defaults.tuition ?? 30000;
+      const transport = transportOptedIds.includes(String(student._id))
+        ? updatedFees.transport ?? 0
+        : 0;
+      const kit = updatedFees.kit ?? 0;
 
       const firstTermTuition = Math.floor(tuition / 2);
       const secondTermTuition = Math.ceil(tuition / 2);
-      const total = firstTermTuition + secondTermTuition + transport;
+      const total = firstTermTuition + secondTermTuition + transport + kit;
 
       const newStructure = {
         tuition: {
@@ -579,6 +761,7 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
           secondTerm: secondTermTuition,
         },
         transport,
+        kit,
         total,
         paid: 0,
         balance: total,
@@ -586,6 +769,7 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
           "tuition.firstTerm": 0,
           "tuition.secondTerm": 0,
           transport: 0,
+          kit: 0,
         },
       };
 
@@ -615,7 +799,7 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
         { new: true }
       );
 
-      // Generate PDF
+      // Generate and email PDF report
       const pdfBuffer = await generatePromotionReportPDF({
         fullName: updated.fullName,
         email: updated.email,
@@ -626,15 +810,60 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
         promotedAt: new Date(),
       });
 
-      // Send Email
       await sendEmail(
         updated.email,
         "Vidhyardhi School - Promotion Confirmation",
         `
-          <p>Dear ${updated.fullName},</p>
-          <p>Congratulations! You have been promoted from <strong>${currentClass}</strong> to <strong>${nextClass}</strong>.</p>
-          <p>Your updated fee structure and due details are attached in the PDF report.</p>
-          <p>Thank you,<br/>Vidhyardhi School</p>
+         <div style="
+              max-width: 600px;
+              margin: auto;
+              font-family: Arial, sans-serif;
+              border: 1px solid #ddd;
+              border-radius: 10px;
+              overflow: hidden;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            ">
+              <!-- Header with Logo -->
+              <div style="background-color: #f5f7fa; padding: 20px; text-align: center;">
+                <img src="https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png" alt="Vidhyardhi School Logo" style="max-height: 80px;" />
+              </div>
+
+              <!-- Main Message -->
+              <div style="padding: 30px; background-color: #ffffff;">
+                <h2 style="color: #2c3e50;">🎓 Promotion Confirmation</h2>
+
+                <p style="font-size: 16px; color: #333;">
+                  Dear <strong>${updated.fullName},</strong>,
+                </p>
+
+                <p style="font-size: 16px; color: #333;">
+                  Congratulations! You have been successfully promoted from 
+                  <strong>${currentClass}</strong> to <strong>${nextClass}</strong>.
+                </p>
+
+                <p style="font-size: 16px; color: #333;">
+                  Attached is your fee structure and promotion details in PDF format. Please review the details carefully.
+                </p>
+
+                <hr style="margin: 20px 0;" />
+
+                <p style="font-size: 15px; color: #555;">
+                  If you have any queries, feel free to contact the school office.
+                </p>
+              </div>
+
+              <!-- Footer -->
+              <div style="background-color: #f5f7fa; padding: 20px; text-align: center; font-size: 14px; color: #555;">
+                <p style="margin: 0;">
+                  <strong>Vidhyardhi School</strong><br/>
+                 Intriguing- Empowering- Transformative
+                </p>
+                <p style="margin: 5px 0 0;">
+                  📍 Door no: 26-175/1, Gayatri Nagar, Near Current Office, Nellore-524004<br/>
+                  📞 +91-9849244277 | ✉️ vidhyardhie.m.school25@gmail.com
+                </p>
+              </div>
+            </div>
         `,
         [
           {
@@ -649,7 +878,7 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
     }
 
     res.status(200).json({
-      message: `Promotion completed. ${promotedStudents.length} students processed.`,
+      message: `Promotion complete. ${promotedStudents.length} students processed.`,
       promotedStudents,
     });
   } catch (error) {
@@ -1170,13 +1399,13 @@ export const addBulkStudents = async (req, res) => {
     const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
     const defaultFeeStructureByClass = {
-      "Grade 1": { tuition: 55000, transport: 0 },
-      "Grade 2": { tuition: 55000, transport: 0 },
-      "Grade 3": { tuition: 55000, transport: 0 },
-      "Grade 4": { tuition: 55000, transport: 0 },
-      "Grade 5": { tuition: 55000, transport: 0 },
-      "Grade 6": { tuition: 75000, transport: 0 },
-      "Grade 7": { tuition: 75000, transport: 0 },
+      "Grade 1": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 2": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 3": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 4": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 5": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 6": { tuition: 75000, transport: 0, kit: 15000 },
+      "Grade 7": { tuition: 75000, transport: 0, kit: 15000 },
     };
 
     const results = [];
@@ -1185,18 +1414,32 @@ export const addBulkStudents = async (req, res) => {
       const { fullName, className, email, phone } = studentData;
       const { rawPassword, hashedPassword } = await generateHashedPassword();
 
-      const defaults = defaultFeeStructureByClass[className] || { tuition: 30000, transport: 0 };
+      const defaults = defaultFeeStructureByClass[className] || {
+        tuition: 55000,
+        transport: 0,
+        kit: 15000,
+      };
+
       const tuition = defaults.tuition;
       const transport = defaults.transport;
+      const kit = defaults.kit;
+
       const feeStructure = {
         tuition: {
           firstTerm: Math.floor(tuition / 2),
           secondTerm: Math.ceil(tuition / 2),
         },
-        transport:transport,
-        total: tuition + transport,
+        transport,
+        kit,
+        total: tuition + transport + kit,
         paid: 0,
-        balance: tuition + transport,
+        balance: tuition + transport + kit,
+        paidComponents: {
+          "tuition.firstTerm": 0,
+          "tuition.secondTerm": 0,
+          transport: 0,
+          kit: 0,
+        },
       };
 
       const initial = fullName?.trim()?.charAt(0).toUpperCase() || "S";
@@ -1226,7 +1469,6 @@ export const addBulkStudents = async (req, res) => {
         },
         feeStructure,
       });
-    
 
       await student.save({ validateBeforeSave: false });
 
@@ -1237,7 +1479,7 @@ export const addBulkStudents = async (req, res) => {
           <h2>Hi ${fullName}, Welcome!</h2>
           <p>Your Login ID: <strong>${phone}</strong></p>
           <p>Password: <strong>${rawPassword}</strong></p>
-          <p><a href="https://localhost:5173/forgot-password">Go to Portal</a></p>
+          <p><a href="https://localhost:5173/forgotpasswordstudent">Go to Portal</a></p>
         `
       );
 
@@ -1534,6 +1776,7 @@ export const getStudentFeeDetails = async (req, res) => {
     const fee = student.feeStructure || {};
     const tuition = fee.tuition || { firstTerm: 0, secondTerm: 0 };
     const transport = fee.transport || 0;
+    const kit = fee.kit || 0;
     const paidComponents = fee.paidComponents || {};
     const paid = fee.paid || 0;
     const balance = fee.balance || 0;
@@ -1548,13 +1791,18 @@ export const getStudentFeeDetails = async (req, res) => {
         ? "Paid"
         : "Pending";
 
+      const kitStatus =
+      (paidComponents.kit || 0) >= kit
+        ? "Paid"
+        : "Pending";
+
     const transportStatus =
       (paidComponents.transport || 0) >= transport
         ? "Paid"
         : "Pending";
 
     const feeSummary = {
-      total: tuition.firstTerm + tuition.secondTerm + transport,
+      total: tuition.firstTerm + tuition.secondTerm + transport+ kit,
       paid,
       balance,
       tuition: {
@@ -1568,6 +1816,11 @@ export const getStudentFeeDetails = async (req, res) => {
           status: tuitionSecondStatus,
           paidAmount: paidComponents["tuition.secondTerm"] || 0,
         },
+      },
+      kit: {
+        amount: kit,
+        status: kitStatus,
+        paidAmount: paidComponents.kit || 0,
       },
       transport: {
         amount: transport,
@@ -1589,8 +1842,9 @@ export const getStudentFeeDetails = async (req, res) => {
   }
 };
 
-//----------------------------direct payment--------------------
 
+
+//----------------------------direct payment--------------------
 export const recordDirectFeePayment = async (req, res) => {
   try {
     const { paymentBreakdown, paymentMethod, mode } = req.body;
@@ -1615,13 +1869,14 @@ export const recordDirectFeePayment = async (req, res) => {
 
     const paidFor = {
       tuition: false,
+      kit: false,
       transport: false,
     };
     let term;
 
     for (const [component, amountRaw] of Object.entries(paymentBreakdown)) {
       const amount = Number(amountRaw);
-      if (!["tuition.firstTerm", "tuition.secondTerm", "transport"].includes(component)) {
+      if (!["tuition.firstTerm", "tuition.secondTerm", "kit","transport"].includes(component)) {
         return res.status(400).json({ error: `Invalid component: ${component}` });
       }
 
@@ -1637,6 +1892,7 @@ export const recordDirectFeePayment = async (req, res) => {
       totalPaidNow += amount;
 
       if (component === "transport") paidFor.transport = true;
+      if (component === "kit") paidFor.kit = true;
       if (component === "tuition.firstTerm") {
         paidFor.tuition = true;
         term = "First Term";
@@ -1658,8 +1914,9 @@ export const recordDirectFeePayment = async (req, res) => {
     fee.paid += totalPaidNow;
     const firstTermLeft = fee.tuition.firstTerm;
     const secondTermLeft = fee.tuition.secondTerm;
+    const kitLeft = fee.kit;
     const transportLeft = fee.transport;
-    fee.balance = Math.max(0, firstTermLeft + secondTermLeft + transportLeft);
+    fee.balance = Math.max(0, firstTermLeft + secondTermLeft + kitLeft + transportLeft);
 
     const paymentDate = new Date();
     const transactionId = `${mode}-${Date.now()}`;
@@ -1679,6 +1936,7 @@ export const recordDirectFeePayment = async (req, res) => {
     student.markModified("feeStructure.paidComponents");
     student.markModified("feeStructure.tuition");
     student.markModified("feeStructure.transport");
+    student.markModified("feeStructure.kit");
 
     await student.save();
 
@@ -1686,17 +1944,21 @@ export const recordDirectFeePayment = async (req, res) => {
       .map(([k, v]) => `<li>${k}: ₹${v}</li>`)
       .join("");
 
-    const pdfBuffer = await generateFeeReceiptPDF({
-      name: student.fullName,
-      email: student.email,
-      contact: student.phone,
-      className: student.className,
-      date: paymentDate.toLocaleString(),
-      transactionId,
-      amount: totalPaidNow,
-      balance: fee.balance,
-      breakdown: paymentBreakdown,
-    });
+      const pdfBuffer = await generateFeeReceiptPDF({
+        name: student.fullName,
+        className: student.className,
+        transactionId,
+        modeOfTransaction: mode, 
+        paymentDate,             
+        amount: totalPaidNow,
+        balance: fee.balance,
+        breakdown: {
+          tuitionFirstTerm: paymentBreakdown["tuition.firstTerm"] || 0,
+          tuitionSecondTerm: paymentBreakdown["tuition.secondTerm"] || 0,
+          transport: paymentBreakdown["transport"] || 0,
+          kit: paymentBreakdown["kit"] || 0,
+        },
+      });
 
     await sendEmail(
       student.email,
@@ -1716,23 +1978,30 @@ export const recordDirectFeePayment = async (req, res) => {
       [
         {
           filename: `FeeReceipt-${student.fullName}-${Date.now()}.pdf`,
-          content: Buffer.from(pdfBuffer),
+          content: pdfBuffer.toString("base64"),
           contentType: "application/pdf",
+          encoding: "base64",
         },
       ]
     );
 
-    return res.status(200).json({
-      message: "Payment recorded and receipt sent",
-      balance: fee.balance,
-      paidComponents: fee.paidComponents,
-    });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=FeeReceipt-${student.fullName}-${Date.now()}.pdf`
+    );
+    return res.send(pdfBuffer);
 
   } catch (err) {
     console.error("Manual Fee Payment Error:", err);
     return res.status(500).json({ error: "Failed to record payment" });
   }
 };
+
+
+
+
+
 
 //--------------------------------staff attendance-----------------------
 
@@ -1822,11 +2091,12 @@ export const getWeeklyAttendanceSummary = async (req, res) => {
   }
 };
 
+
 export const markBulkStaffAttendance = async (req, res) => {
   try {
-    const { attendanceList } = req.body;
-    const today = moment().format("YYYY-MM-DD");
-    const currentMonth = moment().format("YYYY-MM");
+    const { attendanceList, date } = req.body;
+    const markDate = moment(date || new Date()).format("YYYY-MM-DD");
+    const currentMonth = moment(markDate).format("YYYY-MM");
 
     const updates = [];
 
@@ -1837,79 +2107,86 @@ export const markBulkStaffAttendance = async (req, res) => {
       const staff = await Staff.findById(staffId);
       if (!staff) continue;
 
+      // 🛠️ Initialize Maps if undefined
       if (!staff.attendance) staff.attendance = {};
-      if (!staff.attendance.daily) staff.attendance.daily = {};
-      if (staff.attendance.daily[today]) continue; // Skip already marked
+      if (!staff.attendance.daily) staff.attendance.daily = new Map();
+      if (!staff.attendance.monthly) staff.attendance.monthly = new Map();
 
-      // Daily
-      staff.attendance.daily[today] = status;
+      // ✅ Skip if already marked
+      if (staff.attendance.daily.has(markDate)) continue;
 
-      // Monthly
-      if (!staff.attendance.monthly) staff.attendance.monthly = {};
-      if (!staff.attendance.monthly[currentMonth]) {
-        staff.attendance.monthly[currentMonth] = { present: 0, absent: 0, holiday: 0 };
-      }
-      staff.attendance.monthly[currentMonth][status] += 1;
+      // ✅ Save daily attendance
+      staff.attendance.daily.set(markDate, status);
+      staff.markModified("attendance.daily");
 
-      // Yearly
+      // ✅ Update monthly summary
+      const monthSummary = staff.attendance.monthly.get(currentMonth) || {
+        present: 0,
+        absent: 0,
+        holiday: 0,
+      };
+      monthSummary[status] += 1;
+      staff.attendance.monthly.set(currentMonth, monthSummary);
+      staff.markModified("attendance.monthly");
+
+      // ✅ Update yearly summary
       if (!staff.attendance.yearly) {
-        staff.attendance.yearly = {
-          workingDays: 0,
-          presentDays: 0,
-          percentage: 0,
-        };
+        staff.attendance.yearly = { workingDays: 0, presentDays: 0, percentage: 0 };
       }
-      if (status === "present" || status === "absent") {
-        staff.attendance.yearly.workingDays += 1;
+
+      if (["present", "absent"].includes(status)) {
+        staff.attendance.yearly.workingDays++;
       }
       if (status === "present") {
-        staff.attendance.yearly.presentDays += 1;
+        staff.attendance.yearly.presentDays++;
       }
 
-      const { presentDays, workingDays } = staff.attendance.yearly;
-      staff.attendance.yearly.percentage = workingDays > 0 ? Math.round((presentDays / workingDays) * 100) : 0;
+      const { workingDays, presentDays } = staff.attendance.yearly;
+      staff.attendance.yearly.percentage =
+        workingDays > 0 ? Math.round((presentDays / workingDays) * 100) : 0;
 
       updates.push(staff.save());
     }
 
     await Promise.all(updates);
-
-    return res.status(200).json({ message: "Bulk attendance marked successfully" });
+    res.status(200).json({ message: "Bulk attendance marked successfully" });
   } catch (err) {
-    console.error(err);
+    console.error("Bulk attendance error:", err);
     res.status(500).json({ message: "Bulk attendance failed" });
   }
 };
 
+
 export const getStaffAttendanceReport = async (req, res) => {
   try {
     const { staffId } = req.params;
-    const { month } = req.query;
+    const { month } = req.query; // e.g. "2025-07"
 
     const staff = await Staff.findById(staffId);
-    if (!staff || !staff.attendance) {
-      return res.status(404).json({ message: "Staff not found or no attendance available" });
+    if (!staff || !staff.attendance || !staff.attendance.daily) {
+      return res.status(404).json({ message: "Staff not found or no attendance" });
     }
 
-    const monthStats = staff.attendance.monthly?.[month] || {
-      present: 0,
-      absent: 0,
-      holiday: 0
-    };
+    const dailyRecords = Array.from(staff.attendance.daily.entries())
+      .filter(([date]) => date.startsWith(month))
+      .map(([date, status]) => ({ date, status }));
 
-    const dailyRecords = Object.entries(staff.attendance.daily || {}).filter(([date]) =>
-      date.startsWith(month)
-    ).map(([date, status]) => ({ date, status }));
+    const summary = { present: 0, absent: 0, holiday: 0 };
+    let workingDays = 0;
 
-    return res.status(200).json({
+    for (const { status } of dailyRecords) {
+      if (summary[status] !== undefined) summary[status]++;
+      if (["present", "absent"].includes(status)) workingDays++;
+    }
+
+    const presentDays = summary.present;
+    const percentage = workingDays > 0 ? Math.round((presentDays / workingDays) * 100) : 0;
+
+    res.status(200).json({
       month,
+      summary,
       dailyRecords,
-      summary: monthStats,
-      yearly: staff.attendance.yearly || {
-        workingDays: 0,
-        presentDays: 0,
-        percentage: 0
-      }
+      yearly: { workingDays, presentDays, percentage },
     });
   } catch (err) {
     console.error(err);

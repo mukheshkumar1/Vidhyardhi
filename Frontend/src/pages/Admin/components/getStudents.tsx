@@ -48,6 +48,7 @@ interface FeeStructure {
     secondTerm: number;
   };
   transport: number;
+  kit: number; 
   paid: number;
   balance: number;
 }
@@ -342,18 +343,22 @@ const StudentsByClass: React.FC = () => {
                   </div>
 
                   {selectedStudent && selectedStudent.feeStructure && (
-                    <EditStudentProfile
-                      open={editDialogOpen}
-                      setOpen={setEditDialogOpen}
-                      studentId={selectedStudent._id}
-                      fullName={selectedStudent.fullName}
-                      feeStructure={selectedStudent.feeStructure}
-                      onUpdateSuccess={() => {
-                        fetchStudents();
-                        toast.success("Student updated successfully!");
-                      }}
-                    />
-                  )}
+  <EditStudentProfile
+    open={editDialogOpen}
+    setOpen={setEditDialogOpen}
+    studentId={selectedStudent._id}
+    fullName={selectedStudent.fullName}
+    feeStructure={{
+      ...selectedStudent.feeStructure,
+      kit: selectedStudent.feeStructure.kit ?? 0, // ✅ ensure kit is defined
+    }}
+    onUpdateSuccess={() => {
+      fetchStudents();
+      toast.success("Student updated successfully!");
+    }}
+  />
+)}
+
 
                   <div className="mt-6 flex justify-center">
                     <DrawerClose asChild>

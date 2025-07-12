@@ -11,15 +11,32 @@ import {
   } from "lucide-react";
   import React, { useState } from "react";
   
-  type TabType = "students" | "staff" | "staffattendance"| "gallery" | "registrations" | "schoolimages" | "selectclassleader"|
-                  "holidaycalendar";
+  type NavTabType =
+  | "students"
+  | "staff"
+  | "staffattendance"
+  | "gallery"
+  | "registrations"
+  | "selectclassleader"
+  | "holidaycalendar"; // only tabs shown in tabInfo
+
+type TabType = NavTabType | "profile"; // includes profile for switching, but not in sidebar
+
+  interface Admin {
+    fullName: string;
+    profilePicture: {
+      imageUrl: string;
+    };
+  }
   
   interface SidebarProps {
     activeTab: TabType;
     setActiveTab: (tab: TabType) => void;
+    admin?: Admin | null; // Make it optional for safety
   }
   
-  const tabInfo: Record<TabType, { label: string; icon: React.ReactNode; color: string }> = {
+  
+  const tabInfo: Record<NavTabType, { label: string; icon: React.ReactNode; color: string }> = {
     students: {
       label: "Manage Students",
       icon: <Users size={20} />,
@@ -45,24 +62,25 @@ import {
       icon: <ClipboardList size={20} />,
       color: "purple-400",
     },
-    schoolimages: {
-      label: "School Images",
-      icon: <CalendarCheck size={20} />,
-      color: "indigo-400",
-    },
+    // schoolimages: {
+    //   label: "School Images",
+    //   icon: <CalendarCheck size={20} />,
+    //   color: "indigo-400",
+    // },
     selectclassleader: {
       label: "Select Class Leader",
-      icon:  <Gavel className="w-5 h-5" />,
+      icon: <Gavel className="w-5 h-5" />,
       color: "Teal-400",
     },
     holidaycalendar: {
       label: "Holiday Calendar",
-      icon: <CalendarCheck size={20} />, 
+      icon: <CalendarCheck size={20} />,
       color: "red-400",
     },
   };
   
-  export default function AdminSidebar({ activeTab, setActiveTab }: SidebarProps) {
+  
+  export default function AdminSidebar({ activeTab, setActiveTab, admin }: SidebarProps) {
     const [isMobileOpen, setIsMobileOpen] = useState(false);
   
     const renderNavItems = () => (
@@ -89,6 +107,21 @@ import {
             </button>
           );
         })}
+        <div className="mt-auto px-6 py-4 border-t border-white/20">
+  <button
+    onClick={() => setActiveTab("profile" as TabType)}
+    className="flex items-center gap-3 w-full text-white hover:bg-white/10 rounded-md p-2"
+  >
+    <img
+      src={admin?.profilePicture?.imageUrl || "/default-avatar.png"}
+      alt="Admin"
+      className="w-8 h-8 rounded-full object-cover border border-white"
+    />
+    <span className="text-white font-medium truncate">
+      {admin?.fullName || "My Profile"}
+    </span>
+  </button>
+</div>
       </nav>
     );
   

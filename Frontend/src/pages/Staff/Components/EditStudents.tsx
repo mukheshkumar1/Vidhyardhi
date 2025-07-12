@@ -22,7 +22,7 @@ const EditStudents: React.FC<Props> = ({ canEditStudents }) => {
 
           <div className="p-4 bg-blue-50 rounded-lg shadow">
             <h2 className="text-lg font-semibold">Update Performance</h2>
-            <PerformanceUpdateForm studentId="sample-student-id" />
+            <PerformanceUpdateForm  />
           </div>
 
           <div className="p-4 bg-white border rounded-lg shadow">

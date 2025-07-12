@@ -52,16 +52,18 @@ export const getStudentAcademicDetails = async (req, res) => {
 
     const academicHistory = student.history || [];
 
+    // ✅ Format current fee structure
     const formattedFeeStructure = {
       firstTerm: student.feeStructure?.tuition?.firstTerm || 0,
       secondTerm: student.feeStructure?.tuition?.secondTerm || 0,
       transport: student.feeStructure?.transport || 0,
+      kit: student.feeStructure?.kit || 0, // ✅ Include kit fee
       paid: student.feeStructure?.paid || 0,
       balance: student.feeStructure?.balance || 0,
       paidComponents: {},
     };
 
-    // Build paidComponents (for frontend button disabling)
+    // ✅ Build paidComponents for UI checks
     for (const payment of student.feePayments || []) {
       for (const key in payment.breakdown) {
         formattedFeeStructure.paidComponents[key] =
@@ -74,6 +76,7 @@ export const getStudentAcademicDetails = async (req, res) => {
         ? academicHistory[0].className
         : student.className;
 
+    // ✅ Respond with updated structure
     res.status(200).json({
       fullName: student.fullName,
       currentClass: student.className,
@@ -82,14 +85,13 @@ export const getStudentAcademicDetails = async (req, res) => {
       attendance: student.attendance,
       fromClass: firstClass,
       classHistory: academicHistory,
-      feePayments: student.feePayments || [], // include current payments for history UI
+      feePayments: student.feePayments || [],
     });
   } catch (error) {
     console.error("Get Student Academic Details Error:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 
 

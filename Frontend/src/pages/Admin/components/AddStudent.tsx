@@ -23,6 +23,7 @@ interface FormData {
   phone: string;
   tuition: string;
   transport: string;
+  kit: string;
 }
 
 export default function AddStudentDialog() {
@@ -36,11 +37,12 @@ export default function AddStudentDialog() {
     phone: '',
     tuition: '',
     transport: '',
+    kit: '',
   });
 
   const classOptions = [
     'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5',
-    'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10',
+    'Grade 6', 'Grade 7'
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +57,7 @@ export default function AddStudentDialog() {
     setLoading(true);
 
     const feeStructure: Record<string, number> = {};
-    ['tuition', 'transport'].forEach((key) => {
+    ['tuition', 'transport', 'kit'].forEach((key) => {
       const feeValue = formData[key as keyof FormData];
       if (feeValue) {
         feeStructure[key] = parseInt(feeValue);
@@ -86,6 +88,7 @@ export default function AddStudentDialog() {
         phone: '',
         tuition: '',
         transport: '',
+        kit: '',
       });
       setOpen(false);
     } catch (error: any) {
@@ -178,7 +181,7 @@ export default function AddStudentDialog() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="tuition">Tuition Fee</Label>
               <Input
@@ -198,6 +201,18 @@ export default function AddStudentDialog() {
                 name="transport"
                 type="number"
                 value={formData.transport}
+                onChange={handleChange}
+                placeholder="Optional"
+                className="bg-zinc-800 border-zinc-700 text-white"
+              />
+            </div>
+            <div>
+              <Label htmlFor="kit">Kit Fee</Label>
+              <Input
+                id="kit"
+                name="kit"
+                type="number"
+                value={formData.kit}
                 onChange={handleChange}
                 placeholder="Optional"
                 className="bg-zinc-800 border-zinc-700 text-white"

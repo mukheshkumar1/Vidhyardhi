@@ -26,7 +26,10 @@ import { addStaff, addStudent, deleteStaff, deleteStudent, getAdmin, getAttendan
         markStaffAttendance,
         getWeeklyAttendanceSummary,
         markBulkStaffAttendance,
-        getStaffAttendanceReport} from "../controllers/admin.controller.js";
+        getStaffAttendanceReport,
+        editAdminProfile,
+        updateAdminProfileImage,
+        getAdminProfile} from "../controllers/admin.controller.js";
 import { getAllStudentsAttendance } from "../controllers/staff.controller.js";
 import { isAdmin } from "../middleware/isAdmin.js";
 import {  deleteStudentGalleryImages, uploadStudentGalleryImages } from "../controllers/student.gallery.controller.js";
@@ -83,5 +86,8 @@ router.post("/staff/attendance", isAdmin, markStaffAttendance);
 router.get("/staff/:staffId/attendance/weekly", isAdmin, getWeeklyAttendanceSummary);
 router.post("/staff/attendance/bulk",isAdmin, markBulkStaffAttendance);
 router.get("/staff/:staffId/attendance/report",isAdmin, getStaffAttendanceReport);
+router.put("/admin/profile",isAdmin, editAdminProfile);
+router.put("/admin/image", isAdmin, updateAdminProfileImage);
+router.get("/profile", isAdmin, getAdminProfile);
 
 export default router;

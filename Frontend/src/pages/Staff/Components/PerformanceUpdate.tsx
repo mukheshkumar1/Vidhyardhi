@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,54 +8,67 @@ import { toast } from "sonner";
 import { Loader2, Pencil } from "lucide-react";
 
 const subjects = ["Telugu", "Hindi", "English", "Maths", "Science", "Social Studies"];
-const classes = [
-  "Nursery", "LKG", "UKG", "Grade 1", "Grade 2", "Grade 3", "Grade 4",
-  "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10"
-];
+const classOptions = ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"];
 
-type Marks = Record<string, number>;
+const getEmptyMarks = () =>
+  subjects.reduce((acc, subject) => ({ ...acc, [subject]: 0 }), {} as Record<string, number>);
 
-type Student = {
-  _id: string;
-  fullName: string;
-};
-
-const UpdatePerformance = () => {
-  const [loading, setLoading] = useState(false);
+const PerformanceUpdateForm = () => {
   const [className, setClassName] = useState("");
-  const [students, setStudents] = useState<Student[]>([]);
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-
+  const [students, setStudents] = useState<any[]>([]);
+  const [selectedStudentId, setSelectedStudentId] = useState("");
   const [marks, setMarks] = useState({
-    quarterly: {} as Marks,
-    halfYearly: {} as Marks,
-    annual: {} as Marks,
+    quarterly: getEmptyMarks(),
+    halfYearly: getEmptyMarks(),
+    annual: getEmptyMarks(),
   });
+  const [activeExam, setActiveExam] = useState<"quarterly" | "halfYearly" | "annual">("quarterly");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      if (!className) return;
-      try {
-        const res = await fetch(
-          `http://localhost:5000/api/staff/class/${encodeURIComponent(className)}`,
-          { credentials: "include" }
-        );
-        const data = await res.json();
+    if (!className) return;
 
-        const studentList = Array.isArray(data) ? data : data.students || [];
-        setStudents(studentList);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (err) {
-        toast.error("Failed to load students");
-        setStudents([]);
+    const fetchStudents = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/staff/class/${className}`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to fetch students");
+        setStudents(data.students);
+      } catch (err: any) {
+        toast.error(err.message || "Error fetching students");
       }
     };
 
     fetchStudents();
   }, [className]);
 
+  useEffect(() => {
+    if (!selectedStudentId) return;
+
+    const fetchMarks = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/staff/${selectedStudentId}/grades`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to fetch marks");
+        setMarks({
+          quarterly: data.marks?.quarterly?.subjects || getEmptyMarks(),
+          halfYearly: data.marks?.halfYearly?.subjects || getEmptyMarks(),
+          annual: data.marks?.annual?.subjects || getEmptyMarks(),
+        });
+      } catch (err: any) {
+        toast.error(err.message || "Error fetching marks");
+      }
+    };
+
+    fetchMarks();
+  }, [selectedStudentId]);
+
   const handleChange = (
-    exam: "quarterly" | "halfYearly" | "annual",
+    exam: keyof typeof marks,
     subject: string,
     value: string
   ) => {
@@ -68,67 +82,52 @@ const UpdatePerformance = () => {
   };
 
   const handleSubmit = async () => {
-    if (!selectedStudent) return toast.error("Please select a student");
+    if (!selectedStudentId) {
+      toast.error("Please select a student");
+      return;
+    }
 
     setLoading(true);
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/staff/${selectedStudent._id}/grades`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(marks),
-        }
-      );
+      const res = await fetch(`http://localhost:5000/api/staff/${selectedStudentId}/grades`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          [activeExam]: marks[activeExam],
+        }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Update failed");
 
-      toast.success(data.message || "Performance updated successfully");
-
-      // ✅ Reset form after successful submission
-      setSelectedStudent(null);
-      setMarks({
-        quarterly: {} as Marks,
-        halfYearly: {} as Marks,
-        annual: {} as Marks,
-      });
-      // If you want to reset className too, uncomment below
-      //setClassName("");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      toast.success("Performance updated successfully");
     } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
+      toast.error(err.message || "Update failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Card className="max-w-4xl mx-auto mt-6 shadow-xl rounded-2xl">
+    <Card className="shadow-md rounded-xl max-w-5xl mx-auto mt-4">
       <CardContent className="p-6">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-teal-700">
           <Pencil className="w-5 h-5" />
           Update Student Performance
         </h2>
 
-        {/* Select Class */}
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Select Class</label>
+          <label className="block mb-1 font-medium">Select Class</label>
           <select
             value={className}
             onChange={(e) => {
               setClassName(e.target.value);
-              setSelectedStudent(null);
-              setMarks({
-                quarterly: {} as Marks,
-                halfYearly: {} as Marks,
-                annual: {} as Marks,
-              });
+              setSelectedStudentId("");
             }}
-            className="w-full border rounded px-3 py-2"
+            className="border px-3 py-2 rounded w-full"
           >
             <option value="">-- Select Class --</option>
-            {classes.map((cls) => (
+            {classOptions.map((cls) => (
               <option key={cls} value={cls}>
                 {cls}
               </option>
@@ -136,37 +135,30 @@ const UpdatePerformance = () => {
           </select>
         </div>
 
-        {/* Select Student */}
-        {className && (
+        {students.length > 0 && (
           <div className="mb-6">
-            <label className="block text-sm font-medium mb-1">Select Student</label>
+            <label className="block mb-1 font-medium">Select Student</label>
             <select
-              value={selectedStudent?._id || ""}
-              onChange={(e) =>
-                setSelectedStudent(
-                  students.find((s) => s._id === e.target.value) || null
-                )
-              }
-              className="w-full border rounded px-3 py-2"
+              value={selectedStudentId}
+              onChange={(e) => setSelectedStudentId(e.target.value)}
+              className="border px-3 py-2 rounded w-full"
             >
               <option value="">-- Select Student --</option>
-              {Array.isArray(students) &&
-                students.map((student) => (
-                  <option key={student._id} value={student._id}>
-                    {student.fullName}
-                  </option>
-                ))}
+              {students.map((stu) => (
+                <option key={stu._id} value={stu._id}>
+                  {stu.fullName}
+                </option>
+              ))}
             </select>
           </div>
         )}
 
-        {/* Marks Tabs */}
-        {selectedStudent && (
+        {selectedStudentId && (
           <>
-            <Tabs defaultValue="quarterly" className="w-full">
+            <Tabs defaultValue="quarterly" className="w-full" onValueChange={(val) => setActiveExam(val as any)}>
               <TabsList className="grid grid-cols-3 mb-4">
                 <TabsTrigger value="quarterly">Quarterly</TabsTrigger>
-                <TabsTrigger value="halfYearly">Half Yearly</TabsTrigger>
+                <TabsTrigger value="halfYearly">Half-Yearly</TabsTrigger>
                 <TabsTrigger value="annual">Annual</TabsTrigger>
               </TabsList>
 
@@ -175,18 +167,13 @@ const UpdatePerformance = () => {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
                     {subjects.map((subject) => (
                       <div key={subject}>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          {subject}
-                        </label>
+                        <label className="block text-sm font-medium mb-1">{subject}</label>
                         <Input
                           type="number"
                           min={0}
                           max={100}
-                          placeholder="Marks out of 100"
-                          value={marks[exam][subject] || ""}
-                          onChange={(e) =>
-                            handleChange(exam, subject, e.target.value)
-                          }
+                          value={marks[exam][subject]}
+                          onChange={(e) => handleChange(exam, subject, e.target.value)}
                         />
                       </div>
                     ))}
@@ -202,11 +189,11 @@ const UpdatePerformance = () => {
             >
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin mr-2 w-4 h-4" />
+                  <Loader2 className="animate-spin w-4 h-4 mr-2" />
                   Saving...
                 </>
               ) : (
-                "Submit Performance"
+                "Save Performance"
               )}
             </Button>
           </>
@@ -216,4 +203,4 @@ const UpdatePerformance = () => {
   );
 };
 
-export default UpdatePerformance;
+export default PerformanceUpdateForm;

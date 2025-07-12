@@ -1,4 +1,3 @@
-// components/DeleteEventButton.tsx
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -33,13 +32,14 @@ export default function DeleteEventButton({ eventId, onDelete }: DeleteEventButt
   };
 
   return (
-    <Trash2
-      className="w-4 h-4 text-red-500 hover:text-red-700 cursor-pointer"
-      onClick={(e) => {
-        e.stopPropagation();
-        handleDelete();
-      }}
-      title="Delete Event"
-    />
+    <span title="Delete Event">
+      <Trash2
+        className="w-4 h-4 text-red-500 hover:text-red-700 cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDelete();
+        }}
+      />
+    </span>
   );
 }

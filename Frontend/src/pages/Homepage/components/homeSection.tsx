@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ChairmanMessage from "./chairmanMessage";
+import { usePreloadImages } from "@/hooks/usePreloadImages"; 
 
 import school1 from "../../../assets/images/school1.jpg";
 import school2 from "../../../assets/images/school2.jpg";
@@ -13,6 +14,9 @@ const bgImages = [school1, school2, school3, school4, school5];
 const HomeSection = () => {
   const [bgIndex, setBgIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // ✅ Preload all images
+  usePreloadImages(bgImages);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -30,21 +34,32 @@ const HomeSection = () => {
   return (
     <>
       {/* Hero Section */}
-      <section id="home" className="relative text-center py-40 bg-cover bg-center overflow-hidden">
-        {/* Dynamic Background */}
+      <section
+        id="home"
+        className="relative text-center py-40 bg-cover bg-center overflow-hidden"
+      >
+        {/* ✅ Static hidden img elements to preload visually */}
+        <div className="hidden">
+          {bgImages.map((src, i) => (
+            <img key={i} src={src} alt={`bg preload ${i}`} loading="eager" />
+          ))}
+        </div>
+
+        {/* Background Transition Layer */}
         <div
           className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ease-in-out`}
           style={{
             backgroundImage: `url(${bgImages[bgIndex]})`,
             filter: isTransitioning ? "blur(10px)" : "blur(0px)",
             opacity: isTransitioning ? 0.5 : 1,
+            backgroundColor: "#222", // Fallback
           }}
         ></div>
 
         {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        <div className="absolute inset-0 bg-black bg-opacity-40" />
 
-        {/* Content */}
+        {/* Welcome Text */}
         <motion.div
           className="relative z-10"
           initial={{ opacity: 0, y: 60 }}
@@ -62,7 +77,7 @@ const HomeSection = () => {
         </motion.div>
       </section>
 
-      {/* Vision Section */}
+      {/* Vision + Chairman */}
       <section id="vision" className="py-16 px-6 mx-auto mt-10">
         <motion.h2
           className="text-3xl font-bold text-center text-white font-fredoka"
@@ -81,10 +96,11 @@ const HomeSection = () => {
           transition={{ duration: 1 }}
           viewport={{ once: true }}
         >
-          At Vidhyardhi School, our vision is to create an inspiring learning environment where students are encouraged to think critically, act ethically, and grow holistically to become global citizens of tomorrow.
+          At Vidhyardhi School, our vision is to create an inspiring learning
+          environment where students are encouraged to think critically, act
+          ethically, and grow holistically to become global citizens of tomorrow.
         </motion.p>
 
-        {/* Chairman Message */}
         <ChairmanMessage />
       </section>
     </>

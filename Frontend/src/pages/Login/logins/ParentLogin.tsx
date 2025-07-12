@@ -13,6 +13,12 @@ import {
 } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
+// ✅ Import Images
+import balloonImg from "../../../assets/images/balloon.png";
+import studentImg from "../../../assets/images/student.png";
+import capImg from "../../../assets/images/cap.png";
+import logoImg from "../../../assets/images/logo5.jpg";
+
 const StudentLogin = () => {
   const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -42,28 +48,28 @@ const StudentLogin = () => {
 
   return (
     <div className="relative flex items-center justify-center min-h-screen bg-gradient-to-br from-[#3a86ff] to-[#8338ec] px-4 overflow-hidden">
-      {/* Decorative Balloons */}
+      {/* 🎈 Decorative Balloons */}
       <img
-        src="../../src/assets/images/balloon.png"
+        src={balloonImg}
         alt="Balloons Top"
         className="absolute top-0 left-0 w-24 sm:w-32 animate-float"
       />
       <img
-        src="../../src/assets/images/balloon.png"
+        src={balloonImg}
         alt="Balloons Bottom"
         className="absolute bottom-0 right-0 w-20 sm:w-28 animate-float delay-1000"
       />
 
-      {/* Student cartoon */}
+      {/* 🧑‍🎓 Student cartoon */}
       <img
-        src="../../src/assets/images/student.png"
+        src={studentImg}
         alt="Student Cartoon"
         className="hidden md:block absolute -left-20 bottom-6 w-24 sm:w-28 lg:w-32 animate-float-slow"
       />
 
       <Card className="relative w-full max-w-md bg-white bg-opacity-40 backdrop-blur-xl shadow-xl text-white p-4 sm:p-6">
         <img
-          src="../../src/assets/images/cap.png"
+          src={capImg}
           alt="Graduation Cap"
           className="absolute top-2 right-2 w-10 sm:w-12 drop-shadow-lg"
         />
@@ -71,9 +77,9 @@ const StudentLogin = () => {
         <form onSubmit={handleSubmit}>
           <CardHeader className="flex flex-col items-center space-y-4">
             <img
-              src="../../src/assets/images/logo5.jpg"
+              src={logoImg}
               alt="School Logo"
-              className="w-32 sm:w-40 shadow-md bg-white p-1"
+              className="w-32 sm:w-40 shadow-md bg-white p-1 rounded-md"
             />
             <CardTitle className="text-2xl text-center text-blue-200 dark:text-blue-300">
               Student Login
@@ -119,7 +125,7 @@ const StudentLogin = () => {
               </button>
             </div>
 
-            {/* Forgot Password Link */}
+            {/* 🔐 Forgot Password */}
             <div className="text-right">
               <button
                 type="button"

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import  { useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,21 +33,29 @@ const VotingPeriodForm = () => {
   };
 
   return (
-    <Card className="max-w-xl mx-auto mt-6">
+    <Card className="max-w-xl mx-auto mt-8 rounded-2xl shadow-lg border border-purple-200 bg-gradient-to-br from-purple-50 via-indigo-100 to-white">
       <CardHeader>
-        <CardTitle>Set Voting Deadline</CardTitle>
+        <CardTitle className="text-purple-800 text-xl font-bold">
+          🗓️ Set Voting Deadline
+        </CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-4">
         <TextField
           fullWidth
           select
           label="Select Class"
+          variant="outlined"
           value={className}
           onChange={(e) => setClassName(e.target.value)}
+          sx={{
+            backgroundColor: "#ffffffcc",
+            borderRadius: 2,
+          }}
         >
-          {["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade7"].map((cls) => (
+          {["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"].map((cls) => (
             <MenuItem key={cls} value={cls}>
-              Class {cls}
+              {cls}
             </MenuItem>
           ))}
         </TextField>
@@ -59,7 +67,13 @@ const VotingPeriodForm = () => {
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
           fullWidth
+          variant="outlined"
+          sx={{
+            backgroundColor: "#ffffffcc",
+            borderRadius: 2,
+          }}
         />
+
         <TextField
           label="End Date"
           type="date"
@@ -67,9 +81,19 @@ const VotingPeriodForm = () => {
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
           fullWidth
+          variant="outlined"
+          sx={{
+            backgroundColor: "#ffffffcc",
+            borderRadius: 2,
+          }}
         />
 
-        <Button onClick={handleSubmit}>Save Deadline</Button>
+        <Button
+          onClick={handleSubmit}
+          className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold shadow-lg hover:opacity-90 rounded-xl transition-all"
+        >
+          💾 Save Deadline
+        </Button>
       </CardContent>
     </Card>
   );

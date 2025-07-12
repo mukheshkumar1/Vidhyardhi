@@ -21,35 +21,33 @@ const classOptions = [
 ];
 
 const defaultFeeStructureByClass: Record<string, any> = {
-  "Grade 1": { tuition: 55000, transport: 0 },
-  "Grade 2": { tuition: 55000, transport: 0 },
-  "Grade 3": { tuition: 55000, transport: 0 },
-  "Grade 4": { tuition: 55000, transport: 0 },
-  "Grade 5": { tuition: 55000, transport: 0 },
-  "Grade 6": { tuition: 75000, transport: 0 },
-  "Grade 7": { tuition: 75000, transport: 0 },
+      "Grade 1": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 2": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 3": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 4": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 5": { tuition: 55000, transport: 0, kit: 15000 },
+      "Grade 6": { tuition: 75000, transport: 0, kit: 15000 },
+      "Grade 7": { tuition: 75000, transport: 0, kit: 15000 },
 };
 
 const PromoteStudent = () => {
   const [currentClass, setCurrentClass] = useState("");
   const [nextClass, setNextClass] = useState("");
-  const [feeStructure, setFeeStructure] = useState({
-    tuition: 0,
-    transport: 0,
-  });
+  const [feeStructure, setFeeStructure] = useState({ tuition: 0, transport: 0, kit: 0 });
 
   const [studentsInClass, setStudentsInClass] = useState<
-    { fullName: string; attendance: { percentage: number } }[]
+    { _id: string; fullName: string; attendance: { percentage: number } }[]
   >([]);
+  const [transportOptedIds, setTransportOptedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (nextClass && nextClass !== "Old Students") {
-      const defaults = defaultFeeStructureByClass[nextClass] || { tuition: 0, transport: 0 };
+      const defaults = defaultFeeStructureByClass[nextClass] || { tuition: 0, transport: 0, kit: 0 };
       setFeeStructure(defaults);
     } else {
-      setFeeStructure({ tuition: 0, transport: 0 });
+      setFeeStructure({ tuition: 0, transport: 0, kit: 0 });
     }
   }, [nextClass]);
 
@@ -69,13 +67,19 @@ const PromoteStudent = () => {
     }
   }, [currentClass]);
 
-  const totalFee = feeStructure.tuition + feeStructure.transport;
+  const totalFee = feeStructure.tuition + feeStructure.transport + feeStructure.kit;
 
   const handleFeeChange = (field: string, value: string) => {
     setFeeStructure((prev) => ({
       ...prev,
       [field]: Number(value),
     }));
+  };
+
+  const toggleTransportOpt = (id: string) => {
+    setTransportOptedIds((prev) =>
+      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
+    );
   };
 
   const handlePromotion = async () => {
@@ -98,10 +102,8 @@ const PromoteStudent = () => {
         body: JSON.stringify({
           currentClass,
           nextClass,
-          updatedFees: nextClass !== "Old Students" ? {
-            tuition: feeStructure.tuition,
-            transport: feeStructure.transport,
-          } : {},
+          updatedFees: nextClass !== "Old Students" ? feeStructure : {},
+          transportOptedIds,
         }),
       });
 
@@ -112,7 +114,8 @@ const PromoteStudent = () => {
       toast.success(data.message);
       setCurrentClass("");
       setNextClass("");
-      setFeeStructure({ tuition: 0, transport: 0 });
+      setFeeStructure({ tuition: 0, transport: 0, kit: 0 });
+      setTransportOptedIds([]);
       setOpen(false);
     } catch (err: any) {
       console.error(err);
@@ -145,9 +148,7 @@ const PromoteStudent = () => {
             >
               <option value="">Select class</option>
               {classOptions.filter(c => c !== "Old Students").map((cls) => (
-                <option key={cls} value={cls}>
-                  {cls}
-                </option>
+                <option key={cls} value={cls}>{cls}</option>
               ))}
             </select>
           </div>
@@ -161,14 +162,12 @@ const PromoteStudent = () => {
             >
               <option value="">Select class</option>
               {classOptions.map((cls) => (
-                <option key={cls} value={cls}>
-                  {cls}
-                </option>
+                <option key={cls} value={cls}>{cls}</option>
               ))}
             </select>
           </div>
 
-          {nextClass !== "Old Students" && ["tuition", "transport"].map((field) => (
+          {nextClass !== "Old Students" && ["tuition", "transport", "kit"].map((field) => (
             <div key={field}>
               <Label className="capitalize block mb-1">{field} Fee</Label>
               <Input
@@ -181,23 +180,30 @@ const PromoteStudent = () => {
             </div>
           ))}
 
-          {nextClass !== "Old Students" && (
-            <div>
-              <Label className="block mb-1 font-semibold text-blue-300">Total Fee</Label>
-              <div className="p-2 bg-white/5 rounded-md border border-white/10 text-white">
-                ₹ {totalFee}
-              </div>
+          <div>
+            <Label className="block mb-1 font-semibold text-blue-300">Total Fee</Label>
+            <div className="p-2 bg-white/5 rounded-md border border-white/10 text-white">
+              ₹ {totalFee}
             </div>
-          )}
+          </div>
 
           {studentsInClass.length > 0 && (
             <div className="mt-4 border border-white/10 p-3 rounded-md bg-white/5">
-              <h3 className="text-blue-300 font-semibold mb-2">Students in {currentClass}</h3>
-              <ul className="space-y-1 max-h-40 overflow-y-auto text-sm">
-                {studentsInClass.map((student, index) => (
-                  <li key={index} className="flex justify-between text-white/90">
-                    <span>{student.fullName}</span>
-                    <span>{student.attendance?.percentage ?? 0}%</span>
+              <h3 className="text-blue-300 font-semibold mb-2">
+                Students in {currentClass} (Select Transport Opt-in)
+              </h3>
+              <ul className="space-y-2 max-h-48 overflow-y-auto text-sm">
+                {studentsInClass.map((student) => (
+                  <li key={student._id} className="flex justify-between items-center">
+                    <span className="text-white/90">{student.fullName}</span>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={transportOptedIds.includes(student._id)}
+                        onChange={() => toggleTransportOpt(student._id)}
+                      />
+                      Transport
+                    </label>
                   </li>
                 ))}
               </ul>

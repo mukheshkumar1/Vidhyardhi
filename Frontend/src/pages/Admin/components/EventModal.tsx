@@ -26,7 +26,8 @@ export default function EventModal({ open, onOpenChange, event, refresh }: any) 
     if (!title || !date) return;
 
     const payload = { title, date, description };
-    const options = {
+
+    const options: RequestInit = {
       method: event?._id ? "PUT" : "POST",
       headers: {
         "Content-Type": "application/json",
@@ -38,7 +39,7 @@ export default function EventModal({ open, onOpenChange, event, refresh }: any) 
     try {
       const url = event?._id
         ? `http://localhost:5000/api/admin/${event._id}/update`
-    : "http://localhost:5000/api/admin/addevents";
+        : "http://localhost:5000/api/admin/addevents";
 
       const response = await fetch(url, options);
 
@@ -53,15 +54,17 @@ export default function EventModal({ open, onOpenChange, event, refresh }: any) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent  className="
-    bg-white/20  
-    backdrop-blur-md  
-    border border-white/30  
-    shadow-lg shadow-black/40  
-    rounded-xl
-    text-white
-    p-6
-  ">
+      <DialogContent
+        className="
+          bg-white/20  
+          backdrop-blur-md  
+          border border-white/30  
+          shadow-lg shadow-black/40  
+          rounded-xl
+          text-white
+          p-6
+        "
+      >
         <DialogHeader>{event ? "Edit Event" : "Add Event"}</DialogHeader>
         <Input
           placeholder="Title"

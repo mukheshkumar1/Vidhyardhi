@@ -43,7 +43,7 @@ const Footer: React.FC = () => {
             Near Current Office Railway Gate, Gayatri Nagar, Nellore
           </p>
           <p className="mt-1 text-white/70">Phone: 9849244277</p>
-          <p className="mt-1 text-white/70">Email: info@vidhyardhischool.com</p>
+          <p className="mt-1 text-white/70">Email: vidhyardhie.m.school25@gmail.com</p>
 
           {/* Social Icons */}
           <div className="mt-4 flex justify-center md:justify-start space-x-4">

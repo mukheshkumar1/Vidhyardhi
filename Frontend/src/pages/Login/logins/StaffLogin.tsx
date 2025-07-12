@@ -11,7 +11,10 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Link } from "react-router-dom"; // ✅ Import Link
+import { Link } from "react-router-dom";
+
+// ✅ Import Logo
+import logoImg from "../../../assets/images/logo5.jpg";
 
 const StaffLogin = () => {
   const [mobileNumber, setMobileNumber] = useState("");
@@ -45,9 +48,9 @@ const StaffLogin = () => {
         <form onSubmit={handleSubmit}>
           <CardHeader className="flex flex-col items-center space-y-4">
             <img
-              src="../../src/assets/images/logo5.jpg"
+              src={logoImg}
               alt="School Logo"
-              className="w-40 shadow-md bg-white p-1"
+              className="w-40 shadow-md bg-white p-1 rounded-md"
             />
             <CardTitle className="text-2xl text-center text-yellow-600 dark:text-yellow-400">
               Staff Login
@@ -93,7 +96,7 @@ const StaffLogin = () => {
               </button>
             </div>
 
-            {/* ✅ Forgot Password Link */}
+            {/* Forgot Password Link */}
             <div className="text-right">
               <Link
                 to="/forgotpassword"

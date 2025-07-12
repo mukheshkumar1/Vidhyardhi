@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import {
   BookOpen,
@@ -16,7 +17,7 @@ import HomeworkSubmissionsWrapper from '../Components/viewhomeworks';
 import StaffProfile from '../Components/staffProfile';
 import StudentsByClassList from '../Components/studentsByClass';
 import AttendanceManager from '../Components/AttendanceUpdate';
-import UpdatePerformance from './PerformanceUpdate';
+import PerformanceUpdateForm from './PerformanceUpdate';
 import Results from './getPerformance';
 
 const staffLinks = [
@@ -26,7 +27,6 @@ const staffLinks = [
   { name: 'Update Attendance', component: 'attendance', icon: <CalendarCheck size={16} /> },
   { name: 'Update Performance', component: 'performance', icon: <FileText size={16} /> },
   { name: 'Student Results', component: 'results', icon: <FileText size={16} /> },
-  // Profile is added at the bottom
 ];
 
 export default function StaffSidebar() {
@@ -53,7 +53,6 @@ export default function StaffSidebar() {
           fullName: data.fullName || 'No Name',
           profilePicture: data.profilePicture?.imageUrl || '/placeholder.jpg',
         });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error('Failed to fetch profile:', err);
         setErrorProfile(err.message);
@@ -74,11 +73,11 @@ export default function StaffSidebar() {
       case 'students':
         return <StudentsByClassList />;
       case 'attendance':
-        return <AttendanceManager />; 
-        case 'performance':
-          return <UpdatePerformance  />;
-          case 'results':
-            return <Results/>;
+        return <AttendanceManager />;
+      case 'performance':
+        return <PerformanceUpdateForm  />; // replace with real ID
+      case 'results':
+        return <Results />;
       case 'profile':
         return <StaffProfile />;
       default:
@@ -138,7 +137,6 @@ export default function StaffSidebar() {
             </button>
           ))}
         </nav>
-
         <ProfileButton />
       </aside>
 
@@ -167,7 +165,7 @@ export default function StaffSidebar() {
         />
       )}
 
-      {/* Mobile Slide-in Sidebar */}
+      {/* Mobile Sidebar */}
       <div
         className={cn(
           'fixed top-0 left-0 h-full w-64 bg-background shadow-lg z-50 flex flex-col transform transition-transform duration-300 md:hidden',
@@ -203,7 +201,6 @@ export default function StaffSidebar() {
             </button>
           ))}
         </nav>
-
         <div className="p-4 border-t">
           <ProfileButton />
         </div>

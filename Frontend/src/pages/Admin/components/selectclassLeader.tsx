@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -93,45 +93,44 @@ const SetClassLeaderCandidates = () => {
   );
 
   return (
-    <Card className="max-w-3xl mx-auto mt-6 p-4 shadow-xl">
+    <Card className="max-w-4xl mx-auto mt-6 p-4 rounded-2xl border backdrop-blur-md bg-white/70 shadow-xl">
       <CardHeader>
-        <CardTitle>Select Class Leader Candidates</CardTitle>
+        <CardTitle className="text-purple-800 text-xl font-bold">👤 Select Class Leader Candidates</CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-4">
         <select
           onChange={handleClassChange}
           value={className}
-          className="border p-2 rounded w-full text-black"
+          className="border p-2 rounded-xl w-full bg-white/80 text-black font-medium shadow"
         >
-          <option value="">Select Class</option>
-          <option value="Grade 1">Class 1</option>
-          <option value="Grade 2">Class 2</option>
-          <option value="Grade 3">Class 3</option>
-          <option value="Grade 4">Class 4</option>
-          <option value="Grade 5">Class 5</option>
-          <option value="Grade 6">Class 6</option>
-          <option value="Grade 7">Class 7</option>
+          <option value="">🎓 Select Class</option>
+          {["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"].map((grade) => (
+            <option key={grade} value={grade}>
+              {grade}
+            </option>
+          ))}
         </select>
 
         {students.length > 0 && (
           <Input
-            placeholder="Search student by name..."
+            placeholder="🔍 Search student by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="text-black"
+            className="rounded-xl bg-white/80 text-black font-medium shadow"
           />
         )}
 
         {loading ? (
           <div className="flex justify-center my-8">
-            <Loader2 className="animate-spin" />
+            <Loader2 className="animate-spin text-purple-500" />
           </div>
         ) : filteredStudents.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {filteredStudents.map((student) => (
               <label
                 key={student._id}
-                className="flex items-center gap-3 border p-2 rounded cursor-pointer"
+                className="flex items-center gap-3 backdrop-blur-md bg-white/70 border border-gray-300 shadow-md p-3 rounded-xl cursor-pointer transition hover:scale-[1.01]"
               >
                 <Checkbox
                   checked={selectedIds.includes(student._id)}
@@ -140,9 +139,9 @@ const SetClassLeaderCandidates = () => {
                 <img
                   src={student.profilePicture?.imageUrl || "/default-avatar.png"}
                   alt="profile"
-                  className="w-10 h-10 rounded-full object-cover"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-purple-300"
                 />
-                <span>{student.fullName}</span>
+                <span className="font-medium text-gray-800">{student.fullName}</span>
               </label>
             ))}
           </div>
@@ -152,8 +151,12 @@ const SetClassLeaderCandidates = () => {
           )
         )}
 
-        <Button onClick={submitCandidates} disabled={loading}>
-          {loading ? "Submitting..." : "Set as Candidates"}
+        <Button
+          onClick={submitCandidates}
+          disabled={loading}
+          className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-xl shadow hover:opacity-90"
+        >
+          {loading ? "Submitting..." : "✅ Set as Candidates"}
         </Button>
       </CardContent>
     </Card>

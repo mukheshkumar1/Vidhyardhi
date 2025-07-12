@@ -13,6 +13,8 @@ import StudentGalleryView from "./studentGalleryView";
 import { useLocation } from "react-router-dom";
 import StudentHolidayCalendar from "./StudentHoliday";
 
+import logo from "@/assets/images/logo.png"; // ✅ Add your logo path here
+
 export default function StudentPanel() {
   const [activeKey, setActiveKey] = useState("homework");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -49,7 +51,6 @@ export default function StudentPanel() {
   }, []);
 
   useEffect(() => {
-    // Push dummy history entry to prevent back
     window.history.pushState(null, "", window.location.href);
 
     const handlePopState = (e: PopStateEvent) => {
@@ -87,34 +88,18 @@ export default function StudentPanel() {
       component: <StudentAcademicDetails studentId={studentId} />,
       key: "report",
     },
+    { name: "Attendance", component: <StudentAttendance />, key: "attendance" },
     {
-      name: "Attendance",
-      component: <StudentAttendance />,
-      key: "attendance",
+      name: "Fee Details",
+      component: <StudentFeeDetails studentId={studentId} />,
+      key: "Fee Details",
     },
-    {
-      name: "Pay Fee",
-      component: (
-        <StudentFeeDetails
-          studentId={studentId}
-          studentName={studentProfile.fullName}
-          studentEmail={""}
-          studentContact={""}
-        />
-      ),
-      key: "payfee",
-    },
-    {
-      name: "Vote Leader",
-      component: <ClassLeaderVoting />,
-      key: "vote",
-    },
+    { name: "Vote Leader", component: <ClassLeaderVoting />, key: "vote" },
     {
       name: "Gallery",
       component: <StudentGalleryView studentId={studentId} />,
       key: "gallery",
     },
-
     {
       name: "Calendar",
       component: <StudentHolidayCalendar />,
@@ -151,19 +136,23 @@ export default function StudentPanel() {
 
   return (
     <div className="flex min-h-screen w-full flex-col md:flex-row relative">
-      {/* 🔴 Warning message */}
       {backWarning && (
         <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50">
           Please logout first before leaving this page.
         </div>
       )}
 
-      {/* Sidebar */}
+      {/* 🌐 Desktop Sidebar */}
       <aside className="hidden md:flex w-64 flex-col border-r bg-muted/40 p-4">
-        <div className="mb-6 text-lg font-semibold text-muted-foreground uppercase">
-          Student Panel
+        {/* ✅ Logo */}
+        <div className="flex flex-col items-center mb-4">
+          <img src={logo} alt="Logo" className="h-36 w-auto mb-2" />
+          <div className="text-lg font-semibold text-muted-foreground uppercase">
+            Student Panel
+          </div>
         </div>
-        <nav className="flex flex-col gap-2 flex-grow">
+
+        <nav className="flex flex-col gap-2 flex-grow mt-4">
           {studentLinks
             .filter((link) => link.key !== "profile")
             .map(({ name, key }) => (
@@ -184,7 +173,7 @@ export default function StudentPanel() {
         <ProfileButton />
       </aside>
 
-      {/* Mobile */}
+      {/* 📱 Mobile Top Bar */}
       <div className="md:hidden w-full flex items-center justify-between p-4 border-b bg-muted/40 relative z-30">
         <div className="flex items-center gap-3">
           <button
@@ -206,6 +195,7 @@ export default function StudentPanel() {
         />
       )}
 
+      {/* 📱 Mobile Sidebar */}
       <div
         className={cn(
           "fixed top-0 left-0 h-full w-64 bg-background shadow-lg z-50 flex flex-col transform transition-transform duration-300 md:hidden",
@@ -213,7 +203,7 @@ export default function StudentPanel() {
         )}
       >
         <div className="p-4 flex items-center justify-between border-b">
-          <span className="text-lg font-bold">Student Panel</span>
+          <img src={logo} alt="Logo" className="h-12 w-auto" />
           <button
             onClick={() => setMobileSidebarOpen(false)}
             className={buttonVariants({ variant: "ghost", size: "icon" })}
