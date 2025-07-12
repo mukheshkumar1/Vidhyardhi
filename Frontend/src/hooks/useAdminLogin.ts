@@ -20,7 +20,7 @@ export const useAdminLogin = () => {
     setLoading(true);
 
     try {
-      const res = await axiosInstance.post("/auth/login/admin", {
+      const res = await axiosInstance.post("/api/auth/login/admin", {
         mobileNumber,
         password,
       });
