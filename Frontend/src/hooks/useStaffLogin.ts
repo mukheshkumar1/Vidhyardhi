@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "@/lib/axios";
 import { useAuthContext } from "@/context/authContext";
-import {toast} from "sonner";
+import { toast } from "sonner";
 
 interface LoginPayload {
   mobileNumber: string;
@@ -27,33 +27,25 @@ export const useStaffLogin = () => {
 
       const data = res.data;
 
-
-    
-      setAuthUser({
+      const staffUser = {
         role: "staff",
         name: data.name,
         token: data.token,
         ...data,
-      });
-      const staffId = data.user?._id ?? data._id ?? null;
-      if (staffId) {
-        localStorage.setItem('staffId', staffId);
-      } else {
-        console.warn("Staff ID not found in login response:", data);
-      }
-      
-      localStorage.setItem('token', data.token);
-    
+      };
+
+      setAuthUser(staffUser);
+      localStorage.setItem("auth-user", JSON.stringify(staffUser));
+      localStorage.setItem("staffId", data.user?._id ?? data._id ?? "");
 
       toast.success("Login successful!");
       navigate("/staff/dashboard");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const status = err.response?.status;
       const message =
         status === 401 || status === 403
           ? "Invalid credentials. Please check your mobile number and password."
-          : err.response?.data?.message || "Only staff personnals can login.";
+          : err.response?.data?.message || "Only staff personnel can login.";
 
       setError(message);
       toast.error(message);
@@ -64,5 +56,3 @@ export const useStaffLogin = () => {
 
   return { login, loading, error };
 };
-
-
