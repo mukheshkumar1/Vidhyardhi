@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { axiosInstance } from "@/lib/axios";
 import { useAuthContext } from "@/context/authContext";
 import { toast } from "sonner";
 
@@ -20,12 +19,29 @@ export const useStaffLogin = () => {
     setLoading(true);
 
     try {
-      const res = await axiosInstance.post("/api/auth/login/staff", {
-        mobileNumber,
-        password,
+      const response = await fetch("https://vidhyardhi.onrender.com/api/auth/login/staff", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mobileNumber, password }),
       });
 
-      const data = res.data;
+      if (!response.ok) {
+        const errorData = await response.json();
+        const status = response.status;
+
+        const message =
+          status === 401 || status === 403
+            ? "Invalid credentials. Please check your mobile number and password."
+            : errorData.message || "Only staff personnel can login.";
+
+        setError(message);
+        toast.error(message);
+        return;
+      }
+
+      const data = await response.json();
 
       const staffUser = {
         role: "staff",
@@ -34,23 +50,18 @@ export const useStaffLogin = () => {
         ...data,
       };
 
-      // ✅ Save all required info in localStorage
+      // ✅ Save login session
       setAuthUser(staffUser);
       localStorage.setItem("auth-user", JSON.stringify(staffUser));
       localStorage.setItem("staffId", data.user?._id ?? data._id ?? "");
-      localStorage.setItem("token", data.token); // ✅ Important: Fixes 403 on profile fetch
+      localStorage.setItem("token", data.token);
 
       toast.success("Login successful!");
       navigate("/staff/dashboard");
-    } catch (err: any) {
-      const status = err.response?.status;
-      const message =
-        status === 401 || status === 403
-          ? "Invalid credentials. Please check your mobile number and password."
-          : err.response?.data?.message || "Only staff personnel can login.";
-
-      setError(message);
-      toast.error(message);
+    } catch (err) {
+      console.error("Login error:", err);
+      toast.error("Network error or server not reachable.");
+      setError("Login failed due to network or server error.");
     } finally {
       setLoading(false);
     }
