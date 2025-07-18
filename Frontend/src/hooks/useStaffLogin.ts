@@ -34,9 +34,11 @@ export const useStaffLogin = () => {
         ...data,
       };
 
+      // ✅ Save all required info in localStorage
       setAuthUser(staffUser);
       localStorage.setItem("auth-user", JSON.stringify(staffUser));
       localStorage.setItem("staffId", data.user?._id ?? data._id ?? "");
+      localStorage.setItem("token", data.token); // ✅ Important: Fixes 403 on profile fetch
 
       toast.success("Login successful!");
       navigate("/staff/dashboard");
