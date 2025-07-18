@@ -20,7 +20,7 @@ export const useStaffLogin = () => {
     setLoading(true);
 
     try {
-      const res = await axiosInstance.post("/auth/login/staff", {
+      const res = await axiosInstance.post("/api/auth/login/staff", {
         mobileNumber,
         password,
       });
