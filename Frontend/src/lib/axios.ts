@@ -1,23 +1,26 @@
 import axios from "axios";
 
+// Create an instance
 export const axiosInstance = axios.create({
-  baseURL: "https://vidhyardhi.onrender.com",
+  baseURL: import.meta.env.VITE_BACKEND_URL || "https://vidhyardhi.onrender.com",
+  withCredentials: true, // Send cookies if needed (for sessions)
 });
 
-// Automatically add Authorization token from localStorage
-axiosInstance.interceptors.request.use((config) => {
-  try {
-    const storedUser = localStorage.getItem("auth-user");
-    if (storedUser) {
-      const { token } = JSON.parse(storedUser);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+// Attach token from localStorage if present
+axiosInstance.interceptors.request.use(
+  (config) => {
+    try {
+      const storedUser = localStorage.getItem("auth-user");
+      if (storedUser) {
+        const { token } = JSON.parse(storedUser);
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
       }
+    } catch (error) {
+      console.error("Failed to parse auth-user or attach token", error);
     }
-  } catch (err) {
-    console.error("Failed to attach token to request", err);
-  }
-  return config;
-});
-
-
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
