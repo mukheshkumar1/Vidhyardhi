@@ -27,21 +27,29 @@ export const useStaffLogin = () => {
         body: JSON.stringify({ mobileNumber, password }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        const status = response.status;
+      const status = response.status;
 
+      // Check response failure
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
         const message =
           status === 401 || status === 403
             ? "Invalid credentials. Please check your mobile number and password."
-            : errorData.message || "Only staff personnel can login.";
+            : errorData.message || "Only authorized staff can log in.";
 
         setError(message);
         toast.error(message);
         return;
       }
 
+      // Parse response body
       const data = await response.json();
+
+      if (!data.token || !data.name || data.role !== "staff") {
+        setError("Unauthorized: Only staff members are allowed.");
+        toast.error("Unauthorized access. Staff login only.");
+        return;
+      }
 
       const staffUser = {
         role: "staff",
@@ -50,7 +58,6 @@ export const useStaffLogin = () => {
         ...data,
       };
 
-      // ✅ Save login session
       setAuthUser(staffUser);
       localStorage.setItem("auth-user", JSON.stringify(staffUser));
       localStorage.setItem("staffId", data.user?._id ?? data._id ?? "");
@@ -58,10 +65,12 @@ export const useStaffLogin = () => {
 
       toast.success("Login successful!");
       navigate("/staff/dashboard");
+
     } catch (err) {
       console.error("Login error:", err);
-      toast.error("Network error or server not reachable.");
-      setError("Login failed due to network or server error.");
+      const message = "Network error or server not reachable.";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -69,3 +78,4 @@ export const useStaffLogin = () => {
 
   return { login, loading, error };
 };
+
