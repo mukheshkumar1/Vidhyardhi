@@ -6,7 +6,7 @@ import "../../../index.css";
 import DeleteStudent from "./DeleteStudent";
 import {
   Drawer,
-  DrawerContent,
+  DrawerContent, 
   DrawerHeader,
   DrawerTitle,
   DrawerDescription,
@@ -22,6 +22,8 @@ import StudentProfileImage from "./profileImage";
 import PromoteStudentDialog from "./Promotesinglestudent";
 import StudentFeeDetails from "./Getfeedetails";
 import StudentGalleryUploader from "./studentGallery";
+import StudentAttendanceDialog from "./studentattendance";
+import StudentPerformanceDialog from "./studentperformance";
 
 interface Attendance {
   yearly: {
@@ -124,9 +126,6 @@ const StudentsByClass: React.FC = () => {
     return acc;
   }, {} as Record<string, Student[]>);
 
-  const workingDays = selectedStudent?.attendance?.yearly.workingDays ?? 0;
-  const presentDays = selectedStudent?.attendance?.yearly.presentDays ?? 0;
-  const percentage = selectedStudent?.attendance?.yearly.percentage ?? 0;
 
   return (
     <div className="p-6">
@@ -266,22 +265,10 @@ const StudentsByClass: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Attendance */}
-                    <p className="font-semibold mt-4 text-lg">Attendance (Yearly):</p>
-                    <p>Working Days: {workingDays}</p>
-                    <p>Present Days: {presentDays}</p>
-                    <span className={`font-bold ${percentage < 75 ? "text-red-400" : "text-green-400"}`}>
-                      {percentage}%
-                    </span>
-                    {percentage < 75 ? (
-                      <span className="inline-block mt-2 px-3 py-1 text-xs font-bold text-red-500 bg-red-100/20 rounded-full animate-pulse">
-                        Low Attendance
-                      </span>
-                    ) : (
-                      <span className="inline-block mt-2 px-3 py-1 text-xs font-bold text-green-500 bg-green-100/10 rounded-full">
-                        Good Attendance
-                      </span>
-                    )}
+
+<StudentAttendanceDialog studentId={selectedStudent._id} />
+<StudentPerformanceDialog studentId={selectedStudent._id}/>
+
 
                     {/* Promote & Fee */}
                     <div className="flex flex-wrap gap-4 mt-4 justify-center">

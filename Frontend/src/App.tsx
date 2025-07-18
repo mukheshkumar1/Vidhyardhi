@@ -18,6 +18,7 @@ import ForgotPassword from "./pages/Login/logins/components/forgotPassword";
 import ResetPassword from "./pages/Login/logins/components/resetPassword";
 import StudentForgotPassword from "./pages/Login/logins/components/studentForgotPassword";
 import StudentResetPassword from "./pages/Login/logins/components/studentResetPssword";
+import PdfViewer from "./pages/pdfviewer";
 
 
 
@@ -46,6 +47,7 @@ const {authUser} = useAuthContext();
      <Route path="/resetpasswordstudent" element={<StudentResetPassword />} />
      <Route path="/staff/dashboard" element={authUser?.role === "staff" ? <StaffPage/> :<Homepage/>}/>
      <Route path="/student/dashboard" element={authUser?.role === "student" ? <StudentPage/> :<Homepage/>}/>
+     <Route path="/pdf-viewer" element={<PdfViewer />} />
      </Routes>
      <Toaster
         position="bottom-right"

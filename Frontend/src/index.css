@@ -50,6 +50,7 @@ body {
     padding: 0.5rem 1rem;
     border-radius: 9999px;
     transition: color 0.3s ease;
+    color: purple;
   }
   
   .nav-bubble::before {
@@ -156,6 +157,7 @@ body {
   .overlap-image {
     position: relative;
     right: -50px;
+    transform: translateX(-80px);
   }
   
   /* Right-side glass card */
@@ -163,7 +165,7 @@ body {
     flex: 1;
     min-width: 300px;
     margin-left: -80px;
-    transform: skew(-12deg);
+    transform:translateX(-150px) skew(-12deg);
     background: rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -232,16 +234,18 @@ body {
     bottom: 0;
     z-index: 10;
   }
-    .overlap-image {
-      position: static;
-      margin-bottom: -40px;
-    }
+  .overlap-image {
+    position: static;
+    margin-bottom: -40px;
+    transform: translateX(20px) translateY(20px); 
+  }
   
     .parallelogram-card {
       margin-left: 0;
       transform: none;
       text-align: center;
       padding-top: 4rem;
+      transform: translateX(33px);
     }
   
     .parallelogram-card > * {

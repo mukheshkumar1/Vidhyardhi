@@ -22,11 +22,12 @@ import CloseVoting from "./components/closeVoting";
 import AdminHolidayCalendar from "./components/HolidayCalendar";
 import StaffAttendancePanel from "./components/staffAttendancePanel";
 import AdminProfile from "./components/AdminProfile";
+import ClassToppers from "./components/getToppers";
 
 const AdminPage = () => {
 
   const [activeTab, setActiveTab] = useState<
-    "students" | "staff" |"staffattendance"| "gallery" | "registrations"  | "selectclassleader" |"holidaycalendar" | "profile"
+    "students" | "staff" |"staffattendance"| "gallery" | "registrations"  | "selectclassleader" |"holidaycalendar" | "profile" |"toppers"
   >("students");
 
   const [studentsCount, setStudentsCount] = useState(0);
@@ -341,6 +342,20 @@ const AdminPage = () => {
     
   </motion.div>
 )}
+
+{activeTab === "toppers" && (
+            <motion.div
+              key="toppers"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="space-y-6"
+            >
+              <ClassToppers />
+            </motion.div>
+          )}
+
   {activeTab === "holidaycalendar" && (
             <motion.div
               key="holidaycalendar"

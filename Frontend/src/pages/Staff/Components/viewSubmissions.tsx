@@ -17,6 +17,7 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
+import { Link } from "react-router-dom";
 
 type Submission = {
   studentId: string;
@@ -34,6 +35,7 @@ export default function ViewSubmissionsPage({ homeworkId }: { homeworkId: string
   const [loadingIds, setLoadingIds] = useState<string[]>([]);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`https://vidhyardhi.onrender.com/api/homework/submissions/${homeworkId}/submissions`)
@@ -96,7 +98,6 @@ export default function ViewSubmissionsPage({ homeworkId }: { homeworkId: string
     }
   };
 
-  // Delete Homework handler
   const handleDeleteHomework = async () => {
     setDeleteLoading(true);
     try {
@@ -111,8 +112,6 @@ export default function ViewSubmissionsPage({ homeworkId }: { homeworkId: string
 
       if (response.ok) {
         alert('Homework deleted successfully');
-        // Option 1: Redirect or notify parent to refresh homework list
-        // For now just reload page or clear submissions
         setSubmissions([]);
       } else {
         const errData = await response.json();
@@ -126,6 +125,8 @@ export default function ViewSubmissionsPage({ homeworkId }: { homeworkId: string
       setConfirmOpen(false);
     }
   };
+
+
 
   return (
     <Paper sx={{ p: 3 }}>
@@ -185,9 +186,14 @@ export default function ViewSubmissionsPage({ homeworkId }: { homeworkId: string
                 </TableCell>
                 <TableCell>
                   {sub.fileUrl ? (
-                    <a href={sub.fileUrl} target="_blank" rel="noopener noreferrer">
-                      View File
-                    </a>
+                    <Link
+                    to={`/pdf-viewer?url=${encodeURIComponent(sub.fileUrl)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    View Submission
+                  </Link>
                   ) : (
                     'N/A'
                   )}
@@ -225,6 +231,26 @@ export default function ViewSubmissionsPage({ homeworkId }: { homeworkId: string
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* PDF Preview Modal */}
+      <Dialog open={!!previewUrl} onClose={() => setPreviewUrl(null)} maxWidth="lg" fullWidth>
+        <DialogTitle>Preview Submission</DialogTitle>
+        <DialogContent dividers sx={{ height: '80vh' }}>
+          {previewUrl ? (
+            <iframe
+              src={previewUrl}
+              style={{ width: '100%', height: '100%', border: 'none' }}
+              title="Homework PDF"
+              onError={() => alert('Failed to load PDF. It may have expired or been deleted.')}
+            />
+          ) : (
+            <Typography>No file to preview</Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPreviewUrl(null)}>Close</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Confirm Delete Dialog */}
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>

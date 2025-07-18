@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { UploadCloud } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 interface Homework {
   _id: string;
@@ -84,10 +85,20 @@ export default function MyHomeworkPage() {
         throw new Error(errorData.message || "Submission failed");
       }
 
+      const data = await res.json();
+
       toast.success("📤 Homework submitted successfully!");
       setHomeworks((prev) =>
         prev.map((hw) =>
-          hw._id === homeworkId ? { ...hw, status: "Submitted" } : hw
+          hw._id === homeworkId
+            ? {
+                ...hw,
+                status: "Submitted",
+                fileUrl: data.pdfUrl,
+                marks: null,
+                comments: undefined,
+              }
+            : hw
         )
       );
       setFiles((prev) => ({ ...prev, [homeworkId]: null }));
@@ -155,20 +166,18 @@ export default function MyHomeworkPage() {
                     {hw.status === "Checked" && hw.comments ? hw.comments : "-"}
                   </TableCell>
                   <TableCell>
-                    {hw.status === "Submitted" || hw.status === "Checked" ? (
-                      hw.fileUrl ? (
-                        <a
-                          href={hw.fileUrl}
+                    <div className="flex flex-col gap-2">
+                      {hw.fileUrl && (
+                        <Link
+                          to={`/pdf-viewer?url=${encodeURIComponent(hw.fileUrl)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 underline"
                         >
                           View Submission
-                        </a>
-                      ) : (
-                        "Submitted"
-                      )
-                    ) : (
+                        </Link>
+                      )}
+
                       <div className="flex items-center gap-2">
                         <input
                           type="file"
@@ -180,10 +189,13 @@ export default function MyHomeworkPage() {
                           disabled={!files[hw._id]}
                           className="min-w-[110px] font-semibold flex items-center gap-1"
                         >
-                          <UploadCloud size={18} /> Submit
+                          <UploadCloud size={18} />
+                          {hw.status === "Submitted" || hw.status === "Checked"
+                            ? "Resubmit"
+                            : "Submit"}
                         </Button>
                       </div>
-                    )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

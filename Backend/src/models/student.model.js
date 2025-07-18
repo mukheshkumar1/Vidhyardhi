@@ -26,6 +26,7 @@ const studentSchema = new mongoose.Schema({
     {
       imageUrl: String,
       thumbnail: String,
+      publicId: String,
       uploadedAt: Date,
     },
   ],

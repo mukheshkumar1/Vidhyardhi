@@ -1,45 +1,15 @@
 import fs from 'fs';
-import { google } from 'googleapis';
 import Homework from '../models/homework.model.js';
 import Student from '../models/student.model.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import Staff from '../models/user.model.js';
-import dotenv from 'dotenv';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { uploadPDFToCloudinary, deletePDFfromCloudinary } from '../utils/cloudinary.js';
 
-dotenv.config();
 
-const auth = new google.auth.GoogleAuth({
-  credentials: {
-    client_email: process.env.GOOGLE_CLIENT_EMAIL,
-    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-  },
-  scopes: ['https://www.googleapis.com/auth/drive'],
-});
 
-const uploadToDrive = async (filePath, fileName, folderId) => {
-  const drive = google.drive({ version: 'v3', auth });
-
-  const fileMetadata = { name: fileName, parents: [folderId] };
-  const media = { mimeType: 'application/pdf', body: fs.createReadStream(filePath) };
-
-  const file = await drive.files.create({ resource: fileMetadata, media, fields: 'id' });
-  const fileId = file.data.id;
-
-  await drive.permissions.create({
-    fileId,
-    requestBody: { type: 'anyone', role: 'reader' },
-  });
-
-  const result = await drive.files.get({ fileId, fields: 'webViewLink' });
-  return result.data.webViewLink;
-};
 
 export const assignHomework = async (req, res) => {
   const { title, className, subject, description, deadline } = req.body;
-  const staffId = req.user?.id || req.user?._id; // Extract from logged-in staff
+  const staffId = req.user?.id || req.user?._id;
 
   if (!title || !className || !subject || !description || !deadline || !staffId) {
     return res.status(400).json({ message: 'Missing required fields' });
@@ -52,12 +22,11 @@ export const assignHomework = async (req, res) => {
       subject,
       description,
       deadline,
-      createdBy: staffId, // auto-set from logged-in staff
+      createdBy: staffId,
     });
 
     await newHomework.save();
 
-    // Assign homework to all students in the class
     await Student.updateMany(
       { className },
       {
@@ -70,113 +39,131 @@ export const assignHomework = async (req, res) => {
       }
     );
 
-    res.status(201).json({
-      message: 'Homework assigned successfully',
-      homework: newHomework,
-    });
+    res.status(201).json({ message: 'Homework assigned successfully', homework: newHomework });
   } catch (err) {
     console.error('Assign Homework Error:', err);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
+//-------------------------------submit Homework------------------------------------
 export const submitHomework = async (req, res) => {
   const studentId = req.user?.id || req.user?._id;
   const { homeworkId } = req.params;
   const file = req.files?.file;
 
-  if (!studentId) {
-    return res.status(401).json({ message: "Unauthorized: Student not logged in" });
-  }
-
-  if (!homeworkId || !file) {
+  if (!studentId || !homeworkId || !file) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
   try {
     const tempPath = file.tempFilePath;
-    const driveLink = await uploadToDrive(tempPath, file.name, process.env.GDRIVE_FOLDER_ID);
-    fs.unlinkSync(tempPath);
+    const uploadResult = await uploadPDFToCloudinary(tempPath, "homework_submissions");
+    fs.unlinkSync(tempPath); // remove the temporary file
 
     const homework = await Homework.findById(homeworkId);
-    if (!homework) return res.status(404).json({ message: "Homework not found" });
-
-    const existingSubmission = homework.studentSubmissions.find(
-      (s) => s.studentId.toString() === studentId.toString()
-    );
-    if (existingSubmission) {
-      return res.status(400).json({ message: "Already submitted" });
+    if (!homework) {
+      return res.status(404).json({ message: "Homework not found" });
     }
 
-    homework.studentSubmissions.push({
-      studentId,
-      fileUrl: driveLink,
-      status: "submitted",
-      submittedAt: new Date(),
-    });
+    const existingIndex = homework.studentSubmissions.findIndex(
+      (s) => s.studentId.toString() === studentId.toString()
+    );
+
+    if (existingIndex !== -1) {
+      // 🧹 Delete old PDF from Cloudinary
+      const oldPublicId = homework.studentSubmissions[existingIndex].cloudinaryPublicId;
+      if (oldPublicId) {
+        await deletePDFfromCloudinary(oldPublicId);
+      }
+
+      // 🔁 Update the existing submission
+      homework.studentSubmissions[existingIndex] = {
+        ...homework.studentSubmissions[existingIndex],
+        fileUrl: uploadResult.secure_url,
+        cloudinaryPublicId: uploadResult.public_id,
+        status: "submitted",
+        submittedAt: new Date(),
+        marks: undefined,     // Optional: reset marks
+        comments: undefined,  // Optional: reset comments
+      };
+    } else {
+      // ➕ Add new submission
+      homework.studentSubmissions.push({
+        studentId,
+        fileUrl: uploadResult.secure_url,
+        cloudinaryPublicId: uploadResult.public_id,
+        status: "submitted",
+        submittedAt: new Date(),
+      });
+    }
 
     await homework.save();
-    res.status(200).json({ message: "Homework submitted successfully" });
+
+    res.status(200).json({
+      message: existingIndex !== -1
+        ? "Homework re-submitted successfully"
+        : "Homework submitted successfully",
+      pdfUrl: uploadResult.secure_url,
+    });
   } catch (err) {
     console.error("Submit Homework Error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
+
+
+
   
 
   // Assuming Homework is your mongoose model for homework collection
 
-export const markAsChecked = async (req, res) => {
-  const { homeworkId, studentId, marks, comments } = req.body;
-
-  try {
-    const homework = await Homework.findById(homeworkId);
-    if (!homework) return res.status(404).json({ message: 'Homework not found' });
-
-    let submission = homework.studentSubmissions.find(
-      (s) => s.studentId.toString() === studentId
-    );
-
-    if (!submission) {
-      // Create new submission for physical submission
-      submission = {
-        studentId,
-        status: 'checked',
-        marks: marks || '',
-        comments: comments || '',
-        submitted: false,
-        fileUrl: '',
-      };
-      homework.studentSubmissions.push(submission);
-    } else {
-      // Update existing submission
-      submission.status = 'checked';
-      submission.marks = marks || submission.marks;
-      submission.comments = comments || submission.comments;
+  export const markAsChecked = async (req, res) => {
+    const { homeworkId, studentId, marks, comments } = req.body;
+  
+    try {
+      const homework = await Homework.findById(homeworkId);
+      if (!homework) return res.status(404).json({ message: 'Homework not found' });
+  
+      let submission = homework.studentSubmissions.find(
+        (s) => s.studentId.toString() === studentId
+      );
+  
+      if (!submission) {
+        submission = {
+          studentId,
+          status: 'checked',
+          marks: marks || '',
+          comments: comments || '',
+          submitted: false,
+          fileUrl: '',
+        };
+        homework.studentSubmissions.push(submission);
+      } else {
+        submission.status = 'checked';
+        submission.marks = marks || submission.marks;
+        submission.comments = comments || submission.comments;
+      }
+  
+      const allChecked = homework.studentSubmissions.every((s) => s.status === 'checked');
+      if (allChecked && !homework.fullyCheckedAt) {
+        homework.fullyCheckedAt = new Date();
+      }
+  
+      await homework.save();
+  
+      const updatedSubmission = homework.studentSubmissions.find(
+        (s) => s.studentId.toString() === studentId
+      );
+  
+      res.status(200).json({ message: 'Marked as checked', updatedSubmission });
+    } catch (err) {
+      console.error('Mark as Checked Error:', err);
+      res.status(500).json({ message: 'Internal server error' });
     }
-
-    // Check if all submissions are checked
-    const allChecked = homework.studentSubmissions.every((s) => s.status === 'checked');
-
-    if (allChecked && !homework.fullyCheckedAt) {
-      homework.fullyCheckedAt = new Date();
-    }
-
-    await homework.save();
-
-    // Send updated submission back (optional, but good practice)
-    const updatedSubmission = homework.studentSubmissions.find(
-      (s) => s.studentId.toString() === studentId
-    );
-
-    res.status(200).json({ message: 'Marked as checked', updatedSubmission });
-  } catch (err) {
-    console.error('Mark as Checked Error:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
+  };
+  
   
   export const deleteExpiredHomeworks = async () => {
     const now = new Date();
@@ -203,11 +190,57 @@ export const markAsChecked = async (req, res) => {
       const homework = await Homework.findById(homeworkId);
       if (!homework) return res.status(404).json({ message: 'Not found' });
   
+      for (const submission of homework.studentSubmissions) {
+        if (submission.cloudinaryPublicId) {
+          await deletePDFfromCloudinary(submission.cloudinaryPublicId);
+        }
+      }
+  
       await Homework.findByIdAndDelete(homeworkId);
-      res.status(200).json({ message: 'Homework deleted manually' });
+      res.status(200).json({ message: 'Homework deleted successfully' });
     } catch (err) {
       console.error('Delete Homework Error:', err);
       res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+  
+  // Auto-delete expired submissions (after 7 days)
+  export const autoDeleteOldSubmissions = async () => {
+    const now = new Date();
+    const sevenDaysInMs = 1000 * 60 * 60 * 24 * 7;
+  
+    try {
+      const homeworks = await Homework.find({});
+      for (const hw of homeworks) {
+        let updated = false;
+        const remainingSubmissions = [];
+  
+        for (const submission of hw.studentSubmissions) {
+          const isExpired = submission.submittedAt &&
+            now - new Date(submission.submittedAt) > sevenDaysInMs;
+  
+          if (isExpired) {
+            if (submission.cloudinaryPublicId) {
+              try {
+                await deleteFromCloudinary(submission.cloudinaryPublicId);
+                console.log(`Deleted expired PDF: ${submission.cloudinaryPublicId}`);
+              } catch (err) {
+                console.error(`Error deleting expired PDF: ${submission.cloudinaryPublicId}`, err);
+              }
+            }
+            updated = true;
+          } else {
+            remainingSubmissions.push(submission);
+          }
+        }
+  
+        if (updated) {
+          hw.studentSubmissions = remainingSubmissions;
+          await hw.save();
+        }
+      }
+    } catch (err) {
+      console.error("Auto-delete error:", err);
     }
   };
   
@@ -387,6 +420,11 @@ export const getHomeworkByStudentClass = async (req, res) => {
 
 
 
+
+
+
+
+ 
 
 
 

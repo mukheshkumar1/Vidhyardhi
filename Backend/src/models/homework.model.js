@@ -8,16 +8,20 @@ const homeworkSchema = new mongoose.Schema({
   description: String,
   deadline: Date,
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' },
-  driveLink: String, // For PDF assignment
-  studentSubmissions: [{
-    studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
-    fileUrl: String,
-    status: { type: String, enum: ['submitted', 'checked'], default: 'submitted' },
-    marks: Number,
-    comments: String,
-    submittedAt: Date
-  }],
-  fullyCheckedAt: Date, // 👈 used for auto-delete
+  driveLink: String, // Optional: for future compatibility
+  studentSubmissions: [
+    {
+      studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
+      fileUrl: String, // Cloudinary URL
+      cloudinaryPublicId: String, // ✅ Needed for deletion
+      status: { type: String, enum: ['submitted', 'checked'], default: 'submitted' },
+      marks: Number,
+      comments: String,
+      submittedAt: Date,
+    }
+  ],
+  fullyCheckedAt: Date,
 }, { timestamps: true });
+
 
 export default mongoose.model('Homework', homeworkSchema);

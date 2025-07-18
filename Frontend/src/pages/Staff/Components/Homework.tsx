@@ -1,4 +1,3 @@
-// components/AssignHomeworkPage.tsx
 import { useState } from 'react';
 import {
   TextField,
@@ -11,10 +10,10 @@ import {
   DialogContent,
   DialogActions,
   Box,
+  Alert,
 } from '@mui/material';
-import {toast} from 'sonner';
-import logoBackground from '../../../assets/images/logo.png'; 
-
+import { toast } from 'sonner';
+import logoBackground from '../../../assets/images/logo.png';
 
 const classes = [
   'Grade 1', 'Grade 2', 'Grade 3',
@@ -34,6 +33,7 @@ export default function AssignHomeworkPage() {
   });
 
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -41,13 +41,26 @@ export default function AssignHomeworkPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async () => {
+  const validateForm = () => {
     const { title, description, deadline, className, subject } = formData;
     if (!title || !description || !deadline || !className || !subject) {
       toast.error('Please fill all required fields');
-      return;
+      return false;
     }
 
+    const selectedDate = new Date(deadline);
+    if (selectedDate < new Date()) {
+      toast.error('Deadline must be a future date');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    setLoading(true);
     try {
       const res = await fetch('https://vidhyardhi.onrender.com/api/homework/assign', {
         method: 'POST',
@@ -55,7 +68,7 @@ export default function AssignHomeworkPage() {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ title, description, deadline, className, subject }),
+        body: JSON.stringify(formData),
       });
 
       const data = await res.json();
@@ -76,15 +89,13 @@ export default function AssignHomeworkPage() {
     } catch (err) {
       console.error('Submit Error:', err);
       toast.error('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const openPreview = () => {
-    const { title, description, deadline, className, subject } = formData;
-    if (!title || !description || !deadline || !className || !subject) {
-      toast.error('Please fill all required fields');
-      return;
-    }
+    if (!validateForm()) return;
     setPreviewOpen(true);
   };
 
@@ -95,8 +106,8 @@ export default function AssignHomeworkPage() {
           p: 4,
           maxWidth: 700,
           width: '100%',
-          backdropFilter: 'blur(8px)', // more blur for a glassy look
-          backgroundColor: 'rgba(255, 255, 255, 0.2)', // translucent white layer
+          backdropFilter: 'blur(8px)',
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
           backgroundImage: `url(${logoBackground})`,
           backgroundSize: '300px auto',
           backgroundRepeat: 'no-repeat',
@@ -108,6 +119,12 @@ export default function AssignHomeworkPage() {
         <Typography variant="h5" gutterBottom color="purple" fontFamily={'cursive'}>
           Assign Homework
         </Typography>
+
+        <Alert severity="info" sx={{ mb: 2 }}>
+          🕒 <strong>Note:</strong> All student submissions will be automatically deleted
+          from the server after 7 days to save storage.
+        </Alert>
+
         <TextField
           fullWidth
           label="Title"
@@ -117,6 +134,7 @@ export default function AssignHomeworkPage() {
           margin="normal"
           required
         />
+
         <TextField
           fullWidth
           label="Description"
@@ -128,6 +146,7 @@ export default function AssignHomeworkPage() {
           margin="normal"
           required
         />
+
         <TextField
           fullWidth
           type="date"
@@ -139,6 +158,7 @@ export default function AssignHomeworkPage() {
           InputLabelProps={{ shrink: true }}
           required
         />
+
         <TextField
           select
           fullWidth
@@ -155,6 +175,7 @@ export default function AssignHomeworkPage() {
             </MenuItem>
           ))}
         </TextField>
+
         <TextField
           select
           fullWidth
@@ -171,18 +192,29 @@ export default function AssignHomeworkPage() {
             </MenuItem>
           ))}
         </TextField>
+
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
           <Button variant="outlined" onClick={openPreview}>
             Preview
           </Button>
-          <Button variant="contained" color="primary" onClick={handleSubmit}>
-            Assign
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? 'Assigning...' : 'Assign'}
           </Button>
         </Box>
       </Paper>
 
       {/* Preview Dialog */}
-      <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} fullWidth maxWidth="sm">
+      <Dialog
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle>Preview Homework</DialogTitle>
         <DialogContent dividers>
           <Typography variant="subtitle1"><strong>Title:</strong> {formData.title}</Typography>
@@ -195,8 +227,13 @@ export default function AssignHomeworkPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setPreviewOpen(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" color="primary">
-            Confirm & Assign
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            color="primary"
+            disabled={loading}
+          >
+            {loading ? 'Assigning...' : 'Confirm & Assign'}
           </Button>
         </DialogActions>
       </Dialog>

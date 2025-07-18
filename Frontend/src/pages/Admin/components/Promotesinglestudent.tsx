@@ -18,14 +18,25 @@ interface PromoteStudentDialogProps {
   currentClass: string;
 }
 
-const defaultFeeStructureByClass: Record<string, { tuition: number; transport: number }> = {
-  "Grade 1": { tuition: 55000, transport: 0 },
-  "Grade 2": { tuition: 55000, transport: 0 },
-  "Grade 3": { tuition: 55000, transport: 0 },
-  "Grade 4": { tuition: 55000, transport: 0 },
-  "Grade 5": { tuition: 55000, transport: 0 },
-  "Grade 6": { tuition: 75000, transport: 0 },
-  "Grade 7": { tuition: 75000, transport: 0 },
+const classOptions = [
+  "Grade 1",
+  "Grade 2",
+  "Grade 3",
+  "Grade 4",
+  "Grade 5",
+  "Grade 6",
+  "Grade 7",
+  "Old Students",
+];
+
+const defaultFeeStructureByClass: Record<string, { tuition: number; transport: number; kit: number }> = {
+  "Grade 1": { tuition: 55000, transport: 0, kit: 15000 },
+  "Grade 2": { tuition: 55000, transport: 0, kit: 15000 },
+  "Grade 3": { tuition: 55000, transport: 0, kit: 15000 },
+  "Grade 4": { tuition: 55000, transport: 0, kit: 15000 },
+  "Grade 5": { tuition: 55000, transport: 0, kit: 15000 },
+  "Grade 6": { tuition: 75000, transport: 0, kit: 15000 },
+  "Grade 7": { tuition: 75000, transport: 0, kit: 15000 },
 };
 
 const PromoteStudentDialog: React.FC<PromoteStudentDialogProps> = ({
@@ -37,6 +48,7 @@ const PromoteStudentDialog: React.FC<PromoteStudentDialogProps> = ({
   const [nextClass, setNextClass] = useState("");
   const [tuition, setTuition] = useState("");
   const [transport, setTransport] = useState("");
+  const [kit, setKit] = useState("");
   const [loading, setLoading] = useState(false);
 
   const isOldStudent = currentClass === "Old Students";
@@ -47,23 +59,30 @@ const PromoteStudentDialog: React.FC<PromoteStudentDialogProps> = ({
       setNextClass("");
       setTuition("");
       setTransport("");
+      setKit("");
     }
   }, [isOpen]);
 
   useEffect(() => {
     if (nextClass && nextClass !== "Old Students") {
-      const defaults = defaultFeeStructureByClass[nextClass] || { tuition: 30000, transport: 0 };
+      const defaults = defaultFeeStructureByClass[nextClass] || {
+        tuition: 30000,
+        transport: 0,
+        kit: 0,
+      };
       setTuition(defaults.tuition.toString());
       setTransport(defaults.transport.toString());
+      setKit(defaults.kit.toString());
     } else {
       setTuition("");
       setTransport("");
+      setKit("");
     }
   }, [nextClass]);
 
   const handlePromote = async () => {
     if (!nextClass.trim()) {
-      toast.error("Please enter the next class.");
+      toast.error("Please select the next class.");
       return;
     }
 
@@ -74,6 +93,15 @@ const PromoteStudentDialog: React.FC<PromoteStudentDialogProps> = ({
 
     setLoading(true);
     try {
+      const updatedFees =
+        nextClass !== "Old Students"
+          ? {
+              tuition: tuition ? parseInt(tuition) : undefined,
+              transport: transport ? parseInt(transport) : undefined,
+              kit: kit ? parseInt(kit) : undefined,
+            }
+          : {};
+
       const response = await fetch(
         `https://vidhyardhi.onrender.com/api/admin/students/${studentId}/promote`,
         {
@@ -85,13 +113,7 @@ const PromoteStudentDialog: React.FC<PromoteStudentDialogProps> = ({
           body: JSON.stringify({
             currentClass,
             nextClass,
-            updatedFees:
-              nextClass !== "Old Students"
-                ? {
-                    tuition: tuition ? parseInt(tuition) : undefined,
-                    transport: transport ? parseInt(transport) : undefined,
-                  }
-                : {},
+            updatedFees,
           }),
         }
       );
@@ -134,35 +156,64 @@ const PromoteStudentDialog: React.FC<PromoteStudentDialogProps> = ({
 
             <div>
               <label className="text-sm font-medium">Next Class</label>
-              <Input
-                placeholder="e.g., Grade 7 or Old Students"
+              <select
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
                 value={nextClass}
                 onChange={(e) => setNextClass(e.target.value)}
-              />
+              >
+                <option value="">Select class</option>
+                {classOptions.map((cls) => (
+                  <option key={cls} value={cls}>
+                    {cls}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {!isGraduating && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Tuition Fee</label>
-                  <Input
-                    type="number"
-                    placeholder="Optional"
-                    value={tuition}
-                    onChange={(e) => setTuition(e.target.value)}
-                  />
+              <>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">Tuition Fee</label>
+                    <Input
+                      type="number"
+                      placeholder="Tuition"
+                      value={tuition}
+                      onChange={(e) => setTuition(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Transport Fee</label>
+                    <Input
+                      type="number"
+                      placeholder="Transport"
+                      value={transport}
+                      onChange={(e) => setTransport(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Kit Fee</label>
+                    <Input
+                      type="number"
+                      placeholder="Kit Fee"
+                      value={kit}
+                      onChange={(e) => setKit(e.target.value)}
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium">Transport Fee</label>
-                  <Input
-                    type="number"
-                    placeholder="Optional"
-                    value={transport}
-                    onChange={(e) => setTransport(e.target.value)}
-                  />
+                <div className="text-right text-sm text-gray-600 mt-2">
+                  <strong>Total: ₹
+                    {[
+                      parseInt(tuition || "0"),
+                      parseInt(transport || "0"),
+                      parseInt(kit || "0"),
+                    ].reduce((a, b) => a + b, 0)}
+                  </strong>
                 </div>
-              </div>
+              </>
             )}
           </div>
         )}
