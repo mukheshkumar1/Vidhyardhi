@@ -20,7 +20,7 @@ export const useStudentLogin = () => {
     setLoading(true);
 
     try {
-      const res = await axiosInstance.post("/auth/login/student", {
+      const res = await axiosInstance.post("/api/auth/login/student", {
         mobileNumber,
         password,
       });
