@@ -8,8 +8,6 @@ interface AuthUser {
   email?: string;
   token: string;
   id?: string;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -19,12 +17,10 @@ interface AuthContextType {
   logout: () => void;
 }
 
-// Create context
-// eslint-disable-next-line react-refresh/only-export-components
+// Context creation
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Hook to use context
-// eslint-disable-next-line react-refresh/only-export-components
+// Hook
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -51,6 +47,8 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
   const logout = () => {
     setAuthUser(null);
     localStorage.removeItem("auth-user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("staffId");
   };
 
   return (
