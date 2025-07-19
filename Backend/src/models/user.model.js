@@ -53,15 +53,24 @@ const staffSchema= new mongoose.Schema({
         type: String,
         required: true,
       },
-     attendance: {
-    daily: { type: Map, of: String }, 
-    monthly: { type: Map, of: Object },
-    yearly: {
-      workingDays: Number,
-      presentDays: Number,
-      percentage: Number,
-    },
-  },
+      attendance: {
+        daily: {
+          type: Map,
+          of: String,
+          default: new Map(),
+        },
+        monthly: {
+          type: Map,
+          of: Object,
+          default: new Map(),
+        },
+        yearly: {
+          workingDays: { type: Number, default: 0 },
+          presentDays: { type: Number, default: 0 },
+          percentage: { type: Number, default: 0 },
+        },
+      },
+      
       className: {
         type: String,
         required: function () {
