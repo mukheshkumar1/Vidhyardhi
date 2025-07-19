@@ -23,11 +23,12 @@ import AdminHolidayCalendar from "./components/HolidayCalendar";
 import StaffAttendancePanel from "./components/staffAttendancePanel";
 import AdminProfile from "./components/AdminProfile";
 import ClassToppers from "./components/getToppers";
+import ExtraFeeReceipt from "./components/ManualFeeReceipt";
 
 const AdminPage = () => {
 
   const [activeTab, setActiveTab] = useState<
-    "students" | "staff" |"staffattendance"| "gallery" | "registrations"  | "selectclassleader" |"holidaycalendar" | "profile" |"toppers"
+    "students" | "staff" |"staffattendance"| "gallery" | "registrations"  | "selectclassleader" |"holidaycalendar" | "profile" |"toppers"|"Print Fee Receipt"
   >("students");
 
   const [studentsCount, setStudentsCount] = useState(0);
@@ -63,10 +64,10 @@ const AdminPage = () => {
     const fetchCounts = async () => {
       try {
         const [studentsRes, staffRes] = await Promise.all([
-          fetch("https://vidhyardhi.onrender.com/api/admin/students", {
+          fetch("http://localhost:5000/api/admin/students", {
             credentials: "include",
           }).then((res) => res.json()),
-          fetch("https://vidhyardhi.onrender.com/api/admin/staff", {
+          fetch("http://localhost:5000/api/admin/staff", {
             credentials: "include",
           }).then((res) => res.json()),
         ]);
@@ -99,7 +100,7 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchAdmin = async () => {
       try {
-        const res = await fetch("https://vidhyardhi.onrender.com/api/admin/profile", {
+        const res = await fetch("http://localhost:5000/api/admin/profile", {
           credentials: "include",
         });
         const data = await res.json();
@@ -116,14 +117,17 @@ const AdminPage = () => {
     <div className="flex min-h-screen bg-[#58931d]  text-white">
       <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} admin={admin} />
 
-
+     
       <motion.main className="flex-1 p-8 overflow-y-auto">
         {backWarning && (
+           <div className="print:hidden">
           <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50">
             Please logout first before leaving this page.
           </div>
-        )}
+           </div>
 
+        )}
+         <div className="print:hidden">
         <div className="flex justify-end mb-6">
           <Button
             onClick={logout}
@@ -137,7 +141,9 @@ const AdminPage = () => {
             </span>
           </Button>
         </div>
-
+        </div>
+        
+        <div className="print:hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -155,6 +161,7 @@ const AdminPage = () => {
             <p className="text-lg font-semibold">Total Staff</p>
             <h2 className="text-4xl font-bold">{staffCount}</h2>
           </motion.div>
+        </div>
         </div>
 
         <AnimatePresence mode="wait" initial={false}>
@@ -368,6 +375,19 @@ const AdminPage = () => {
               <AdminHolidayCalendar />
             </motion.div>
           )}
+             {activeTab === "Print Fee Receipt" && (
+            <motion.div
+              key="staff"
+              initial={{ x: -100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 100, opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="space-y-6"
+            >
+             <ExtraFeeReceipt/>
+            </motion.div>
+          )}
+
           {activeTab === "profile" && (
   <motion.div
     key="profile"
