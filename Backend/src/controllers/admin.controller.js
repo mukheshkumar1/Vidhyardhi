@@ -2197,7 +2197,7 @@ export const markBulkStaffAttendance = async (req, res) => {
       const staff = await Staff.findById(staffId);
       if (!staff) continue;
 
-      // 🛠️ Initialize Maps if undefined
+      // ✅ Initialize attendance structure if missing
       if (!staff.attendance) staff.attendance = {};
       if (!staff.attendance.daily) staff.attendance.daily = new Map();
       if (!staff.attendance.monthly) staff.attendance.monthly = new Map();
@@ -2205,7 +2205,7 @@ export const markBulkStaffAttendance = async (req, res) => {
       // ✅ Skip if already marked
       if (staff.attendance.daily.has(markDate)) continue;
 
-      // ✅ Save daily attendance
+      // ✅ Set daily attendance
       staff.attendance.daily.set(markDate, status);
       staff.markModified("attendance.daily");
 
@@ -2219,9 +2219,23 @@ export const markBulkStaffAttendance = async (req, res) => {
       staff.attendance.monthly.set(currentMonth, monthSummary);
       staff.markModified("attendance.monthly");
 
-      // ✅ Update yearly summary
+      // ✅ Update yearly summary safely
       if (!staff.attendance.yearly) {
-        staff.attendance.yearly = { workingDays: 0, presentDays: 0, percentage: 0 };
+        staff.attendance.yearly = {
+          workingDays: 0,
+          presentDays: 0,
+          percentage: 0,
+        };
+      } else {
+        if (typeof staff.attendance.yearly.workingDays !== "number") {
+          staff.attendance.yearly.workingDays = 0;
+        }
+        if (typeof staff.attendance.yearly.presentDays !== "number") {
+          staff.attendance.yearly.presentDays = 0;
+        }
+        if (typeof staff.attendance.yearly.percentage !== "number") {
+          staff.attendance.yearly.percentage = 0;
+        }
       }
 
       if (["present", "absent"].includes(status)) {
@@ -2233,7 +2247,9 @@ export const markBulkStaffAttendance = async (req, res) => {
 
       const { workingDays, presentDays } = staff.attendance.yearly;
       staff.attendance.yearly.percentage =
-        workingDays > 0 ? Math.round((presentDays / workingDays) * 100) : 0;
+        workingDays > 0
+          ? Math.round((presentDays / workingDays) * 100)
+          : 0;
 
       updates.push(staff.save());
     }
