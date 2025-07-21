@@ -262,7 +262,7 @@ export const addStudent = async (req, res) => {
           </table>
 
           <div style="text-align: center; margin: 20px 0;">
-            <a href="https://localhost:5173/forgot-password" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+            <a href="www.vidhyardhischool.com/login/student" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
               Go to Student Portal
             </a>
           </div>
@@ -1028,7 +1028,7 @@ await sendEmail(
         </table>
         <button 
         style="background-color: blue; color: white; padding: 10px 20px; border: rounded; cursor: pointer;" 
-        onclick="this.style.backgroundColor='green'; window.location.href='https://localhost:5173/forgot-password';">
+        onclick="this.style.backgroundColor='green'; window.location.href='www.vidhyardhischool.com/login/staff';">
         Click Here
         </button>
 
@@ -1560,7 +1560,7 @@ export const addBulkStudents = async (req, res) => {
             </table>
   
             <div style="text-align: center; margin: 20px 0;">
-              <a href="https://localhost:5173/forgot-password" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+              <a href="www.vidhyardhischool.com/login/student" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
                 Go to Student Portal
               </a>
             </div>
