@@ -24,11 +24,13 @@ import StaffAttendancePanel from "./components/staffAttendancePanel";
 import AdminProfile from "./components/AdminProfile";
 import ClassToppers from "./components/getToppers";
 import ExtraFeeReceipt from "./components/ManualFeeReceipt";
+import AdminExtraCurricularPerformance from "./components/ExtraPerformance";
+import AdminBirthdayPopup from "./components/adminBirthdayPopup";
 
 const AdminPage = () => {
 
   const [activeTab, setActiveTab] = useState<
-    "students" | "staff" |"staffattendance"| "gallery" | "registrations"  | "selectclassleader" |"holidaycalendar" | "profile" |"toppers"|"Print Fee Receipt"
+    "students" | "staff" |"staffattendance"| "gallery" | "registrations"  | "selectclassleader" |"holidaycalendar" | "profile" |"toppers"|"extraactivities"|"Print Fee Receipt"
   >("students");
 
   const [studentsCount, setStudentsCount] = useState(0);
@@ -119,6 +121,10 @@ const AdminPage = () => {
 
      
       <motion.main className="flex-1 p-8 overflow-y-auto">
+
+      <AdminBirthdayPopup />
+
+
         {backWarning && (
            <div className="print:hidden">
           <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50">
@@ -360,6 +366,18 @@ const AdminPage = () => {
               className="space-y-6"
             >
               <ClassToppers />
+            </motion.div>
+          )}
+{activeTab === "extraactivities" && (
+            <motion.div
+              key="extraactivities"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="space-y-6"
+            >
+              <AdminExtraCurricularPerformance  />
             </motion.div>
           )}
 
