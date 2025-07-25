@@ -27,6 +27,15 @@ interface Props {
   onUpdateSuccess: () => void;
   open: boolean;
   setOpen: (val: boolean) => void;
+
+  // Additional fields
+  fatherName?: string;
+  motherName?: string;
+  dob?: string;
+  address?: string;
+  aadharNumber?: string;
+  phone?: string;
+  secondaryPhone?: string;
 }
 
 const EditStudentProfile: React.FC<Props> = ({
@@ -36,8 +45,23 @@ const EditStudentProfile: React.FC<Props> = ({
   onUpdateSuccess,
   open,
   setOpen,
+  fatherName: initialFather,
+  motherName: initialMother,
+  dob: initialDob,
+  address: initialAddress,
+  aadharNumber: initialAadhar,
+  phone: initialPhone,
+  secondaryPhone: initialSecondary,
 }) => {
-  const [fullNameState, setFullNameState] = useState(fullName);
+  const [fullNameState, setFullNameState] = useState(fullName || "");
+  const [fatherName, setFatherName] = useState(initialFather || "");
+  const [motherName, setMotherName] = useState(initialMother || "");
+  const [dob, setDob] = useState(initialDob || "");
+  const [address, setAddress] = useState(initialAddress || "");
+  const [aadharNumber, setAadharNumber] = useState(initialAadhar || "");
+  const [phone, setPhone] = useState(initialPhone || "");
+  const [secondaryPhone, setSecondaryPhone] = useState(initialSecondary || "");
+
   const [feeStructure, setFeeStructure] = useState<FeeStructure>({
     ...initialFee,
     tuition: {
@@ -50,7 +74,13 @@ const EditStudentProfile: React.FC<Props> = ({
   const [saving, setSaving] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
-  const recalculateTotalAndBalance = (firstTerm: number, secondTerm: number, transport: number, kit: number, paid: number) => {
+  const recalculateTotalAndBalance = (
+    firstTerm: number,
+    secondTerm: number,
+    transport: number,
+    kit: number,
+    paid: number
+  ) => {
     const total = firstTerm + secondTerm + transport + kit;
     const balance = total - paid;
     setFeeStructure((prev) => ({
@@ -116,6 +146,13 @@ const EditStudentProfile: React.FC<Props> = ({
         },
         body: JSON.stringify({
           fullName: fullNameState !== fullName ? fullNameState : undefined,
+          fatherName,
+          motherName,
+          dob,
+          address,
+          aadharNumber,
+          phone,
+          secondaryPhone,
           feeStructure: Object.keys(updatedFeeStructure).length > 0 ? updatedFeeStructure : undefined,
         }),
       });
@@ -147,6 +184,76 @@ const EditStudentProfile: React.FC<Props> = ({
               type="text"
               value={fullNameState}
               onChange={(e) => setFullNameState(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">Father Name</label>
+            <input
+              type="text"
+              value={fatherName}
+              onChange={(e) => setFatherName(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">Mother Name</label>
+            <input
+              type="text"
+              value={motherName}
+              onChange={(e) => setMotherName(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">Date of Birth</label>
+            <input
+              type="date"
+              value={dob}
+              onChange={(e) => setDob(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">Address</label>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">Aadhar Number</label>
+            <input
+              type="text"
+              value={aadharNumber}
+              onChange={(e) => setAadharNumber(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">Phone</label>
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">Secondary Phone</label>
+            <input
+              type="text"
+              value={secondaryPhone}
+              onChange={(e) => setSecondaryPhone(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
