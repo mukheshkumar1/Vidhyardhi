@@ -17,6 +17,7 @@ import XLSX from "xlsx";
 import { Buffer } from "buffer";
 import { generatePromotionReportPDF} from "../utils/generatePromotionReport.js";
 import { generateFeeReceiptPDF } from "../utils/generateReceipt.js";
+import { isBirthdayToday } from "../utils/isBirthdayToday.js";
 
 
 
@@ -127,7 +128,7 @@ export const editAdminProfile = async (req, res) => {
     res.status(500).json({ error: "Server Error" });
   }
 };
-//------------------------------get admin profile-----------------------------
+//------------------------------get admin profile----------------------------- 
 export const getAdminProfile = async (req, res) => {
   try {
     const adminId = req.user.id; // populated by middleware (from token)
@@ -155,9 +156,23 @@ export const getAdminProfile = async (req, res) => {
   }
 };
 
+//------------------------add student has to change in frontend
 export const addStudent = async (req, res) => {
   try {
-    const { fullName, className, email, phone, feeStructure = {}, transportOpted = false } = req.body;
+    const {
+      fullName,
+      className,
+      email,
+      phone,
+      secondaryPhone,
+      dob,
+      address,
+      aadharNumber,
+      motherName,
+      fatherName,
+      feeStructure = {},
+      transportOpted = false
+    } = req.body;
 
     const { rawPassword, hashedPassword } = await generateHashedPassword();
 
@@ -207,6 +222,12 @@ export const addStudent = async (req, res) => {
       className,
       email,
       phone,
+      secondaryPhone,
+      dob,
+      address,
+      aadharNumber,
+      motherName,
+      fatherName,
       password: hashedPassword,
       subjects: {
         telugu: "",
@@ -215,11 +236,15 @@ export const addStudent = async (req, res) => {
         maths: "",
         Science: "",
         Social: "",
+        computer: "",
       },
       performance: {
-        quarterly: {},
-        halfYearly: {},
-        annual: {},
+        formativeAssessment1: {},
+        formativeAssessment2: {},
+        formativeAssessment3: {},
+        formativeAssessment4: {},
+        summativeAssessment1: {},
+        summativeAssessment2: {},
       },
       attendance: {
         yearly: {
@@ -234,6 +259,7 @@ export const addStudent = async (req, res) => {
       feeStructure: mergedFeeStructure,
       history: [],
     });
+
 
     await student.save();
 
@@ -262,7 +288,7 @@ export const addStudent = async (req, res) => {
           </table>
 
           <div style="text-align: center; margin: 20px 0;">
-            <a href="www.vidhyardhischool.com/login/student" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+            <a href="https://localhost:5173/forgot-password" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
               Go to Student Portal
             </a>
           </div>
@@ -324,10 +350,11 @@ export const getStudentsByClass = async (req, res) => {
   }
 };
 
+//---------------------------get students has to change in frontend
 export const getStudentsGroupedByClass = async (req, res) => {
   try {
     const allStudents = await Student.find().select(
-      "fullName email phone className feeStructure profilePicture attendance performance history isCurrentLeader"
+      "fullName email phone className aadharNumber dob motherName fatherName address secondaryPhone feeStructure profilePicture attendance performance history isCurrentLeader"
     );
 
     const classOrder = [
@@ -346,6 +373,12 @@ export const getStudentsGroupedByClass = async (req, res) => {
           email: student.email,
           phone: student.phone,
           className: student.className,
+          aadharNumber: student.aadharNumber,
+          dob: student.dob,
+          motherName: student.motherName,
+          fatherName: student.fatherName,
+          address: student.address,
+          secondaryPhone: student.secondaryPhone,
           profilePicture: student.profilePicture,
           attendance: student.attendance,
           performance: student.performance,
@@ -372,6 +405,12 @@ export const getStudentsGroupedByClass = async (req, res) => {
           email: student.email,
           phone: student.phone,
           className: student.className,
+          aadharNumber: student.aadharNumber,
+          dob: student.dob,
+          motherName: student.motherName,
+          fatherName: student.fatherName,
+          address: student.address,
+          secondaryPhone: student.secondaryPhone,
           profilePicture: student.profilePicture,
           attendance: student.attendance,
           performance: student.performance,
@@ -397,7 +436,7 @@ export const getStudentsGroupedByClass = async (req, res) => {
 };
 
 
-//------------------------Promote students to next Class-----------------------
+//------------------------Promote students to next Class----------------------- has to change in frontend
 
 export const promoteSingleStudent = async (req, res) => {
   try {
@@ -428,12 +467,35 @@ export const promoteSingleStudent = async (req, res) => {
       });
     }
 
+    // ✅ Calculate average performance
+    const calculateAverage = (marksObj) => {
+      const allMarks = Object.values(marksObj).filter((v) => typeof v === "number");
+      const total = allMarks.reduce((sum, val) => sum + val, 0);
+      return allMarks.length > 0 ? +(total / allMarks.length).toFixed(2) : 0;
+    };
+
+    const performance = student.performance || {};
+    const termAverages = {
+      formativeAssessment1: calculateAverage(performance.formativeAssessment1),
+      formativeAssessment2: calculateAverage(performance.formativeAssessment2),
+      formativeAssessment3: calculateAverage(performance.formativeAssessment3),
+      formativeAssessment4: calculateAverage(performance.formativeAssessment4),
+      summativeAssessment1: calculateAverage(performance.summativeAssessment1),
+      summativeAssessment2: calculateAverage(performance.summativeAssessment2),
+    };
+
+    const overallPerformanceAverage = calculateAverage(termAverages);
+
     const previousData = {
       className: student.className,
       feeStructure: student.feeStructure,
       performance: student.performance,
       attendance: student.attendance,
       promotedAt: new Date(),
+      performanceSummary: {
+        termAverages,
+        overallAverage: overallPerformanceAverage,
+      },
     };
 
     const isGraduating = nextClass === "Old Students" || currentClass === "Grade 7";
@@ -458,6 +520,7 @@ export const promoteSingleStudent = async (req, res) => {
       });
     }
 
+    // 📌 Prepare next year’s fee structure
     const defaultFeeStructureByClass = {
       "Grade 1": { tuition: 55000, transport: 0, kit: 15000 },
       "Grade 2": { tuition: 55000, transport: 0, kit: 15000 },
@@ -502,9 +565,12 @@ export const promoteSingleStudent = async (req, res) => {
           className: nextClass,
           feeStructure: newFeeStructure,
           performance: {
-            quarterly: {},
-            halfYearly: {},
-            annual: {},
+            formativeAssessment1: {},
+            formativeAssessment2: {},
+            formativeAssessment3: {},
+            formativeAssessment4: {},
+            summativeAssessment1: {},
+            summativeAssessment2: {},
           },
           attendance: {
             yearly: {
@@ -521,7 +587,7 @@ export const promoteSingleStudent = async (req, res) => {
       { new: true }
     );
 
-    // Generate PDF
+    // Generate PDF with promotion summary
     const pdfBuffer = await generatePromotionReportPDF({
       fullName: updatedStudent.fullName,
       email: updatedStudent.email,
@@ -530,53 +596,63 @@ export const promoteSingleStudent = async (req, res) => {
       toClass: nextClass,
       feeStructure: newFeeStructure,
       promotedAt: new Date(),
+      performanceSummary: previousData.performanceSummary,
     });
 
     // Send Email with PDF
     await sendEmail(
       updatedStudent.email,
       "Vidhyardhi School - Promotion Confirmation",
-      `
-       <div style="
-            max-width: 600px;
-            margin: auto;
-            font-family: Arial, sans-serif;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          ">
-            <div style="background-color: #f5f7fa; padding: 20px; text-align: center;">
-              <img src="https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png" alt="Vidhyardhi School Logo" style="max-height: 80px;" />
-            </div>
+      `  <div style="
+              max-width: 600px;
+              margin: auto;
+              font-family: Arial, sans-serif;
+              border: 1px solid #ddd;
+              border-radius: 10px;
+              overflow: hidden;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            ">
+              <!-- Header with Logo -->
+              <div style="background-color: #f5f7fa; padding: 20px; text-align: center;">
+                <img src="https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png" alt="Vidhyardhi School Logo" style="max-height: 80px;" />
+              </div>
 
-            <div style="padding: 30px; background-color: #ffffff;">
-              <h2 style="color: #2c3e50;">🎓 Promotion Confirmation</h2>
-              <p style="font-size: 16px; color: #333;">Dear <strong>${updatedStudent.fullName}</strong>,</p>
-              <p style="font-size: 16px; color: #333;">
-                Congratulations! You have been successfully promoted from <strong>${currentClass}</strong> to <strong>${nextClass}</strong>.
-              </p>
-              <p style="font-size: 16px; color: #333;">
-                Attached is your fee structure and promotion details in PDF format. Please review the details carefully.
-              </p>
-              <hr style="margin: 20px 0;" />
-              <p style="font-size: 15px; color: #555;">
-                If you have any queries, feel free to contact the school office.
-              </p>
-            </div>
+              <!-- Main Message -->
+              <div style="padding: 30px; background-color: #ffffff;">
+                <h2 style="color: #2c3e50;">🎓 Promotion Confirmation</h2>
 
-            <div style="background-color: #f5f7fa; padding: 20px; text-align: center; font-size: 14px; color: #555;">
-              <p style="margin: 0;">
-                <strong>Vidhyardhi School</strong><br/>
-                Intriguing - Empowering - Transformative
-              </p>
-              <p style="margin: 5px 0 0;">
-                📍 Door no: 26-175/1, Gayatri Nagar, Near Current Office, Nellore-524004<br/>
-                📞 +91-9849244277 | ✉️ vidhyardhie.m.school25@gmail.com
-              </p>
-            </div>
-        </div>
-      `,
+                <p style="font-size: 16px; color: #333;">
+                  Dear <strong>${updatedStudent.fullName},</strong>,
+                </p>
+
+                <p style="font-size: 16px; color: #333;">
+                  Congratulations! You have been successfully promoted from 
+                  <strong>${currentClass}</strong> to <strong>${nextClass}</strong>.
+                </p>
+
+                <p style="font-size: 16px; color: #333;">
+                  Attached is your fee structure and promotion details in PDF format. Please review the details carefully.
+                </p>
+
+                <hr style="margin: 20px 0;" />
+
+                <p style="font-size: 15px; color: #555;">
+                  If you have any queries, feel free to contact the school office.
+                </p>
+              </div>
+
+              <!-- Footer -->
+              <div style="background-color: #f5f7fa; padding: 20px; text-align: center; font-size: 14px; color: #555;">
+                <p style="margin: 0;">
+                  <strong>Vidhyardhi School</strong><br/>
+                 Intriguing- Empowering- Transformative
+                </p>
+                <p style="margin: 5px 0 0;">
+                  📍 Door no: 26-175/1, Gayatri Nagar, Near Current Office, Nellore-524004<br/>
+                  📞 +91-9849244277 | ✉️ vidhyardhie.m.school25@gmail.com
+                </p>
+              </div>
+            </div>`,
       [
         {
           filename: `Promotion-${updatedStudent.fullName}-${Date.now()}.pdf`,
@@ -595,6 +671,7 @@ export const promoteSingleStudent = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 
 //----------------get student details---------------------  
@@ -624,23 +701,38 @@ export const getStudentAcademicDetails = async (req, res) => {
   }
 };
 
-//----------------------update details-----------------------
+//----------------------update details----------------------- has to change in frontend
 export const updateProfile = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const { fullName, feeStructure } = req.body;
+    const {
+      fullName,
+      fatherName,
+      motherName,
+      dob,
+      address,
+      phone,
+      secondaryPhone,
+      feeStructure,
+    } = req.body;
 
     const student = await Student.findById(studentId);
     if (!student) return res.status(404).json({ error: "Student not found" });
 
-    // ✅ Update full name
+    // ✅ Basic info updates
     if (fullName) student.fullName = fullName;
+    if (fatherName) student.fatherName = fatherName;
+    if (motherName) student.motherName = motherName;
+    if (dob) student.dob = dob;
+    if (address) student.address = address;
+    if (phone) student.phone = phone;
+    if (secondaryPhone) student.secondaryPhone = secondaryPhone;
 
-    // ✅ Update feeStructure only if provided
+    // ✅ Update fee structure if provided
     if (feeStructure) {
       const existing = student.feeStructure;
 
-      // Tuition: can be object or number
+      // Tuition
       if (feeStructure.tuition) {
         if (typeof feeStructure.tuition === "object") {
           existing.tuition.firstTerm =
@@ -683,12 +775,12 @@ export const updateProfile = async (req, res) => {
 
     await student.save();
     res.status(200).json({ message: "Profile updated", student });
-
   } catch (err) {
     console.error("Update Profile Error:", err);
     res.status(500).json({ error: "Failed to update student profile" });
   }
 };
+
 
 
 
@@ -749,7 +841,7 @@ export const updateStudentProfileImage = async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 };
-//----------------------promote all students---------------------------
+//----------------------promote all students--------------------------- need to change
 
 
 export const promoteAllStudentsToNextGrade = async (req, res) => {
@@ -775,10 +867,28 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
       "Grade 7": { tuition: 75000, transport: 0, kit: 15000 },
     };
 
+    const calculateAverage = (marksObj) => {
+      const allMarks = Object.values(marksObj || {}).filter((v) => typeof v === "number");
+      const total = allMarks.reduce((sum, val) => sum + val, 0);
+      return allMarks.length > 0 ? +(total / allMarks.length).toFixed(2) : 0;
+    };
+
     const promotedStudents = [];
 
     for (const student of students) {
       const isGraduating = student.className === "Grade 7" || nextClass === "Old Students";
+
+      // 🎓 Calculate performance summary
+      const performance = student.performance || {};
+      const termAverages = {
+        formativeAssessment1: calculateAverage(performance.formativeAssessment1),
+        formativeAssessment2: calculateAverage(performance.formativeAssessment2),
+        formativeAssessment3: calculateAverage(performance.formativeAssessment3),
+        formativeAssessment4: calculateAverage(performance.formativeAssessment4),
+        summativeAssessment1: calculateAverage(performance.summativeAssessment1),
+        summativeAssessment2: calculateAverage(performance.summativeAssessment2),
+      };
+      const overallPerformanceAverage = calculateAverage(termAverages);
 
       const previousData = {
         className: student.className,
@@ -786,6 +896,10 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
         performance: student.performance,
         attendance: student.attendance,
         promotedAt: new Date(),
+        performanceSummary: {
+          termAverages,
+          overallAverage: overallPerformanceAverage,
+        },
       };
 
       if (isGraduating) {
@@ -802,7 +916,6 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
           },
           { new: true }
         );
-
         promotedStudents.push(updated);
         continue;
       }
@@ -843,9 +956,12 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
             className: nextClass,
             feeStructure: newStructure,
             performance: {
-              quarterly: {},
-              halfYearly: {},
-              annual: {},
+              formativeAssessment1: {},
+              formativeAssessment2: {},
+              formativeAssessment3: {},
+              formativeAssessment4: {},
+              summativeAssessment1: {},
+              summativeAssessment2: {},
             },
             attendance: {
               yearly: {
@@ -862,7 +978,7 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
         { new: true }
       );
 
-      // Generate and email PDF report
+      // 🧾 Generate promotion report PDF
       const pdfBuffer = await generatePromotionReportPDF({
         fullName: updated.fullName,
         email: updated.email,
@@ -871,8 +987,10 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
         toClass: nextClass,
         feeStructure: newStructure,
         promotedAt: new Date(),
+        performanceSummary: previousData.performanceSummary,
       });
 
+      // 📧 Send promotion email
       await sendEmail(
         updated.email,
         "Vidhyardhi School - Promotion Confirmation",
@@ -886,42 +1004,26 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
               overflow: hidden;
               box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             ">
-              <!-- Header with Logo -->
               <div style="background-color: #f5f7fa; padding: 20px; text-align: center;">
                 <img src="https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png" alt="Vidhyardhi School Logo" style="max-height: 80px;" />
               </div>
-
-              <!-- Main Message -->
               <div style="padding: 30px; background-color: #ffffff;">
                 <h2 style="color: #2c3e50;">🎓 Promotion Confirmation</h2>
-
                 <p style="font-size: 16px; color: #333;">
-                  Dear <strong>${updated.fullName},</strong>,
+                  Dear <strong>${updated.fullName}</strong>,
                 </p>
-
                 <p style="font-size: 16px; color: #333;">
-                  Congratulations! You have been successfully promoted from 
-                  <strong>${currentClass}</strong> to <strong>${nextClass}</strong>.
+                  Congratulations! You have been promoted from <strong>${currentClass}</strong> to <strong>${nextClass}</strong>.
                 </p>
-
                 <p style="font-size: 16px; color: #333;">
-                  Attached is your fee structure and promotion details in PDF format. Please review the details carefully.
-                </p>
-
-                <hr style="margin: 20px 0;" />
-
-                <p style="font-size: 15px; color: #555;">
-                  If you have any queries, feel free to contact the school office.
+                  Attached is your fee structure and performance summary. Please review the PDF.
                 </p>
               </div>
-
-              <!-- Footer -->
               <div style="background-color: #f5f7fa; padding: 20px; text-align: center; font-size: 14px; color: #555;">
-                <p style="margin: 0;">
-                  <strong>Vidhyardhi School</strong><br/>
-                 Intriguing- Empowering- Transformative
+                <p><strong>Vidhyardhi School</strong><br/>
+                 Intriguing - Empowering - Transformative
                 </p>
-                <p style="margin: 5px 0 0;">
+                <p>
                   📍 Door no: 26-175/1, Gayatri Nagar, Near Current Office, Nellore-524004<br/>
                   📞 +91-9849244277 | ✉️ vidhyardhie.m.school25@gmail.com
                 </p>
@@ -949,6 +1051,7 @@ export const promoteAllStudentsToNextGrade = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 
 //----------------------------fetching attendance--------------------------
@@ -1028,7 +1131,7 @@ await sendEmail(
         </table>
         <button 
         style="background-color: blue; color: white; padding: 10px 20px; border: rounded; cursor: pointer;" 
-        onclick="this.style.backgroundColor='green'; window.location.href='www.vidhyardhischool.com/login/staff';">
+        onclick="this.style.backgroundColor='green'; window.location.href='https://localhost:5173/forgot-password';">
         Click Here
         </button>
 
@@ -1447,7 +1550,8 @@ export const deleteSchoolImage = async (req, res) => {
   }
 };
 
-// add bulk students--------------------------
+// add bulk students-------------------------- fontend
+
 export const addBulkStudents = async (req, res) => {
   try {
     const { fileBase64 } = req.body;
@@ -1474,7 +1578,19 @@ export const addBulkStudents = async (req, res) => {
     const results = [];
 
     for (const studentData of sheetData) {
-      const { fullName, className, email, phone } = studentData;
+      const {
+        fullName,
+        className,
+        email,
+        phone,
+        dob,
+        motherName,
+        fatherName,
+        aadharNumber,
+        secondaryPhone,
+        address
+      } = studentData;
+
       const { rawPassword, hashedPassword } = await generateHashedPassword();
 
       const defaults = defaultFeeStructureByClass[className] || {
@@ -1513,6 +1629,12 @@ export const addBulkStudents = async (req, res) => {
         className,
         email,
         phone,
+        dob,
+        motherName,
+        fatherName,
+        aadharNumber,
+        secondaryPhone,
+        address,
         password: hashedPassword,
         subjects: {
           telugu: "",
@@ -1521,11 +1643,22 @@ export const addBulkStudents = async (req, res) => {
           maths: "",
           Science: "",
           Social: "",
+          computer: "",
         },
         performance: {
-          quarterly: {},
-          halfYearly: {},
-          annual: {},
+          formativeAssessment1: {},
+          formativeAssessment2: {},
+          formativeAssessment3: {},
+          formativeAssessment4: {},
+          summativeAssessment1: {},
+          summativeAssessment2: {},
+        },
+        attendance: {
+          yearly: {
+            workingDays: 0,
+            presentDays: 0,
+            percentage: 0,
+          },
         },
         profilePicture: {
           imageUrl: defaultAvatar,
@@ -1545,9 +1678,9 @@ export const addBulkStudents = async (req, res) => {
               <img src="https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png" alt="Vidhyardhi School Logo" style="max-width: 120px; margin-bottom: 20px;" />
               <h2 style="color: #2a7ae2;">Welcome to Vidhyardhi School, ${fullName}!</h2>
             </div>
-  
+
             <p style="font-size: 16px; color: #333;">We are excited to have you on board. Below are your login credentials:</p>
-  
+
             <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 16px;">
               <tr>
                 <td style="padding: 10px; font-weight: bold; width: 120px;">Login ID:</td>
@@ -1558,15 +1691,15 @@ export const addBulkStudents = async (req, res) => {
                 <td style="padding: 10px;">${rawPassword}</td>
               </tr>
             </table>
-  
+
             <div style="text-align: center; margin: 20px 0;">
-              <a href="www.vidhyardhischool.com/login/student" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+              <a href="https://localhost:5173/forgot-password" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
                 Go to Student Portal
               </a>
             </div>
-  
+
             <p style="font-size: 16px;">Please log in and change your password after your first login to keep your account secure.</p>
-  
+
             <p style="margin-top: 40px; font-size: 16px;">Best regards,<br/>Vidhyardhi School Admin Team</p>
           </div>
         </div>
@@ -1582,6 +1715,7 @@ export const addBulkStudents = async (req, res) => {
     res.status(500).json({ error: "Internal server error during bulk upload." });
   }
 };
+
 
 export const setVotingDeadline = async (req, res) => {
   try {
@@ -1886,10 +2020,11 @@ export const getStudentFeeDetails = async (req, res) => {
         ? "Paid"
         : "Pending";
 
-    const transportStatus =
-      (paidComponents.transport || 0) >= transport
-        ? "Paid"
-        : "Pending";
+        const transportStatus =
+          (paidComponents.transport || 0) >= transport
+            ? "Paid"
+            : "Pending";
+      
 
     const feeSummary = {
       total: tuition.firstTerm + tuition.secondTerm + transport+ kit,
@@ -2338,11 +2473,11 @@ export const getStudentPerformance = async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    const subjects = ["Telugu", "Hindi", "English", "Maths", "Science", "Social Studies"];
+    const subjects = ["telugu", "hindi", "english", "maths", "Science", "Social", "computer"];
 
     const computeStats = (marks = {}) => {
-      const scoreList = subjects.map((sub) => marks[sub] || 0);
-      const total = scoreList.reduce((acc, mark) => acc + mark, 0);
+      const scores = subjects.map((sub) => Number(marks?.[sub] || 0));
+      const total = scores.reduce((sum, score) => sum + score, 0);
       const percentage = (total / (subjects.length * 100)) * 100;
 
       let grade = "F";
@@ -2361,17 +2496,41 @@ export const getStudentPerformance = async (req, res) => {
       };
     };
 
+    const {
+      formativeAssessment1 = {},
+      formativeAssessment2 = {},
+      formativeAssessment3 = {},
+      formativeAssessment4 = {},
+      summativeAssessment1 = {},
+      summativeAssessment2 = {},
+      average = null,
+    } = student.performance || {};
+
     const formattedPerformance = {
-      quarterly: computeStats(student.performance?.quarterly?.subjects || student.performance?.quarterly || {}),
-      halfYearly: computeStats(student.performance?.halfYearly?.subjects || student.performance?.halfYearly || {}),
-      annual: computeStats(student.performance?.annual?.subjects || student.performance?.annual || {}),
+      formativeAssessment1: computeStats(formativeAssessment1),
+      formativeAssessment2: computeStats(formativeAssessment2),
+      formativeAssessment3: computeStats(formativeAssessment3),
+      formativeAssessment4: computeStats(formativeAssessment4),
+      summativeAssessment1: computeStats(summativeAssessment1),
+      summativeAssessment2: computeStats(summativeAssessment2),
+      average,
     };
 
     const formattedHistory = (student.history || []).map((entry) => ({
-      ...entry,
+      className: entry.className,
+      promotedAt: entry.promotedAt,
       performance: {
-        annual: computeStats(entry.performance?.annual?.subjects || entry.performance?.annual || {}),
+        formativeAssessment1: computeStats(entry.performance?.formativeAssessment1 || {}),
+        formativeAssessment2: computeStats(entry.performance?.formativeAssessment2 || {}),
+        formativeAssessment3: computeStats(entry.performance?.formativeAssessment3 || {}),
+        formativeAssessment4: computeStats(entry.performance?.formativeAssessment4 || {}),
+        summativeAssessment1: computeStats(entry.performance?.summativeAssessment1 || {}),
+        summativeAssessment2: computeStats(entry.performance?.summativeAssessment2 || {}),
       },
+      attendance: {
+        yearly: entry.attendance?.yearly || {},
+      },
+      feeStructure: entry.feeStructure || {},
     }));
 
     res.status(200).json({
@@ -2396,7 +2555,7 @@ export const getClassToppers = async (req, res) => {
       return res.status(400).json({ error: "Class name is required" });
     }
 
-    const subjects = ["Telugu", "Hindi", "English", "Maths", "Science", "Social Studies"];
+    const subjects = ["Telugu", "Hindi", "English", "Maths", "Science", "Social Studies", "computer"];
 
     const computeStats = (marks = {}) => {
       const scores = subjects.map((sub) => marks[sub] || 0);
@@ -2421,7 +2580,7 @@ export const getClassToppers = async (req, res) => {
 
     const students = await Student.find({ className }).select("fullName performance");
 
-    const examTypes = ["quarterly", "halfYearly", "annual"];
+    const examTypes = ["formativeAssessment1", "formativeAssessment2", "formativeAssessment3", "formativeAssessment4", "summativeAssessment1", "summativeAssessment2"];
 
     const result = {};
 
@@ -2447,5 +2606,66 @@ export const getClassToppers = async (req, res) => {
   } catch (error) {
     console.error("Error fetching class toppers:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+//------------------------extra subjects---------------------
+
+// controllers/admin.controller.js
+
+export const getAllExtraCurricularSortedByScore = async (req, res) => {
+  try {
+    const { className } = req.params;
+
+    if (!className) {
+      return res.status(400).json({ message: "Class name is required." });
+    }
+
+    // Fetch all students from the class
+    const students = await Student.find({ className }).select("fullName className extraCurricular");
+
+    if (!students.length) {
+      return res.status(404).json({ message: "No students found in this class." });
+    }
+
+    // Map each student to include a total score from extraCurricular activities
+    const studentsWithTotalScore = students.map((student) => {
+      const totalScored = student.extraCurricular.reduce((sum, activity) => sum + (activity.scored || 0), 0);
+      const totalOutOf = student.extraCurricular.reduce((sum, activity) => sum + (activity.outOf || 0), 0);
+
+      return {
+        _id: student._id,
+        fullName: student.fullName,
+        className: student.className,
+        extraCurricular: student.extraCurricular,
+        totalScored,
+        totalOutOf,
+        percentage: totalOutOf > 0 ? ((totalScored / totalOutOf) * 100).toFixed(2) : "0.00",
+      };
+    });
+
+    // Sort students by totalScored descending (highest first)
+    studentsWithTotalScore.sort((a, b) => b.totalScored - a.totalScored);
+
+    res.status(200).json({ students: studentsWithTotalScore });
+  } catch (error) {
+    console.error("Error fetching extra-curricular performances:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+
+export const getTodaysBirthdays = async (req, res) => {
+  try {
+    const allStudents = await Student.find().select("fullName dob className");
+
+    const birthdaysToday = allStudents.filter((student) =>
+      isBirthdayToday(student.dob)
+    );
+
+    res.status(200).json({ birthdaysToday });
+  } catch (error) {
+    console.error("Error fetching birthdays:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
