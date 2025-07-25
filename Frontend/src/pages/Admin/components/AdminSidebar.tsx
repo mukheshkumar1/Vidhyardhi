@@ -23,6 +23,7 @@ import {
   | "selectclassleader"
   | "holidaycalendar"
   |"toppers"
+  |"extraactivities"
   | "Print Fee Receipt"; // only tabs shown in tabInfo
 
 type TabType = NavTabType | "profile"; // includes profile for switching, but not in sidebar
@@ -84,6 +85,11 @@ type TabType = NavTabType | "profile"; // includes profile for switching, but no
     },
     toppers: {
       label: "Toppers",
+      icon: <Award className="w-5 h-5" />,
+      color: "Teal-400",
+    },
+    extraactivities: {
+      label: "extra Curricular Activities",
       icon: <Award className="w-5 h-5" />,
       color: "Teal-400",
     },
