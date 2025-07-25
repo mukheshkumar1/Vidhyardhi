@@ -2,12 +2,14 @@ import express from "express";
 import {
   createRazorpayOrder,
   getClassLeaderCandidates,
+  getStudentExtraCurricularDetails,
   getStudentAcademicDetails,
   getStudentAttendance,
   getStudentProfile,
   payFees,
   verifyRazorpayPayment,
   voteForLeader,
+  checkStudentBirthday,
 } from "../controllers/student.controller.js";
 import protectRoute from "../middleware/protectRoute.js";
 import { getStudentGallery } from "../controllers/student.gallery.controller.js";
@@ -32,6 +34,10 @@ router.post("/vote", protectRoute, voteForLeader)
 router.get("/leader", protectRoute, getClassLeaderCandidates)
 
 router.get("/:studentId/gallery", getStudentGallery);
+
+router.get("/:studentId", protectRoute, getStudentExtraCurricularDetails);
+
+router.get("/birthday",protectRoute, checkStudentBirthday)
 
 
 export default router;
