@@ -9,7 +9,7 @@ const AdminBirthdayPopup = () => {
   useEffect(() => {
     const fetchBirthdays = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/student/birthday", {
+        const res = await fetch("https://vidhyardhi.onrender.com/api/admin/student/birthday", {
           credentials: "include",
         });
         const data = await res.json();
