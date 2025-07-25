@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { BookOpen, User, Phone, Search } from "lucide-react";
+import {User,
+  Phone,
+  BookOpen,
+  Calendar,
+  MapPin,
+  IdCard, Search } from "lucide-react";
 import "../../../index.css";
 import DeleteStudent from "./DeleteStudent";
 import {
@@ -33,9 +38,12 @@ interface Attendance {
   };
 }
 interface Performance {
-  quarterly?: Record<string, any>;
-  halfYearly?: Record<string, any>;
-  annual?: Record<string, any>;
+  formativeAssessment1?: Record<string, any>;
+  formativeAssessment2?: Record<string, any>;
+  formativeAssessment3?: Record<string, any>;
+  formativeAssessment4?: Record<string, any>;
+  summativeAssessment1?: Record<string, any>;
+  summativeAssessment2?: Record<string, any>;
 }
 interface HistoryEntry {
   className: string;
@@ -60,6 +68,12 @@ interface Student {
   email: string;
   phone: string;
   className: string;
+  dob: String,
+  address: String,
+  aadharNumber: number,
+  motherName: String,
+  fatherName: String,
+  secondaryPhone: String,
   profilePicture?: {
     imageUrl?: string;
   };
@@ -118,14 +132,17 @@ const StudentsByClass: React.FC = () => {
     ? { [filterClass]: studentsByClass[filterClass] || [] }
     : studentsByClass;
 
-  const filteredStudentsByClass = Object.entries(filteredByClass).reduce((acc, [grade, students]) => {
-    const filtered = students.filter((s) =>
-      s.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredStudentsByClass = Object.entries(filteredByClass).reduce((acc, [grade, students]) => {
+      const filtered = students.filter((s) =>
+        (s.fullName || "").toLowerCase().includes(searchTerm.toLowerCase())
+      );
     if (filtered.length > 0) acc[grade] = filtered;
     return acc;
   }, {} as Record<string, Student[]>);
 
+  // const workingDays = selectedStudent?.attendance?.yearly.workingDays ?? 0;
+  // const presentDays = selectedStudent?.attendance?.yearly.presentDays ?? 0;
+  // const percentage = selectedStudent?.attendance?.yearly.percentage ?? 0;
 
   return (
     <div className="p-6">
@@ -194,6 +211,7 @@ const StudentsByClass: React.FC = () => {
                     <h4 className="font-bold text-lg mb-1 text-center">{student.fullName}</h4>
                     <p className="text-sm text-white text-center truncate w-full max-w-xs">{student.email}</p>
                     <p className="text-sm text-white text-center truncate w-full max-w-xs">{student.phone}</p>
+        
 
                     <div className="mt-3 flex flex-wrap justify-center gap-4 text-sm w-full">
                       <span className="text-purple-600">
@@ -250,21 +268,67 @@ const StudentsByClass: React.FC = () => {
                     )}
                   </DrawerHeader>
 
-                  <div className="space-y-6 py-2 text-left text-sm px-2 sm:px-6">
+                  <div className="space-y-6 py-2 text-left text-sm px-2 sm:px-6 rounded-2xl bg-white/10 backdrop-blur-md shadow-xl border border-white/20">
                     <div className="flex flex-col md:flex-row md:items-start gap-6 items-center">
                       <div className="flex-1 space-y-2">
-                        <p className="flex items-center gap-2">
-                          <User className="w-5 h-5 text-blue-500" /> {selectedStudent.email}
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <Phone className="w-5 h-5 text-blue-500" /> {selectedStudent.phone}
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <BookOpen className="w-5 h-5 text-blue-500" /> {selectedStudent.className}
-                        </p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+  <p className="flex items-center gap-2">
+    <User className="w-5 h-5 text-blue-500" />
+    <span className=" text-white font-bold ">Email:</span> {selectedStudent?.email || "N/A"}
+  </p>
+  <p className="flex items-center gap-2">
+    <Phone className="w-5 h-5 text-blue-500" />
+    <span className="text-white font-bold">Primary Phone:</span> {selectedStudent?.phone || "N/A"}
+  </p>
+  <p className="flex items-center gap-2">
+    <Phone className="w-5 h-5 text-green-500" />
+    <span className="text-white font-bold">Secondary Phone:</span> {selectedStudent?.secondaryPhone || "N/A"}
+  </p>
+  <p className="flex items-center gap-2">
+    <BookOpen className="w-5 h-5 text-purple-500" />
+    <span className="text-white font-bold">Class:</span> {selectedStudent?.className || "N/A"}
+  </p>
+  <p className="flex items-center gap-2">
+    <Calendar className="w-5 h-5 text-pink-500" />
+    <span className="text-white font-bold">Date of Birth:</span> {selectedStudent?.dob || "N/A"}
+  </p>
+  <p className="flex items-center gap-2">
+    <User className="w-5 h-5 text-red-500" />
+    <span className="text-white font-bold">Mother's Name:</span> {selectedStudent?.motherName || "N/A"}
+  </p>
+  <p className="flex items-center gap-2">
+    <User className="w-5 h-5 text-yellow-500" />
+    <span className="text-white font-bold">Father's Name:</span> {selectedStudent?.fatherName || "N/A"}
+  </p>
+  <p className="flex items-center gap-2">
+    <MapPin className="w-5 h-5 text-indigo-500" />
+    <span className="text-white font-bold">Address:</span> {selectedStudent?.address || "N/A"}
+  </p>
+  <p className="flex items-center gap-2">
+    <IdCard className="w-5 h-5 text-gray-600" />
+    <span className="text-white font-bold">Aadhar Number:</span> {selectedStudent?.aadharNumber || "N/A"}
+  </p>
+</div>
+
                       </div>
                     </div>
 
+                    {/* Attendance */}
+                    {/* <p className="font-semibold mt-4 text-lg">Attendance (Yearly):</p>
+                    <p>Working Days: {workingDays}</p>
+                    <p>Present Days: {presentDays}</p>
+                    <span className={`font-bold ${percentage < 75 ? "text-red-400" : "text-green-400"}`}>
+                      {percentage}%
+                    </span>
+                    {percentage < 75 ? (
+                      <span className="inline-block mt-2 px-3 py-1 text-xs font-bold text-red-500 bg-red-100/20 rounded-full animate-pulse">
+                        Low Attendance
+                      </span>
+                    ) : (
+                      <span className="inline-block mt-2 px-3 py-1 text-xs font-bold text-green-500 bg-green-100/10 rounded-full">
+                        Good Attendance
+                      </span>
+                    )} */}
 
 <StudentAttendanceDialog studentId={selectedStudent._id} />
 <StudentPerformanceDialog studentId={selectedStudent._id}/>
