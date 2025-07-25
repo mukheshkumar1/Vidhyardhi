@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import { razorpayInstance, RAZORPAY_KEY_ID } from "../utils/RazorPay.js";
 import { generateFeeReceiptPDF } from "../utils/generateReceipt.js";
-
+import {isBirthdayToday} from "../utils/isBirthdayToday.js";
 
 export const getStudentProfile = async (req, res) => {
   try {
@@ -33,65 +33,73 @@ export const getStudentProfile = async (req, res) => {
 //--------------------------Student Details---------------------
 
 // Corrected getStudentAcademicDetails
+// ✅ Inside your controller
 export const getStudentAcademicDetails = async (req, res) => {
   try {
-    const requestedStudentId = req.params.studentId;
-    const loggedInUserId = req.user._id;
-
-    if (req.user.role !== "admin" && requestedStudentId !== loggedInUserId.toString()) {
-      return res.status(403).json({ error: "Access denied" });
-    }
-
-    const student = await Student.findById(requestedStudentId).select(
-      "fullName className attendance feeStructure performance history feePayments"
-    );
+    const student = await Student.findById(req.params.studentId);
 
     if (!student) {
-      return res.status(404).json({ error: "Student not found" });
+      return res.status(404).json({ message: "Student not found" });
     }
 
-    const academicHistory = student.history || [];
+    // Enhance history with average if missing
+    const academicHistory = (student.history || []).map((record) => {
+      if (!record.performance?.average) {
+        const termMarks = [];
+        const assessments = [
+          "formativeAssessment1",
+          "formativeAssessment2",
+          "formativeAssessment3",
+          "formativeAssessment4",
+          "summativeAssessment1",
+          "summativeAssessment2",
+        ];
 
-    // ✅ Format current fee structure
-    const formattedFeeStructure = {
-      firstTerm: student.feeStructure?.tuition?.firstTerm || 0,
-      secondTerm: student.feeStructure?.tuition?.secondTerm || 0,
-      transport: student.feeStructure?.transport || 0,
-      kit: student.feeStructure?.kit || 0, // ✅ Include kit fee
-      paid: student.feeStructure?.paid || 0,
-      balance: student.feeStructure?.balance || 0,
-      paidComponents: {},
-    };
+        assessments.forEach((term) => {
+          const subjects = record.performance?.[term]?.subjects || {};
+          const subjectMarks = Object.values(subjects).map(Number);
+          if (subjectMarks.length) {
+            const total = subjectMarks.reduce((sum, val) => sum + val, 0);
+            const percentage = (total / (subjectMarks.length * 100)) * 100;
+            termMarks.push(percentage);
+          }
+        });
 
-    // ✅ Build paidComponents for UI checks
-    for (const payment of student.feePayments || []) {
-      for (const key in payment.breakdown) {
-        formattedFeeStructure.paidComponents[key] =
-          (formattedFeeStructure.paidComponents[key] || 0) + payment.breakdown[key];
+        const average =
+          termMarks.length > 0
+            ? parseFloat(
+                (termMarks.reduce((sum, p) => sum + p, 0) / termMarks.length).toFixed(2)
+              )
+            : 0;
+
+        record.performance = {
+          ...record.performance,
+          average,
+        };
       }
-    }
 
-    const firstClass =
-      academicHistory.length > 0
-        ? academicHistory[0].className
-        : student.className;
+      return record;
+    });
 
-    // ✅ Respond with updated structure
     res.status(200).json({
-      fullName: student.fullName,
-      currentClass: student.className,
-      feeStructure: formattedFeeStructure,
-      performance: student.performance,
-      attendance: student.attendance,
-      fromClass: firstClass,
+      studentDetails: {
+        fullName: student.fullName,
+        className: student.className,
+        dob: student.dob,
+        fatherName: student.fatherName,
+        motherName: student.motherName,
+        phone: student.phone,
+        email: student.email,
+      },
       classHistory: academicHistory,
-      feePayments: student.feePayments || [],
+      currentPerformance: student.performance || {},
     });
   } catch (error) {
-    console.error("Get Student Academic Details Error:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error fetching academic details:", error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
+
 
 
 
@@ -584,5 +592,53 @@ export const getClassLeaderCandidates = async (req, res) => {
   } catch (error) {
     console.error("Error fetching candidates:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// controllers/extraCurricularController.js
+
+// Student: View only their own extra-curricular marks
+export const getStudentExtraCurricularDetails = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const student = await Student.findById(studentId)
+      .select("fullName className extraCurricular")
+      .populate({
+        path: "extraCurricular.addedBy",
+        select: "fullName email", // You can add more staff fields if needed
+      });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.status(200).json({
+      fullName: student.fullName,
+      className: student.className,
+      extraCurricular: student.extraCurricular || [],
+    });
+  } catch (error) {
+    console.error("Error fetching extra-curricular details:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+export const checkStudentBirthday = async (req, res) => {
+  try {
+    const student = await Student.findById(req.user.id).select("fullName dob");
+
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    const isBirthday = isBirthdayToday(student.dob);
+
+    res.status(200).json({
+      isBirthday,
+      fullName: student.fullName,
+    });
+  } catch (error) {
+    console.error("Error checking birthday:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
