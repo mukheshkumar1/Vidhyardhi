@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, Pencil } from "lucide-react";
 
-const subjects = ["Telugu", "Hindi", "English", "Maths", "Science", "Social Studies"];
+const subjects = ["Telugu", "Hindi", "English", "Maths", "Science", "Social Studies", "computer"];
 const classOptions = ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"];
 
 const getEmptyMarks = () =>
@@ -18,11 +18,14 @@ const PerformanceUpdateForm = () => {
   const [students, setStudents] = useState<any[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [marks, setMarks] = useState({
-    quarterly: getEmptyMarks(),
-    halfYearly: getEmptyMarks(),
-    annual: getEmptyMarks(),
+    formativeAssessment1: getEmptyMarks(),
+    formativeAssessment2: getEmptyMarks(),
+    formativeAssessment3: getEmptyMarks(),
+    formativeAssessment4: getEmptyMarks(),
+    summativeAssessment1: getEmptyMarks(),
+    summativeAssessment2: getEmptyMarks(),
   });
-  const [activeExam, setActiveExam] = useState<"quarterly" | "halfYearly" | "annual">("quarterly");
+  const [activeExam, setActiveExam] = useState<"formativeAssessment1" | "formativeAssessment2" | "formativeAssessment3" | "formativeAssessment4" | "summativeAssessment1" | "summativeAssessment2">("formativeAssessment1");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -55,9 +58,12 @@ const PerformanceUpdateForm = () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to fetch marks");
         setMarks({
-          quarterly: data.marks?.quarterly?.subjects || getEmptyMarks(),
-          halfYearly: data.marks?.halfYearly?.subjects || getEmptyMarks(),
-          annual: data.marks?.annual?.subjects || getEmptyMarks(),
+          formativeAssessment1: data.marks?.formativeAssessment1?.subjects || getEmptyMarks(),
+          formativeAssessment2: data.marks?.formativeAssessment2?.subjects || getEmptyMarks(),
+          formativeAssessment3: data.marks?.formativeAssessment3?.subjects || getEmptyMarks(),
+          formativeAssessment4: data.marks?.formativeAssessment4?.subjects || getEmptyMarks(),
+          summativeAssessment1: data.marks?.summativeAssessment1?.subjects || getEmptyMarks(),
+          summativeAssessment2: data.marks?.summativeAssessment2?.subjects || getEmptyMarks(),
         });
       } catch (err: any) {
         toast.error(err.message || "Error fetching marks");
@@ -155,14 +161,17 @@ const PerformanceUpdateForm = () => {
 
         {selectedStudentId && (
           <>
-            <Tabs defaultValue="quarterly" className="w-full" onValueChange={(val) => setActiveExam(val as any)}>
+            <Tabs defaultValue="formativeAssessment1" className="w-full" onValueChange={(val) => setActiveExam(val as any)}>
               <TabsList className="grid grid-cols-3 mb-4">
-                <TabsTrigger value="quarterly">Quarterly</TabsTrigger>
-                <TabsTrigger value="halfYearly">Half-Yearly</TabsTrigger>
-                <TabsTrigger value="annual">Annual</TabsTrigger>
+                <TabsTrigger value="formativeAssessment1">Formative Assessment 1</TabsTrigger>
+                <TabsTrigger value="formativeAssessment2">Formative Assessment 2</TabsTrigger>
+                <TabsTrigger value="formativeAssessment3">Formative Assessment 3</TabsTrigger>
+                <TabsTrigger value="formativeAssessment4">Formative Assessment 4</TabsTrigger>
+                <TabsTrigger value="summativeAssessment1">Summative Assessment 1</TabsTrigger>
+                <TabsTrigger value="summativeAssessment2">Summative Assessment 2</TabsTrigger>
               </TabsList>
 
-              {(["quarterly", "halfYearly", "annual"] as const).map((exam) => (
+              {(["formativeAssessment1", "formativeAssessment2", "formativeAssessment3", "formativeAssessment4", "summativeAssessment1", "summativeAssessment2"] as const).map((exam) => (
                 <TabsContent value={exam} key={exam}>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
                     {subjects.map((subject) => (
