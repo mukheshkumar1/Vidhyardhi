@@ -59,7 +59,7 @@
 //   useEffect(() => {
 //     if (!studentId) return;
 //     setLoading(true);
-//     fetch(`https://vidhyardhi.onrender.com/api/student/${studentId}/academic-details`, {
+//     fetch(`http://localhost:5000/api/student/${studentId}/academic-details`, {
 //       credentials: "include",
 //       headers: { "Content-Type": "application/json" },
 //     })
@@ -76,7 +76,7 @@
 //     try {
 //       const breakdown: Record<string, number> = { [component]: amount };
 
-//       const res = await fetch(`https://vidhyardhi.onrender.com/api/student/create-order`, {
+//       const res = await fetch(`http://localhost:5000/api/student/create-order`, {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
 //         credentials: "include",
@@ -98,7 +98,7 @@
 //         order_id: data.order.id,
 //         handler: async function (response: any) {
 //           try {
-//             const verifyRes = await fetch(`https://vidhyardhi.onrender.com/api/student/verify-payment`, {
+//             const verifyRes = await fetch(`http://localhost:5000/api/student/verify-payment`, {
 //               method: "POST",
 //               headers: { "Content-Type": "application/json" },
 //               credentials: "include",
@@ -264,12 +264,15 @@ import { Loader2, Banknote, CalendarCheck2 } from "lucide-react";
 import { toast } from "sonner";
 
 type FeeStructure = {
-  firstTerm: number;
-  secondTerm: number;
+  tuition: {
+    firstTerm: number;
+    secondTerm: number;
+  };
   transport: number;
   kit: number;
   paid: number;
   balance: number;
+  total?: number;
   paidComponents?: Record<string, number>;
 };
 
@@ -307,9 +310,12 @@ export default function StudentFeeDetails({ studentId }: StudentFeeDetailsProps)
       .then((res) => res.json())
       .then((data) => {
         setFeeStructure(data.feeStructure);
-        setFeePayments((data?.feePayments || []).sort(
-          (a: FeePayment, b: FeePayment) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        ));
+        setFeePayments(
+          (data?.feePayments || []).sort(
+            (a: FeePayment, b: FeePayment) =>
+              new Date(b.date).getTime() - new Date(a.date).getTime()
+          )
+        );
       })
       .catch(() => toast.error("Failed to load fee details"))
       .finally(() => setLoading(false));
@@ -347,13 +353,35 @@ export default function StudentFeeDetails({ studentId }: StudentFeeDetailsProps)
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           {[
-            { key: "tuition.firstTerm", label: "First Term", amount: feeStructure.firstTerm },
-            { key: "tuition.secondTerm", label: "Second Term", amount: feeStructure.secondTerm },
-            { key: "transport", label: "Transport", amount: feeStructure.transport },
-            { key: "kit", label: "Kit Fee", amount: feeStructure.kit },
+            {
+              key: "tuition.firstTerm",
+              label: "First Term",
+              amount: feeStructure.tuition.firstTerm,
+            },
+            {
+              key: "tuition.secondTerm",
+              label: "Second Term",
+              amount: feeStructure.tuition.secondTerm,
+            },
+            {
+              key: "transport",
+              label: "Transport",
+              amount: feeStructure.transport,
+            },
+            {
+              key: "kit",
+              label: "Kit Fee",
+              amount: feeStructure.kit,
+            },
           ].map(({ key, label, amount }) => (
-            <div key={key} className="flex justify-between items-center">
-              <span>{label}</span>
+            <div
+              key={key}
+              className="flex justify-between items-center border-b pb-1"
+            >
+              <div className="flex flex-col">
+                <span>{label}</span>
+                <span className="text-xs text-gray-500">₹{amount}</span>
+              </div>
               <Badge
                 className={`px-3 py-1 rounded-full border text-xs font-medium ${
                   isPaid(key, amount)
@@ -393,7 +421,10 @@ export default function StudentFeeDetails({ studentId }: StudentFeeDetailsProps)
                 ---------- {year} ----------
               </div>
               {payments.map((p, i) => (
-                <div key={i} className="flex justify-between text-sm border-b pb-2">
+                <div
+                  key={i}
+                  className="flex justify-between text-sm border-b pb-2"
+                >
                   <div>
                     ₹{p.amount}{" "}
                     <Badge variant="outline" className="capitalize ml-2">
@@ -414,8 +445,16 @@ export default function StudentFeeDetails({ studentId }: StudentFeeDetailsProps)
                         Kit
                       </Badge>
                     )}
+                    {/* Show breakdown */}
+                    <div className="mt-1 ml-1 text-xs text-gray-500">
+                      {Object.entries(p.breakdown || {}).map(([key, val]) => (
+                        <div key={key}>
+                          {key}: ₹{val}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="text-gray-600">
+                  <div className="text-black">
                     {new Date(p.date).toLocaleDateString()}
                   </div>
                 </div>
