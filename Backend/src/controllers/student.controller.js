@@ -32,8 +32,7 @@ export const getStudentProfile = async (req, res) => {
 
 //--------------------------Student Details---------------------
 
-// Corrected getStudentAcademicDetails
-// ✅ Inside your controller
+
 export const getStudentAcademicDetails = async (req, res) => {
   try {
     const student = await Student.findById(req.params.studentId);
@@ -42,7 +41,7 @@ export const getStudentAcademicDetails = async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    // Enhance history with average if missing
+    // Enhance academic history with calculated average if missing
     const academicHistory = (student.history || []).map((record) => {
       if (!record.performance?.average) {
         const termMarks = [];
@@ -81,6 +80,19 @@ export const getStudentAcademicDetails = async (req, res) => {
       return record;
     });
 
+    const {
+      total,
+      tuition = {},
+      transport = 0,
+      kit = 0,
+      paid = 0,
+      balance = 0,
+      paidComponents = {},
+    } = student.feeStructure || {};
+
+    const feePayments = student.feePayments || [];
+
+    // Respond with academic + fee details
     res.status(200).json({
       studentDetails: {
         fullName: student.fullName,
@@ -91,6 +103,24 @@ export const getStudentAcademicDetails = async (req, res) => {
         phone: student.phone,
         email: student.email,
       },
+      feeStructure: {
+        total,
+        tuition: {
+          firstTerm: tuition.firstTerm || 0,
+          secondTerm: tuition.secondTerm || 0,
+        },
+        transport,
+        kit,
+        paid,
+        balance,
+        paidComponents: {
+          "tuition.firstTerm": paidComponents["tuition.firstTerm"] || 0,
+          "tuition.secondTerm": paidComponents["tuition.secondTerm"] || 0,
+          transport: paidComponents.transport || 0,
+          kit: paidComponents.kit || 0,
+        },
+      },
+      feePayments,
       classHistory: academicHistory,
       currentPerformance: student.performance || {},
     });
