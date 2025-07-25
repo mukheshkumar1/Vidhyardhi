@@ -19,6 +19,7 @@ import StudentsByClassList from '../Components/studentsByClass';
 import AttendanceManager from '../Components/AttendanceUpdate';
 import PerformanceUpdateForm from './PerformanceUpdate';
 import Results from './getPerformance';
+import ExtraCurricularForm from './ExtraSubjects';
 
 const staffLinks = [
   { name: 'Assign Homework', component: 'homework', icon: <BookOpen size={16} /> },
@@ -26,6 +27,7 @@ const staffLinks = [
   { name: 'Students by Class', component: 'students', icon: <Users size={16} /> },
   { name: 'Update Attendance', component: 'attendance', icon: <CalendarCheck size={16} /> },
   { name: 'Update Performance', component: 'performance', icon: <FileText size={16} /> },
+  { name: 'Update ExtraActivity', component: 'Activity', icon: <FileText size={16} /> },
   { name: 'Student Results', component: 'results', icon: <FileText size={16} /> },
 ];
 
@@ -75,7 +77,9 @@ export default function StaffSidebar() {
       case 'attendance':
         return <AttendanceManager />;
       case 'performance':
-        return <PerformanceUpdateForm  />; // replace with real ID
+        return <PerformanceUpdateForm  />; 
+        case 'Activity':
+          return <ExtraCurricularForm />; // replace with real ID
       case 'results':
         return <Results />;
       case 'profile':
