@@ -12,6 +12,7 @@ import {
   History,
   BarChart2,
   School,
+  Trophy,
 } from "lucide-react";
 import {
   Timeline,
@@ -27,19 +28,22 @@ import html2canvas from "html2canvas";
 import logoDesktop from "@/assets/images/logo.png";
 import logoMobile from "@/assets/images/logo.png";
 
+// Interfaces
 interface TermPerformance {
-  subjects?: {
-    [subject: string]: number;
-  };
+  subjects?: { [subject: string]: number };
   total?: number;
   percentage?: number;
   grade?: string;
 }
 
 interface Performance {
-  quarterly?: TermPerformance | null;
-  halfYearly?: TermPerformance | null;
-  annual?: TermPerformance | null;
+  average?: number;
+  formativeAssessment1?: TermPerformance | null;
+  formativeAssessment2?: TermPerformance | null;
+  formativeAssessment3?: TermPerformance | null;
+  formativeAssessment4?: TermPerformance | null;
+  summativeAssessment1?: TermPerformance | null;
+  summativeAssessment2?: TermPerformance | null;
 }
 
 interface ClassHistoryRecord {
@@ -48,28 +52,42 @@ interface ClassHistoryRecord {
 }
 
 interface AcademicDetails {
-  fullName: string;
-  currentClass: string;
-  fromClass: string;
-  performance?: Performance | null;
+  studentDetails: {
+    fullName: string;
+    className: string;
+    dob: string;
+    fatherName: string;
+    motherName: string;
+    phone: string;
+    email: string;
+  };
   classHistory: ClassHistoryRecord[];
+  currentPerformance: Performance | null;
+}
+
+interface ExtraActivity {
+  activityName: string;
+  scored: number;
+  outOf: number;
 }
 
 export default function ReportCard({ studentId }: { studentId: string }) {
   const [data, setData] = useState<AcademicDetails | null>(null);
+  const [extraActivities, setExtraActivities] = useState<ExtraActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const reportRef = useRef<HTMLDivElement>(null);
 
+  // Fetch academic details
   useEffect(() => {
     async function fetchAcademicDetails() {
-      setLoading(true);
       try {
+        setLoading(true);
         const res = await fetch(
           `https://vidhyardhi.onrender.com/api/student/${studentId}/academic-details`,
           { method: "GET", credentials: "include" }
         );
-        if (!res.ok) throw new Error("Failed to fetch data");
-        const json: AcademicDetails = await res.json();
+        if (!res.ok) throw new Error("Failed to fetch academic details");
+        const json = await res.json();
         setData(json);
       } catch (err) {
         console.error(err);
@@ -80,6 +98,26 @@ export default function ReportCard({ studentId }: { studentId: string }) {
     }
 
     if (studentId) fetchAcademicDetails();
+  }, [studentId]);
+
+  // Fetch extra-curricular
+  useEffect(() => {
+    async function fetchExtraActivities() {
+      try {
+        const res = await fetch(
+          `https://vidhyardhi.onrender.com/api/student/${studentId}`,
+          { credentials: "include" }
+        );
+        if (!res.ok) throw new Error("Failed to fetch extra-curricular");
+        const json = await res.json();
+        setExtraActivities(json.extraCurricular || []);
+      } catch (error) {
+        console.error("Extra activity fetch error:", error);
+        toast.error("Unable to load extra curricular activities.");
+      }
+    }
+
+    if (studentId) fetchExtraActivities();
   }, [studentId]);
 
   function renderPerformanceTable(performance: TermPerformance) {
@@ -126,34 +164,33 @@ export default function ReportCard({ studentId }: { studentId: string }) {
   function renderTermWisePerformance(performance?: Performance | null) {
     if (!performance) return null;
 
-    const terms: (keyof Performance)[] = ["quarterly", "halfYearly", "annual"];
+    const terms = Object.entries(performance).filter(
+      ([key, value]) =>
+        key !== "average" &&
+        value !== null &&
+        typeof value === "object" &&
+        "subjects" in value!
+    ) as [keyof Performance, TermPerformance][];
 
-    return terms
-      .map((term) => {
-        const termData = performance[term];
-        if (
-          termData &&
-          termData.subjects &&
-          Object.keys(termData.subjects).length > 0
-        ) {
-          return (
-            <div key={term} className="mb-4">
-              <h4 className="text-base font-semibold capitalize mb-2 flex items-center gap-2 text-purple-600">
-                <BarChart2 size={18} />
-                {term} Exams
-              </h4>
-              {renderPerformanceTable(termData)}
-            </div>
-          );
-        }
-        return null;
-      })
-      .filter(Boolean);
+    return terms.map(([term, termData]) => {
+      if (termData.subjects && Object.keys(termData.subjects).length > 0) {
+        return (
+          <div key={term} className="mb-4">
+            <h4 className="text-base font-semibold capitalize mb-2 flex items-center gap-2 text-purple-600">
+              <BarChart2 size={18} />
+              {term.replace(/([A-Z])/g, " $1")} Exams
+            </h4>
+            {renderPerformanceTable(termData)}
+          </div>
+        );
+      }
+      return null;
+    });
   }
 
   async function handleDownloadPDF() {
     const element = reportRef.current;
-    if (!element) return;
+    if (!element || !data) return;
 
     const canvas = await html2canvas(element);
     const imgData = canvas.toDataURL("image/png");
@@ -161,11 +198,10 @@ export default function ReportCard({ studentId }: { studentId: string }) {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pageWidth;
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    const pdfHeight = (imgProps.height * pageWidth) / imgProps.width;
 
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`${data?.fullName.replace(" ", "_")}_ReportCard.pdf`);
+    pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pdfHeight);
+    pdf.save(`${data.studentDetails.fullName.replace(" ", "_")}_ReportCard.pdf`);
   }
 
   if (loading) {
@@ -184,6 +220,8 @@ export default function ReportCard({ studentId }: { studentId: string }) {
     );
   }
 
+  const { fullName, className } = data.studentDetails;
+
   return (
     <div className="relative px-4 sm:px-0">
       <div className="flex justify-start mb-4">
@@ -200,7 +238,7 @@ export default function ReportCard({ studentId }: { studentId: string }) {
         ref={reportRef}
         className="shadow-xl border border-gray-300 rounded-2xl p-6 bg-white text-black"
       >
-        {/* Header - logo and basic info */}
+        {/* Header */}
         <div className="mb-6">
           <div className="block sm:hidden mb-4 text-center">
             <img
@@ -214,13 +252,11 @@ export default function ReportCard({ studentId }: { studentId: string }) {
             <div>
               <CardTitle className="text-2xl font-bold flex items-center gap-2 text-purple-700">
                 <GraduationCap />
-                {data.fullName}
+                {fullName}
               </CardTitle>
               <CardDescription className="text-gray-700 mt-1">
                 🎓 Current Class:{" "}
-                <strong className="text-indigo-600">{data.currentClass}</strong>{" "}
-                | Promoted from:{" "}
-                <strong className="text-indigo-600">{data.fromClass}</strong>
+                <strong className="text-indigo-600">{className}</strong>
               </CardDescription>
             </div>
 
@@ -232,16 +268,55 @@ export default function ReportCard({ studentId }: { studentId: string }) {
           </div>
         </div>
 
-        {/* Current performance */}
+        {/* Academic Performance */}
         <CardContent className="mt-4">
           <h3 className="font-semibold text-lg mb-3 flex items-center gap-2 text-indigo-700">
             <School size={20} />
             Current Academic Performance
           </h3>
-          {renderTermWisePerformance(data.performance)}
+          {renderTermWisePerformance(data.currentPerformance)}
         </CardContent>
 
-        {/* Class history */}
+        {/* Extra Curricular */}
+        {extraActivities.length > 0 && (
+          <CardContent className="mt-4">
+            <h3 className="font-semibold text-lg mb-3 flex items-center gap-2 text-green-700">
+              <Trophy size={20} />
+              Extra Curricular Performance
+            </h3>
+            <table className="w-full text-sm border rounded overflow-hidden mb-2 border-collapse bg-green-50">
+              <thead className="bg-green-600 text-white">
+                <tr>
+                  <th className="text-left p-2 border">🎯 Activity</th>
+                  <th className="text-left p-2 border">Scored</th>
+                  <th className="text-left p-2 border">Out Of</th>
+                  <th className="text-left p-2 border">Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {extraActivities
+                  .sort(
+                    (a, b) =>
+                      (b.scored / b.outOf) * 100 - (a.scored / a.outOf) * 100
+                  )
+                  .map((activity, idx) => (
+                    <tr key={idx} className="hover:bg-green-100">
+                      <td className="p-2 border font-medium">
+                        {activity.activityName}
+                      </td>
+                      <td className="p-2 border text-center">{activity.scored}</td>
+                      <td className="p-2 border text-center">{activity.outOf}</td>
+                      <td className="p-2 border text-center">
+                        {((activity.scored / activity.outOf) * 100).toFixed(2)}%
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </CardContent>
+        )}
+
+        {/* Class History */}
         <CardContent className="mt-4">
           <h3 className="font-semibold text-lg mb-3 flex items-center gap-2 text-purple-700">
             <History size={20} />
@@ -263,8 +338,11 @@ export default function ReportCard({ studentId }: { studentId: string }) {
                       Class: {record.className}
                     </Typography>
                     <div className="mt-2">
-                      {record.performance ? (
-                        renderTermWisePerformance(record.performance)
+                      {record.performance?.average !== undefined ? (
+                        <p className="text-gray-700">
+                          📊 <strong>Average Score:</strong>{" "}
+                          {record.performance.average}%
+                        </p>
                       ) : (
                         <p className="text-muted-foreground italic">
                           No performance data available for this class.
