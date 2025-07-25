@@ -2,8 +2,10 @@ import express from "express";
 import multer from "multer";
 import {
     
+  addExtraCurricularMarks,
   calculateMonthlyAttendance,
   getClassPerformance,
+  getAllStudentPerformances,
   // calculateYearlyAttendance,
   getProfile,
   getStudentsByClass,
@@ -29,8 +31,11 @@ router.get("/class/:className",requireStaff,getStudentsByClass)
 router.post("/attendance/daily/:className",requireStaff, markDailyAttendance);
 router.put("/attendance/monthly/:className/:month",requireStaff, calculateMonthlyAttendance);
 // router.post("/attendance/yearly/:className", requireStaff,calculateYearlyAttendance);
+router.post("/add/:studentId", requireStaff, addExtraCurricularMarks);
+router.get("/extraactivity/:className", requireStaff, getAllStudentPerformances);
 
 router.get('/profile/staff',requireStaff,  getProfile);
+
 
 
 
