@@ -10,6 +10,7 @@ import ToggleAdmin from "./ToggleAdmin";
 import DeleteStaff from "./DeleteStaff";
 import ToggleEditPermissionButton from "./togglePermissions";
 import StaffAttendanceReport from "./getStaffAttendance"; // attendance report component
+import StaffProfileImage from "./staffProfile";
 
 const defaultAvatar = "https://www.w3schools.com/howto/img_avatar.png";
 
@@ -43,7 +44,7 @@ const GetStaff: React.FC = () => {
     setLoading(true);
     try {
       const endpoint = showAdmins ? "admin" : "staff";
-      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/${endpoint}`, {
+      const res = await fetch(`http://localhost:5000/api/admin/${endpoint}`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -205,27 +206,28 @@ const GetStaff: React.FC = () => {
 
         {/* Staff Detail Dialog */}
         {dialogOpen && selectedStaff && (
-          <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex flex-col">
-            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#1e293b] to-[#0f172a] text-gray-300 shadow-md">
-              <h3 className="text-xl font-semibold">{selectedStaff.fullName}</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={closeDialog}
-                aria-label="Close dialog"
-                className="text-gray-300 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            <ScrollArea className="flex-grow p-6 bg-gradient-to-br from-[#1e293b] to-[#0f172a] text-gray-300 max-h-[80vh] overflow-y-auto">
+         <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center overflow-auto">
+         <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] text-gray-300 max-w-2xl w-full m-4 rounded-lg shadow-lg overflow-hidden">
+           <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#1e293b] to-[#0f172a]">
+             <h3 className="text-xl font-semibold">{selectedStaff.fullName}</h3>
+             <Button
+               variant="ghost"
+               size="sm"
+               onClick={closeDialog}
+               aria-label="Close dialog"
+               className="text-gray-300 hover:text-white"
+             >
+               <X className="w-5 h-5" />
+             </Button>
+           </div>
+       
+           <ScrollArea className="max-h-[80vh] p-6">
               <div className="max-w-md mx-auto space-y-4">
-                <img
-                  src={selectedStaff.profilePicture?.imageUrl || defaultAvatar}
-                  alt="Avatar"
-                  className="w-40 h-40 rounded-full object-cover border border-white mx-auto"
-                />
+              <StaffProfileImage
+  staffId={selectedStaff._id}
+  currentImage={selectedStaff.profilePicture?.imageUrl || defaultAvatar}
+/>
+
                 <DeleteStaff
                   staffId={selectedStaff._id}
                   role={selectedStaff.role}
@@ -256,6 +258,7 @@ const GetStaff: React.FC = () => {
                 initialPermission={selectedStaff.permissions?.canEditStudents || false}
               />
             </ScrollArea>
+          </div>
           </div>
         )}
 
