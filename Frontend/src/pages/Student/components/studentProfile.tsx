@@ -4,13 +4,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Mail, Phone, GraduationCap, User, Calendar, Crown } from "lucide-react";
+import {  User,
+  Mail,
+  Phone,
+  GraduationCap,
+  Calendar,
+  PhoneCall,
+  Users,
+  IdCard,
+  MapPin,
+  Baby, Crown } from "lucide-react";
 
 type Student = {
   fullName: string;
   email: string;
   phone: string;
   className: string;
+  dob: string;
+  address: string;
+  secondaryPhone: string;
+  motherName: string;
+  fatherName: string;
+  aadharNumber: number;
   profilePicture?: string;
   admissionDate?: string;
   isCurrentLeader?: boolean;
@@ -93,55 +108,107 @@ export default function StudentProfile() {
               </Badge>
             )}
           </h2>
-          <Badge className="mt-2">{student.className}</Badge>
+          <Badge className="mt-2 bg-green-600 rounded-xl text-white">{student.className}</Badge>
         </div>
       </Card>
 
       {/* Info Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <Card className="p-4">
-          <CardHeader className="flex items-center gap-3 p-0">
-            <User className="text-purple-500" />
-            <CardTitle>Full Name</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-2">{student.fullName}</CardContent>
-        </Card>
+        <CardHeader className="flex items-center gap-3 p-0">
+          <User className="text-purple-500" />
+          <CardTitle>Full Name</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">{student.fullName}</CardContent>
+      </Card>
 
+      <Card className="p-4">
+        <CardHeader className="flex items-center gap-3 p-0">
+          <Mail className="text-blue-500" />
+          <CardTitle>Email</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">{student.email}</CardContent>
+      </Card>
+
+      <Card className="p-4">
+        <CardHeader className="flex items-center gap-3 p-0">
+          <Phone className="text-green-500" />
+          <CardTitle>Mobile Number</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">{student.phone}</CardContent>
+      </Card>
+
+      <Card className="p-4">
+        <CardHeader className="flex items-center gap-3 p-0">
+          <PhoneCall className="text-cyan-500" />
+          <CardTitle>Secondary Phone</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">{student.secondaryPhone}</CardContent>
+      </Card>
+
+      <Card className="p-4">
+        <CardHeader className="flex items-center gap-3 p-0">
+          <Users className="text-pink-500" />
+          <CardTitle>Mother's Name</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">{student.motherName}</CardContent>
+      </Card>
+
+      <Card className="p-4">
+        <CardHeader className="flex items-center gap-3 p-0">
+          <Users className="text-orange-500" />
+          <CardTitle>Father's Name</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">{student.fatherName}</CardContent>
+      </Card>
+
+      <Card className="p-4">
+        <CardHeader className="flex items-center gap-3 p-0">
+          <IdCard className="text-red-600" />
+          <CardTitle>Aadhar Number</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">{student.aadharNumber}</CardContent>
+      </Card>
+
+      <Card className="p-4">
+        <CardHeader className="flex items-center gap-3 p-0">
+          <MapPin className="text-sky-600" />
+          <CardTitle>Address</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">{student.address}</CardContent>
+      </Card>
+
+      <Card className="p-4">
+        <CardHeader className="flex items-center gap-3 p-0">
+          <GraduationCap className="text-yellow-500" />
+          <CardTitle>Class</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">{student.className}</CardContent>
+      </Card>
+
+      {student.dob && (
         <Card className="p-4">
           <CardHeader className="flex items-center gap-3 p-0">
-            <Mail className="text-blue-500" />
-            <CardTitle>Email</CardTitle>
+            <Baby className="text-purple-700" />
+            <CardTitle>Date of Birth</CardTitle>
           </CardHeader>
-          <CardContent className="pt-2">{student.email}</CardContent>
+          <CardContent className="pt-2">
+            {new Date(student.dob).toLocaleDateString()}
+          </CardContent>
         </Card>
+      )}
 
+      {student.admissionDate && (
         <Card className="p-4">
           <CardHeader className="flex items-center gap-3 p-0">
-            <Phone className="text-green-500" />
-            <CardTitle>Mobile Number</CardTitle>
+            <Calendar className="text-red-500" />
+            <CardTitle>Admission Date</CardTitle>
           </CardHeader>
-          <CardContent className="pt-2">{student.phone}</CardContent>
+          <CardContent className="pt-2">
+            {new Date(student.admissionDate).toLocaleDateString()}
+          </CardContent>
         </Card>
-
-        <Card className="p-4">
-          <CardHeader className="flex items-center gap-3 p-0">
-            <GraduationCap className="text-yellow-500" />
-            <CardTitle>Class</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-2">{student.className}</CardContent>
-        </Card>
-
-        {student.admissionDate && (
-          <Card className="p-4">
-            <CardHeader className="flex items-center gap-3 p-0">
-              <Calendar className="text-red-500" />
-              <CardTitle>Admission Date</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-2">
-              {new Date(student.admissionDate).toLocaleDateString()}
-            </CardContent>
-          </Card>
-        )}
+      )}
       </div>
 
       {/* Download Profile Button */}
