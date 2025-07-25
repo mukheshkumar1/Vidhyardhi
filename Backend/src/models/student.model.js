@@ -3,7 +3,16 @@ import mongoose from "mongoose";
 const studentSchema = new mongoose.Schema({
   fullName: String,
   className: String,
+  dob: {
+    type: String, 
+    required: true,
+  },
+  address: String,
+  aadharNumber: Number,
+  motherName: String,
+  fatherName: String,
   phone: String,
+  secondaryPhone: String,
   email: String,
   password: String,
 
@@ -13,7 +22,8 @@ const studentSchema = new mongoose.Schema({
     english: String,
     maths: String,
     Science: String,
-    Social: String
+    Social: String,
+    computer: String,
   },
 
   profilePicture: {
@@ -31,9 +41,13 @@ const studentSchema = new mongoose.Schema({
     },
   ],
   performance: {
-    quarterly: { type: mongoose.Schema.Types.Mixed, default: {} },
-    halfYearly: { type: mongoose.Schema.Types.Mixed, default: {} },
-    annual: { type: mongoose.Schema.Types.Mixed, default: {} }
+    formativeAssessment1: { type: mongoose.Schema.Types.Mixed, default: {} },
+    formativeAssessment2: { type: mongoose.Schema.Types.Mixed, default: {} },
+    formativeAssessment3: { type: mongoose.Schema.Types.Mixed, default: {} },
+    formativeAssessment4: { type: mongoose.Schema.Types.Mixed, default: {} },
+    summativeAssessment1: { type: mongoose.Schema.Types.Mixed, default: {} },
+    summativeAssessment2: { type: mongoose.Schema.Types.Mixed, default: {} },
+    average: { type: Number } 
   },
 
   homework: [
@@ -134,9 +148,8 @@ const studentSchema = new mongoose.Schema({
         balance: Number
       },
       performance: {
-        quarterly: mongoose.Schema.Types.Mixed,
-        halfYearly: mongoose.Schema.Types.Mixed,
-        annual: mongoose.Schema.Types.Mixed
+        summativeAssessment2: mongoose.Schema.Types.Mixed,
+        average: { type: Number } 
       },
       attendance: {
         yearly: {
@@ -173,6 +186,23 @@ const studentSchema = new mongoose.Schema({
   votes: { type: Number, default: 0 },
   isCurrentLeader: { type: Boolean, default: false },
   isCandidate: { type: Boolean, default: false },
+
+  extraCurricular: [
+    {
+      activityName: String,
+      outOf: Number,
+      scored: Number,
+      addedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff",
+      },
+      addedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    }
+  ],
+  
 
   otp: { type: String },
   otpExpires: { type: Date },
