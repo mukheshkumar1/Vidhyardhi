@@ -35,7 +35,7 @@ export default function AdminExtraCurricularPerformance() {
     try {
       setLoading(true);
       const encoded = encodeURIComponent(selectedClass);
-      const res = await fetch(`http://localhost:5000/api/admin/extraactivities/${encoded}`, {
+      const res = await fetch(`https://vidhyardhi.onrender.com/api/admin/extraactivities/${encoded}`, {
         credentials: "include",
       });
       const json = await res.json();
