@@ -12,7 +12,7 @@ export const updatePerformance = async (req, res) => {
       return res.status(400).json({ error: "Student ID is required in params" });
     }
 
-    const { quarterly, halfYearly, annual } = req.body;
+    const {formativeAssessment1, formativeAssessment2, formativeAssessment3, formativeAssessment4, summativeAssessment1,summativeAssessment2 } = req.body;
 
     const student = await Student.findById(studentId);
     if (!student) {
@@ -57,28 +57,52 @@ export const updatePerformance = async (req, res) => {
     }
 
     // Preserve old data, update only if new data is present
-    if (quarterly) {
-      const existing = student.performance.quarterly?.subjects || {};
-      const merged = mergeMarks(existing, quarterly);
-      student.performance.quarterly = calculateStats(merged);
-    } else if (student.performance.quarterly) {
-      student.performance.quarterly = student.performance.quarterly; // retain old
+    if (formativeAssessment1) {
+      const existing = student.performance.formativeAssessment1?.subjects || {};
+      const merged = mergeMarks(existing, formativeAssessment1);
+      student.performance.formativeAssessment1 = calculateStats(merged);
+    } else if (student.performance.formativeAssessment1) {
+      student.performance.formativeAssessment1 = student.performance.formativeAssessment1; // retain old
     }
 
-    if (halfYearly) {
-      const existing = student.performance.halfYearly?.subjects || {};
-      const merged = mergeMarks(existing, halfYearly);
-      student.performance.halfYearly = calculateStats(merged);
-    } else if (student.performance.halfYearly) {
-      student.performance.halfYearly = student.performance.halfYearly;
+    if (formativeAssessment2) {
+      const existing = student.performance.formativeAssessment2?.subjects || {};
+      const merged = mergeMarks(existing, formativeAssessment2);
+      student.performance.formativeAssessment2 = calculateStats(merged);
+    } else if (student.performance.formativeAssessment2) {
+      student.performance.formativeAssessment2 = student.performance.formativeAssessment2; // retain old
     }
 
-    if (annual) {
-      const existing = student.performance.annual?.subjects || {};
-      const merged = mergeMarks(existing, annual);
-      student.performance.annual = calculateStats(merged);
-    } else if (student.performance.annual) {
-      student.performance.annual = student.performance.annual;
+    if (formativeAssessment3) {
+      const existing = student.performance.formativeAssessment3?.subjects || {};
+      const merged = mergeMarks(existing, formativeAssessment3);
+      student.performance.formativeAssessment3 = calculateStats(merged);
+    } else if (student.performance.formativeAssessment3) {
+      student.performance.formativeAssessment3 = student.performance.formativeAssessment3; // retain old
+    }
+
+    if (formativeAssessment4) {
+      const existing = student.performance.formativeAssessment4?.subjects || {};
+      const merged = mergeMarks(existing, formativeAssessment4);
+      student.performance.formativeAssessment4 = calculateStats(merged);
+    } else if (student.performance.formativeAssessment4) {
+      student.performance.formativeAssessment4 = student.performance.formativeAssessment4; // retain old
+    }
+
+    if (summativeAssessment1) {
+      const existing = student.performance.summativeAssessment1?.subjects || {};
+      const merged = mergeMarks(existing, summativeAssessment1);
+      student.performance.summativeAssessment1 = calculateStats(merged);
+    } else if (student.performance.summativeAssessment1) {
+      student.performance.summativeAssessment1 = student.performance.summativeAssessment1;
+    }
+
+    if (summativeAssessment2) {
+      const existing = student.performance.summativeAssessment2?.subjects || {};
+      const merged = mergeMarks(existing, summativeAssessment2);
+      student.performance.summativeAssessment2 = calculateStats(merged);
+    } else if (student.performance.summativeAssessment2) {
+      student.performance.summativeAssessment2 = student.performance.summativeAssessment2;
     }
 
     await student.save();
@@ -107,7 +131,7 @@ export const getClassPerformance = async (req, res) => {
 
     const students = await Student.find({ className });
 
-    const subjects = ["Telugu", "Hindi", "English", "Maths", "Science", "Social Studies"];
+    const subjects = ["Telugu", "Hindi", "English", "Maths", "Science", "Social Studies", "computer"];
 
     const computeStats = (marks = {}) => {
       const scoreList = subjects.map((sub) => marks[sub] || 0);
@@ -132,9 +156,12 @@ export const getClassPerformance = async (req, res) => {
 
     const formatted = students.map((student) => {
       const performance = {
-        quarterly: computeStats(student.performance?.quarterly?.subjects || student.performance?.quarterly || {}),
-        halfYearly: computeStats(student.performance?.halfYearly?.subjects || student.performance?.halfYearly || {}),
-        annual: computeStats(student.performance?.annual?.subjects || student.performance?.annual || {}),
+        formativeAssessment1: computeStats(student.performance?.formativeAssessment1?.subjects || student.performance?.formativeAssessment1 || {}),
+        formativeAssessment2: computeStats(student.performance?.formativeAssessment2?.subjects || student.performance?.formativeAssessment2 || {}),
+        formativeAssessment3: computeStats(student.performance?.formativeAssessment3?.subjects || student.performance?.formativeAssessment3 || {}),
+        formativeAssessment4: computeStats(student.performance?.formativeAssessment4?.subjects || student.performance?.formativeAssessment4 || {}),
+        summativeAssessment1: computeStats(student.performance?.summativeAssessment1?.subjects || student.performance?.summativeAssessment1 || {}),
+        summativeAssessment2: computeStats(student.performance?.summativeAssessment2?.subjects || student.performance?.summativeAssessment2 || {}),
       };
 
       return {
@@ -463,3 +490,58 @@ export const calculateMonthlyAttendance = async (req, res) => {
 //     res.status(500).json({ error: "Internal Server Error" });
 //   }
 // };
+
+//------------------extra acticities
+
+export const addExtraCurricularMarks = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { activityName, outOf, scored } = req.body;
+    const staffId = req.user.id; // assuming JWT is used and staff is authenticated
+
+    if (!activityName || typeof outOf !== 'number' || typeof scored !== 'number') {
+      return res.status(400).json({ message: "Missing or invalid fields." });
+    }
+
+    const student = await Student.findById(studentId);
+    if (!student) return res.status(404).json({ message: "Student not found." });
+
+    student.extraCurricular.push({
+      activityName,
+      outOf,
+      scored,
+      addedBy: staffId
+    });
+
+    await student.save();
+
+    res.status(200).json({ message: "Extra-curricular marks added successfully.", extraCurricular: student.extraCurricular });
+  } catch (error) {
+    console.error("Error adding extra-curricular marks:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+// controllers/extraCurricularController.js
+
+// Staff: Get extra-curricular marks of any student
+// controllers/staff.controller.js or admin.controller.js
+
+export const getAllStudentPerformances = async (req, res) => {
+  try {
+    const { className } = req.params;
+
+    if (!className) {
+      return res.status(400).json({ message: "Class name is required." });
+    }
+
+    const students = await Student.find({ className })
+      .select("fullName className extraCurricular")
+      .populate("extraCurricular.addedBy", "fullName"); // Optional: Get staff name
+
+    res.status(200).json({ students });
+  } catch (error) {
+    console.error("Error fetching student performances:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
