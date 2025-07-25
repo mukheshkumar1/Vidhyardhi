@@ -32,7 +32,9 @@ import { addStaff, addStudent, deleteStaff, deleteStudent, getAdmin, getAttendan
         getAdminProfile,
         getStudentAttendance,
         getStudentPerformance,
-        getClassToppers} from "../controllers/admin.controller.js";
+        getClassToppers,
+        getAllExtraCurricularSortedByScore,
+        getTodaysBirthdays} from "../controllers/admin.controller.js";
 import { getAllStudentsAttendance } from "../controllers/staff.controller.js";
 import { isAdmin } from "../middleware/isAdmin.js";
 import {  deleteStudentGalleryImages, uploadStudentGalleryImages } from "../controllers/student.gallery.controller.js";
@@ -95,5 +97,7 @@ router.get("/profile", isAdmin, getAdminProfile);
 router.get("/student/:studentId/attendance", isAdmin, getStudentAttendance)
 router.get("/student/:studentId/performance", isAdmin, getStudentPerformance)
 router.get("/toppers/:className", isAdmin, getClassToppers);
+router.get("/extraactivities/:className", isAdmin, getAllExtraCurricularSortedByScore);
+router.get("/student/birthday",isAdmin, getTodaysBirthdays)
 
 export default router;
