@@ -47,7 +47,7 @@ const StudentLogin = () => {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-gradient-to-br from-[#3a86ff] to-[#8338ec] px-4 overflow-hidden">
+    <div className="relative flex items-center justify-center min-h-screen bg-gradient-to-br from-[#69306d] to-[#69306d] px-4 overflow-hidden">
       {/* 🎈 Decorative Balloons */}
       <img
         src={balloonImg}
@@ -138,7 +138,7 @@ const StudentLogin = () => {
           </CardContent>
 
           <CardFooter className="flex flex-col gap-3 mt-2">
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-40 bg-green-500 rounded-xl" disabled={loading}>
               {loading ? "Logging in..." : "Login"}
             </Button>
             <p className="text-xs text-white/70 text-center">
