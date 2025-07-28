@@ -47,23 +47,23 @@ export default function AddBulkStudentsDialog() {
       }
 
       // Format DOB to "12 Apr 2018" if present
-      jsonData.forEach((row) => {
-        if (row.dob) {
-          try {
-            const date = new Date(row.dob);
-            if (!isNaN(date.getTime())) {
-              const formatted = date.toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              });
-              row.dob = formatted; // Replace with formatted
-            }
-          } catch (err) {
-            console.warn("Invalid DOB format:", row.dob);
-          }
-        }
-      });
+      // jsonData.forEach((row) => {
+      //   if (row.dob) {
+      //     try {
+      //       const date = new Date(row.dob);
+      //       if (!isNaN(date.getTime())) {
+      //         const formatted = date.toLocaleDateString("en-GB", {
+      //           day: "2-digit",
+      //           month: "short",
+      //           year: "numeric",
+      //         });
+      //         row.dob = formatted; // Replace with formatted
+      //       }
+      //     } catch (err) {
+      //       console.warn("Invalid DOB format:", row.dob);
+      //     }
+      //   }
+      // });
 
       setStudentCount(jsonData.length);
       setEstimatedTime(Math.ceil(jsonData.length * 0.5)); // ~0.5s per student
