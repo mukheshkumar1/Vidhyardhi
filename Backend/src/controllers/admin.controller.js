@@ -288,7 +288,7 @@ export const addStudent = async (req, res) => {
           </table>
 
           <div style="text-align: center; margin: 20px 0;">
-            <a href="https://localhost:5173/forgot-password" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+            <a href="https://www.vidhyardhischool.com/login/student" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
               Go to Student Portal
             </a>
           </div>
@@ -1131,7 +1131,7 @@ await sendEmail(
         </table>
         <button 
         style="background-color: blue; color: white; padding: 10px 20px; border: rounded; cursor: pointer;" 
-        onclick="this.style.backgroundColor='green'; window.location.href='https://localhost:5173/forgot-password';">
+        onclick="this.style.backgroundColor='green'; window.location.href='https://www.vidhyardhischool.com/login/staff';">
         Click Here
         </button>
 
@@ -2615,44 +2615,45 @@ export const getClassToppers = async (req, res) => {
 
 export const getAllExtraCurricularSortedByScore = async (req, res) => {
   try {
-    const { className } = req.params;
-
-    if (!className) {
-      return res.status(400).json({ message: "Class name is required." });
-    }
-
-    // Fetch all students from the class
-    const students = await Student.find({ className }).select("fullName className extraCurricular");
+    // Fetch all students with className and extraCurricular
+    const students = await Student.find()
+      .select("fullName className extraCurricular")
+      .populate("extraCurricular.addedBy", "fullName email");
 
     if (!students.length) {
-      return res.status(404).json({ message: "No students found in this class." });
+      return res.status(404).json({ message: "No students found." });
     }
 
-    // Map each student to include a total score from extraCurricular activities
-    const studentsWithTotalScore = students.map((student) => {
-      const totalScored = student.extraCurricular.reduce((sum, activity) => sum + (activity.scored || 0), 0);
-      const totalOutOf = student.extraCurricular.reduce((sum, activity) => sum + (activity.outOf || 0), 0);
+    // Group students by className
+    const groupedByClass = {};
 
-      return {
+    students.forEach((student) => {
+      // Ensure extraCurricular is always an array
+      const safeExtraCurricular = Array.isArray(student.extraCurricular)
+        ? student.extraCurricular
+        : [];
+
+      const studentData = {
         _id: student._id,
         fullName: student.fullName,
         className: student.className,
-        extraCurricular: student.extraCurricular,
-        totalScored,
-        totalOutOf,
-        percentage: totalOutOf > 0 ? ((totalScored / totalOutOf) * 100).toFixed(2) : "0.00",
+        extraCurricular: safeExtraCurricular,
       };
+
+      if (!groupedByClass[student.className]) {
+        groupedByClass[student.className] = [];
+      }
+
+      groupedByClass[student.className].push(studentData);
     });
 
-    // Sort students by totalScored descending (highest first)
-    studentsWithTotalScore.sort((a, b) => b.totalScored - a.totalScored);
-
-    res.status(200).json({ students: studentsWithTotalScore });
+    res.status(200).json({ groupedByClass });
   } catch (error) {
-    console.error("Error fetching extra-curricular performances:", error);
+    console.error("Error fetching extracurricular data:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
+
 
 
 export const getTodaysBirthdays = async (req, res) => {
