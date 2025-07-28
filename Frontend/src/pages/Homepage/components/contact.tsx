@@ -108,7 +108,7 @@ function RegisterModal({ onClose }: { onClose: () => void }) {
     setStatus("Submitting...");
 
     try {
-      const res = await fetch("http://localhost:5000/api/register", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -143,11 +143,12 @@ function RegisterModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="relative w-full max-w-lg bg-white bg-opacity-90 rounded-3xl shadow-2xl p-8"
-      >
+     <motion.div
+  initial={{ scale: 0.8, opacity: 0 }}
+  animate={{ scale: 1, opacity: 1 }}
+  className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white bg-opacity-90 rounded-3xl shadow-2xl p-8"
+>
+
         <button
           className="absolute top-4 right-5 text-2xl text-gray-700 hover:text-red-500"
           onClick={onClose}
