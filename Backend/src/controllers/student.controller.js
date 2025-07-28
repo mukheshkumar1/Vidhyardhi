@@ -32,7 +32,8 @@ export const getStudentProfile = async (req, res) => {
 
 //--------------------------Student Details---------------------
 
-
+// Corrected getStudentAcademicDetails
+// ✅ Inside your controller
 export const getStudentAcademicDetails = async (req, res) => {
   try {
     const student = await Student.findById(req.params.studentId);
