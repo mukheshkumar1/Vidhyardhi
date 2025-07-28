@@ -496,11 +496,12 @@ export const calculateMonthlyAttendance = async (req, res) => {
 export const addExtraCurricularMarks = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const { activityName, outOf, scored } = req.body;
-    const staffId = req.user.id; // assuming JWT is used and staff is authenticated
+    const { activityName, grade } = req.body;
+    const staffId = req.user.id;
 
-    if (!activityName || typeof outOf !== 'number' || typeof scored !== 'number') {
-      return res.status(400).json({ message: "Missing or invalid fields." });
+    // ✅ Correct validation
+    if (!activityName || !grade) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
     const student = await Student.findById(studentId);
@@ -508,19 +509,23 @@ export const addExtraCurricularMarks = async (req, res) => {
 
     student.extraCurricular.push({
       activityName,
-      outOf,
-      scored,
-      addedBy: staffId
+      grade,
+      addedBy: staffId,
+      addedAt: new Date(),
     });
 
     await student.save();
 
-    res.status(200).json({ message: "Extra-curricular marks added successfully.", extraCurricular: student.extraCurricular });
+    res.status(200).json({
+      message: "Extra-curricular marks added successfully.",
+      extraCurricular: student.extraCurricular,
+    });
   } catch (error) {
     console.error("Error adding extra-curricular marks:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
+
 
 // controllers/extraCurricularController.js
 
