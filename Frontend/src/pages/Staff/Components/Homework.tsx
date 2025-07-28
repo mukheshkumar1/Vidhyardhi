@@ -101,21 +101,42 @@ export default function AssignHomeworkPage() {
 
   return (
     <>
-      <Paper
-        sx={{
-          p: 4,
-          maxWidth: 700,
-          width: '100%',
-          backdropFilter: 'blur(8px)',
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
-          backgroundImage: `url(${logoBackground})`,
-          backgroundSize: '300px auto',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          boxShadow: 6,
-          borderRadius: 3,
-        }}
-      >
+       <Paper
+  sx={{
+    position: "relative", // for absolute child
+    p: 4,
+    maxWidth: 700,
+    width: "100%",
+    backdropFilter: "blur(8px)",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    boxShadow: 6,
+    borderRadius: 3,
+    overflow: "hidden", // to prevent logo from overflowing
+  }}
+>
+  {/* Logo Background Layer */}
+  <Box
+    component="div"
+    sx={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      backgroundImage: `url(${logoBackground})`,
+      backgroundRepeat: "no-repeat",
+      backgroundPosition: "center",
+      backgroundSize: "300px auto",
+      opacity: 0.3,
+      width: "100%",
+      height: "100%",
+      zIndex: 0,
+    }}
+  />
+  
+  {/* Content Layer */}
+  <Box sx={{ position: "relative", zIndex: 1 }}>
+    {/* Your content goes here */}
+  </Box>
         <Typography variant="h5" gutterBottom color="purple" fontFamily={'cursive'}>
           Assign Homework
         </Typography>
