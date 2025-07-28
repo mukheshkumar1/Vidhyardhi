@@ -14,6 +14,7 @@ import {
 
 // ✅ Import the logo image
 import logo from "../../../assets/images/logo5.jpg";
+import { Link } from "react-router-dom";
 
 const AdminLogin = () => {
   const [mobileNumber, setMobileNumber] = useState("");
@@ -95,6 +96,14 @@ const AdminLogin = () => {
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
+            </div>
+            <div className="text-right">
+              <Link
+                to="/forgotpasswordadmin"
+                className="text-sm text-yellow-300 hover:underline"
+              >
+                Forgot Password?
+              </Link>
             </div>
           </CardContent>
 
