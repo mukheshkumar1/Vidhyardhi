@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -80,8 +81,13 @@ const AboutStaff = () => {
 
   const navigate = useNavigate();
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   return (
-    <div className="relative overflow-hidden min-h-screen bg-gradient-to-br from-[#80cb2e] to-[#69306d] px-4 py-12 text-gray-800 transition-all">
+    <div className="relative overflow-hidden min-h-screen bg-gradient-to-br from-[#69306d] to-[#69306d] px-4 py-12 text-gray-800 transition-all">
       {/* Home Button */}
       <button
         onClick={() => navigate("/")}
