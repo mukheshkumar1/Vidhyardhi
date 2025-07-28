@@ -113,7 +113,7 @@ export default function AdminHolidayCalendar() {
                 ➕ Add Holiday/Special Day
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px] bg-transparent">
+            <DialogContent className="sm:max-w-[500px] bg-white rounded-xl">
               <DialogHeader>
                 <DialogTitle>Add New Event</DialogTitle>
               </DialogHeader>
