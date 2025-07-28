@@ -2,8 +2,9 @@ import { useScroll, useTransform, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import { Carousel, CarouselItem } from "@/components/ui/carousel";
+import { useEffect } from "react";
 
-// ✅ Import Local Images
+
 import conceptImg from "../../../assets/images/Clarity-Concepts.png";
 import personalizedImg from "../../../assets/images/Personalized-Learning.png";
 import assessmentImg from "../../../assets/images/Strong-Assessment.png";
@@ -79,8 +80,13 @@ const AboutAcademics = () => {
 
   const navigate = useNavigate();
 
+  // ✅ Scroll to top when component loads
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   return (
-    <div className="relative overflow-hidden min-h-screen bg-gradient-to-br from-[#5f72bd] to-[#9b23ea] px-4 py-12 text-gray-800 transition-all">
+    <div className="relative overflow-hidden min-h-screen bg-gradient-to-br from-[#69306d] to-[#69306d] px-4 py-12 text-gray-800 transition-all">
       {/* 🏠 Home Button */}
       <button
         onClick={() => navigate("/")}
