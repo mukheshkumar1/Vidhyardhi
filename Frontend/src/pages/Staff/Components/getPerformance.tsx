@@ -148,11 +148,10 @@ export default function Results() {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 max-w-full overflow-x-auto">
       <h1 className="text-2xl font-bold mb-4 text-teal-600">📊 Results</h1>
 
-      {/* Controls */}
-      <div className="flex flex-wrap gap-3 mb-4 items-center">
+      <div className="flex flex-col lg:flex-row flex-wrap gap-3 mb-4 items-start lg:items-center">
         <Select.Root value={className} onValueChange={setClassName}>
           <Select.Trigger className="min-w-[150px] border rounded px-3 py-2 bg-white shadow-sm">
             <Select.Value placeholder="Select class" />
@@ -202,16 +201,13 @@ export default function Results() {
         </Button>
       </div>
 
-      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-2">
+        <TabsList className="mb-2 overflow-x-auto whitespace-nowrap">
           <TabsTrigger value="regular">Regular</TabsTrigger>
           <TabsTrigger value="extra">Extra-Curricular</TabsTrigger>
         </TabsList>
 
-        {/* REGULAR TAB */}
         <TabsContent value="regular">
-          {/* Assessment Tabs */}
           <div className="flex flex-wrap gap-2 mb-2">
             {assessments.map((key) => (
               <Button
@@ -225,60 +221,62 @@ export default function Results() {
             ))}
           </div>
 
-          <Card className="shadow-sm">
-            <CardContent className="p-2 overflow-x-auto">
-              <table className="w-full text-sm border">
-                <thead className="bg-teal-100">
-                  <tr>
-                    <th className="px-2 py-2">Name</th>
-                    {subjects.map((subj) => (
-                      <th key={subj} className="px-2 py-2">{subj}</th>
-                    ))}
-                    <th className="px-2 py-2">Total</th>
-                    <th className="px-2 py-2">%</th>
-                    <th className="px-2 py-2">Grade</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredStudents.length === 0 ? (
-                    <tr><td colSpan={subjects.length + 4} className="text-center py-6">No students</td></tr>
-                  ) : (
-                    filteredStudents.map((s) => {
-                      const perf = s.performance?.[selectedAssessment] || {};
-                      const marks = perf.marks || {};
-                      const total = perf.total || 0;
-                      const percentage = perf.percentage || 0;
-                      const grade = perf.grade || getGrade(percentage);
+          <div className="overflow-x-auto">
+            <Card className="shadow-sm">
+              <CardContent className="p-2">
+                <table className="w-full text-sm border min-w-[600px]">
+                  <thead className="bg-teal-100">
+                    <tr>
+                      <th className="px-2 py-2">Name</th>
+                      {subjects.map((subj) => (
+                        <th key={subj} className="px-2 py-2">{subj}</th>
+                      ))}
+                      <th className="px-2 py-2">Total</th>
+                      <th className="px-2 py-2">%</th>
+                      <th className="px-2 py-2">Grade</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredStudents.length === 0 ? (
+                      <tr><td colSpan={subjects.length + 4} className="text-center py-6">No students</td></tr>
+                    ) : (
+                      filteredStudents.map((s) => {
+                        const perf = s.performance?.[selectedAssessment] || {};
+                        const marks = perf.marks || {};
+                        const total = perf.total || 0;
+                        const percentage = perf.percentage || 0;
+                        const grade = perf.grade || getGrade(percentage);
 
-                      return (
-                        <tr key={s._id} className="border-t even:bg-gray-50">
-                          <td className="px-2 py-2">{s.fullName}</td>
-                          {subjects.map((subj) => (
-                            <td key={subj} className="text-center px-1 py-2">
-                              {marks[subj] ?? "-"}
-                            </td>
-                          ))}
-                          <td className="text-center">{total}</td>
-                          <td className="text-center">{percentage.toFixed(2)}%</td>
-                          <td className="text-center text-teal-600 font-medium">{grade}</td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
+                        return (
+                          <tr key={s._id} className="border-t even:bg-gray-50">
+                            <td className="px-2 py-2 whitespace-nowrap">{s.fullName}</td>
+                            {subjects.map((subj) => (
+                              <td key={subj} className="text-center px-1 py-2">
+                                {marks[subj] ?? "-"}
+                              </td>
+                            ))}
+                            <td className="text-center">{total}</td>
+                            <td className="text-center">{percentage.toFixed(2)}%</td>
+                            <td className="text-center text-teal-600 font-medium">{grade}</td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
-        {/* EXTRA-CURRICULAR TAB */}
         <TabsContent value="extra">
-          {/* Activity Selector */}
           <div className="mb-2">
             <Select.Root value={selectedActivity} onValueChange={setSelectedActivity}>
               <Select.Trigger className="min-w-[200px] border rounded px-3 py-2 bg-white">
                 <Select.Value placeholder="Select Activity" />
-                <Select.Icon><ChevronDown className="w-4 h-4" /></Select.Icon>
+                <Select.Icon>
+                  <ChevronDown className="w-4 h-4" />
+                </Select.Icon>
               </Select.Trigger>
               <Select.Portal>
                 <Select.Content className="border rounded bg-white shadow">
@@ -294,42 +292,48 @@ export default function Results() {
             </Select.Root>
           </div>
 
-          <Card className="shadow-sm">
-            <CardContent className="p-2 overflow-x-auto">
-              <table className="w-full text-sm border">
-                <thead className="bg-purple-100 text-purple-800">
-                  <tr>
-                    <th className="px-2 py-2">Name</th>
-                    <th className="px-2 py-2">Activity</th>
-                    <th className="px-2 py-2 text-center">Scored</th>
-                    <th className="px-2 py-2 text-center">Out of</th>
-                    <th className="px-2 py-2 text-center">%</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {extraStudents.length === 0 || !selectedActivity ? (
-                    <tr><td colSpan={5} className="text-center py-6 text-gray-500">No data</td></tr>
-                  ) : (
-                    extraStudents.map((s) =>
-                      (s.extraCurricular || [])
-                        .filter((a: any) => a.activityName === selectedActivity)
-                        .map((a: any, idx: number) => (
-                          <tr key={`${s._id}-${idx}`} className="border-t even:bg-gray-50">
-                            <td className="px-2 py-2">{s.fullName}</td>
-                            <td className="px-2 py-2">{a.activityName}</td>
-                            <td className="px-2 py-2 text-center">{a.scored}</td>
-                            <td className="px-2 py-2 text-center">{a.outOf}</td>
-                            <td className="px-2 py-2 text-center font-medium text-purple-700">
-                              {((a.scored / a.outOf) * 100).toFixed(2)}%
-                            </td>
-                          </tr>
-                        ))
-                    )
-                  )}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
+          <div className="overflow-x-auto">
+            <Card className="shadow-sm">
+              <CardContent className="p-2">
+                <table className="w-full text-sm border min-w-[400px]">
+                  <thead className="bg-purple-100 text-purple-800">
+                    <tr>
+                      <th className="px-2 py-2">Name</th>
+                      <th className="px-2 py-2">Activity</th>
+                      <th className="px-2 py-2 text-center">Grade</th>
+                      <th className="px-2 py-2 text-center">Added At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {extraStudents.length === 0 || !selectedActivity ? (
+                      <tr>
+                        <td colSpan={4} className="text-center py-6 text-gray-500">
+                          No data
+                        </td>
+                      </tr>
+                    ) : (
+                      extraStudents.map((s) =>
+                        (s.extraCurricular || [])
+                          .filter((a: any) => a.activityName === selectedActivity)
+                          .map((a: any, idx: number) => (
+                            <tr key={`${s._id}-${idx}`} className="border-t even:bg-gray-50">
+                              <td className="px-2 py-2 whitespace-nowrap">{s.fullName}</td>
+                              <td className="px-2 py-2">{a.activityName}</td>
+                              <td className="px-2 py-2 text-center font-medium text-purple-700">
+                                {a.grade || "-"}
+                              </td>
+                              <td className="px-2 py-2 text-center text-gray-600">
+                                {a.addedAt ? new Date(a.addedAt).toLocaleDateString() : "-"}
+                              </td>
+                            </tr>
+                          ))
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
