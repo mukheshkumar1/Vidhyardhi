@@ -116,7 +116,7 @@ const AdminPage = () => {
   
 
   return (
-    <div className="flex min-h-screen bg-[#58931d]  text-white">
+    <div className="flex min-h-screen  bg-[#727272]  text-white">
       <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} admin={admin} />
 
      
@@ -154,7 +154,7 @@ const AdminPage = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl rounded-lg p-6 text-yellow-300"
+            className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl rounded-xl p-6 text-yellow-300"
           >
             <p className="text-lg font-semibold">Total Students</p>
             <h2 className="text-4xl font-bold">{studentsCount}</h2>
@@ -162,7 +162,7 @@ const AdminPage = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl rounded-lg p-6 text-green-300"
+            className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl rounded-xl p-6 text-green-300"
           >
             <p className="text-lg font-semibold">Total Staff</p>
             <h2 className="text-4xl font-bold">{staffCount}</h2>
@@ -266,7 +266,7 @@ const AdminPage = () => {
   className="rounded-xl border border-gray-200 bg-white/10 backdrop-blur-md shadow-lg text-black"
 >
 <button
-  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-purple-700 rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
+  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-white rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
   onClick={() => toggleSection("selectCandidate")}
 >
     🗳️ Select Candidate
@@ -283,7 +283,7 @@ const AdminPage = () => {
   className="rounded-xl border border-gray-200 bg-white/10 backdrop-blur-md shadow-lg text-black"
 >
 <button
-  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-purple-700 rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
+  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-white rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
   onClick={() => toggleSection("closeVoting")}
 >
     ⛔ Close Voting
@@ -301,7 +301,7 @@ const AdminPage = () => {
   className="rounded-xl border border-gray-200 bg-white/10 backdrop-blur-md shadow-lg text-black"
 >
 <button
-  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-purple-700 rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
+  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-white rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
   onClick={() => toggleSection("votingPeriod")}
 >
     🗓️ Set Voting Period
@@ -320,7 +320,7 @@ const AdminPage = () => {
   className="rounded-xl border border-gray-200 bg-white/10 backdrop-blur-md shadow-lg text-black"
 >
 <button
-  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-purple-700 rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
+  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-white rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
   onClick={() => toggleSection("votingStats")}
 >
     📊 Voting Statistics
@@ -339,7 +339,7 @@ const AdminPage = () => {
   className="rounded-xl border border-gray-200 bg-white/10 backdrop-blur-md shadow-lg text-black"
 >
 <button
-  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-purple-700 rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
+  className="w-full text-left px-4 py-3 flex justify-between items-center font-semibold text-white rounded-xl transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-md"
   onClick={() => toggleSection("assignLeader")}
 >
     🏆 Assign Class Leader
