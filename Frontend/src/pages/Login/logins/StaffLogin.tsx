@@ -43,7 +43,7 @@ const StaffLogin = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#80cb2e] to-[#69306d] px-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#69306d] to-[#69306d] px-4">
       <Card className="w-full max-w-md bg-white bg-opacity-40 backdrop-blur-xl shadow-xl text-white">
         <form onSubmit={handleSubmit}>
           <CardHeader className="flex flex-col items-center space-y-4">
@@ -89,7 +89,7 @@ const StaffLogin = () => {
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-3 flex items-center text-white/70 hover:text-white"
+                className="absolute inset-y-0 right-3 flex items-center  text-white/70 hover:text-white"
                 onClick={() => setShowPassword((prev) => !prev)}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -108,7 +108,7 @@ const StaffLogin = () => {
           </CardContent>
 
           <CardFooter className="flex flex-col gap-3">
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-40 rounded-xl bg-green-500" disabled={loading}>
               {loading ? "Logging in..." : "Login"}
             </Button>
             <p className="text-xs text-white/70 text-center">
