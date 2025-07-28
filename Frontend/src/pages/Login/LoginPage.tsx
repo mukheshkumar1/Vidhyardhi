@@ -29,7 +29,7 @@ const LoginInfoPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-gradient-to-br from-[#0e103d] via-[#737373] to-[#80cb2e] min-h-screen px-4 py-16 text-center text-white">
+    <div className="bg-gradient-to-br from-[#69306d] via-[#69306d] to-[#69306d] min-h-screen px-4 py-16 text-center text-white">
       <motion.h1
         className="text-4xl font-extrabold mb-12"
         initial={{ y: -20, opacity: 0 }}
@@ -56,8 +56,8 @@ const LoginInfoPage = () => {
                 <CardTitle className="text-2xl font-semibold text-white">{role}</CardTitle>
                 <p className="text-sm text-gray-200">{description}</p>
                 <Button
-                  variant="outline"
-                  className="mt-4 border-white text-white hover:bg-white/10"
+                  variant="ghost"
+                  className="mt-4 text-white rounded-xl bg-orange-400 hover:bg-white/10"
                 >
                   Login
                 </Button>
