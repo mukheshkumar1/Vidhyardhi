@@ -67,9 +67,10 @@ interface AcademicDetails {
 
 interface ExtraActivity {
   activityName: string;
-  scored: number;
-  outOf: number;
+  grade: string;
+  addedAt?: string;
 }
+
 
 export default function ReportCard({ studentId }: { studentId: string }) {
   const [data, setData] = useState<AcademicDetails | null>(null);
@@ -279,42 +280,44 @@ export default function ReportCard({ studentId }: { studentId: string }) {
 
         {/* Extra Curricular */}
         {extraActivities.length > 0 && (
-          <CardContent className="mt-4">
-            <h3 className="font-semibold text-lg mb-3 flex items-center gap-2 text-green-700">
-              <Trophy size={20} />
-              Extra Curricular Performance
-            </h3>
-            <table className="w-full text-sm border rounded overflow-hidden mb-2 border-collapse bg-green-50">
-              <thead className="bg-green-600 text-white">
-                <tr>
-                  <th className="text-left p-2 border">🎯 Activity</th>
-                  <th className="text-left p-2 border">Scored</th>
-                  <th className="text-left p-2 border">Out Of</th>
-                  <th className="text-left p-2 border">Percentage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {extraActivities
-                  .sort(
-                    (a, b) =>
-                      (b.scored / b.outOf) * 100 - (a.scored / a.outOf) * 100
-                  )
-                  .map((activity, idx) => (
-                    <tr key={idx} className="hover:bg-green-100">
-                      <td className="p-2 border font-medium">
-                        {activity.activityName}
-                      </td>
-                      <td className="p-2 border text-center">{activity.scored}</td>
-                      <td className="p-2 border text-center">{activity.outOf}</td>
-                      <td className="p-2 border text-center">
-                        {((activity.scored / activity.outOf) * 100).toFixed(2)}%
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </CardContent>
-        )}
+  <CardContent className="mt-4">
+    <h3 className="font-semibold text-lg mb-3 flex items-center gap-2 text-green-700">
+      <Trophy size={20} />
+      Extra Curricular Performance
+    </h3>
+    <table className="w-full text-sm border rounded overflow-hidden mb-2 border-collapse bg-green-50">
+      <thead className="bg-green-600 text-white">
+        <tr>
+          <th className="text-left p-2 border">🎯 Activity</th>
+          <th className="text-center p-2 border">Grade</th>
+          <th className="text-center p-2 border">Added At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {extraActivities
+          .sort((a, b) => {
+            const dateA = a.addedAt ? new Date(a.addedAt).getTime() : 0;
+            const dateB = b.addedAt ? new Date(b.addedAt).getTime() : 0;
+            return dateB - dateA;
+          })
+          .map((activity, idx) => (
+            <tr key={idx} className="hover:bg-green-100">
+              <td className="p-2 border font-medium">{activity.activityName}</td>
+              <td className="p-2 border text-center text-purple-700 font-semibold">
+                {activity.grade || "-"}
+              </td>
+              <td className="p-2 border text-center text-gray-600">
+                {activity.addedAt
+                  ? new Date(activity.addedAt).toLocaleDateString()
+                  : "-"}
+              </td>
+            </tr>
+          ))}
+      </tbody>
+    </table>
+  </CardContent>
+)}
+
 
         {/* Class History */}
         <CardContent className="mt-4">
