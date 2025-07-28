@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import GallerySection from "../components/Gallery";
 import {
   Box,
@@ -11,6 +11,8 @@ import {
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import { useNavigate } from "react-router-dom";
+import { useInView } from "react-intersection-observer";
+import { useTypewriter } from "react-simple-typewriter";
 
 const testimonials = [
   "Vidyardhi School is not just an institution—it's a second home for our children.",
@@ -58,20 +60,47 @@ const schoolFeatures = [
 
 const AboutSchool: React.FC = () => {
   const navigate = useNavigate();
+  const { ref: aboutRef, inView } = useInView({ triggerOnce: true });
+
+  const [text] = useTypewriter({
+    words: ["Welcome to Vidhyardhi School"],
+    loop: 1,
+    typeSpeed: 80,
+    deleteSpeed: 50,
+    delaySpeed: 2000,
+  });
+
+  // Scroll to top when component loads
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        background: "linear-gradient(to bottom right, #6e00c5 0%, #e34ec1 100%)",
-        color: "#fff",
+        position: "relative",
         pt: 8,
         px: 2,
-        position: "relative",
         overflow: "hidden",
+        backgroundcolor: "#69306d",
+        color: "#fff",
       }}
     >
-      {/* 🧩 Decorative floating icons */}
+      {/* Black Overlay */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "#69306d",
+          zIndex: 1,
+        }}
+      />
+
+      {/* Floating icons */}
       {iconUrls.map((icon, index) => (
         <Box
           key={index}
@@ -89,8 +118,8 @@ const AboutSchool: React.FC = () => {
         />
       ))}
 
-      <Container maxWidth="lg" sx={{ position: "relative", zIndex: 10 }}>
-        {/* 🏫 Heading */}
+      <Container maxWidth="lg" sx={{ position: "relative", zIndex: 2 }}>
+        {/* Heading with typewriter */}
         <Box
           sx={{
             mb: 10,
@@ -101,40 +130,54 @@ const AboutSchool: React.FC = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           }}
         >
-       <Typography
-  variant="h2"
-  sx={{
-    fontFamily: '"Pacifico", cursive',
-    fontWeight: 600,
-    mb: 3,
-    textAlign: "center",
-    color: "#fff",
-    textShadow: "2px 2px 8px rgba(0,0,0,0.4)",
-  }}
->
-  <Box component="span" sx={{ color: "#8000ff" /* purple */ }}>
-    Welcome {" "}
-  </Box>
-  to {""}
-  <Box component="span" sx={{ color: "#00cc66" /* green */ }}>
-    Vidhya 
-  </Box>
-  <Box component="span" sx={{ color: "#ff9900" /* orange */ }}>
-    rdhi{" "}
-  </Box>
-  school
-</Typography>
+          <Typography
+            variant="h2"
+            sx={{
+              fontFamily: '"Pacifico", cursive',
+              fontWeight: 600,
+              mb: 3,
+              textAlign: "center",
+              color: "#fff",
+              textShadow: "2px 2px 8px rgba(0,0,0,0.4)",
+              minHeight: "70px",
+            }}
+          >
+            {text.includes("Vidhyardhi") ? (
+              <>
+                {"Welcome to "}
+                <Box component="span" sx={{ color: "#80cb2e" }}>
+                  Vidhy
+                </Box>
+                <Box component="span" sx={{ color: "#f09c13" }}>
+                  ardhi
+                </Box>{" "}
+                School
+              </>
+            ) : (
+              text
+            )}
+            <Box component="span" sx={{ ml: 1 }}>
+              |
+            </Box>
+          </Typography>
 
-
-          <Typography sx={{ fontSize: "1.2rem", lineHeight: 1.8, textAlign: "justify" }}>
-            Founded in <strong>2025</strong>, Vidyardhi School is a vibrant educational community focused
-            on nurturing minds and inspiring hearts. Our vision is to go beyond books and equip every learner
-            with curiosity, courage, and compassion. With a strong foundation of ethics, creativity, and inquiry-based learning,
-            Vidyardhi School helps every student uncover their best self.
+          <Typography
+            ref={aboutRef}
+            sx={{
+              fontSize: "1.2rem",
+              lineHeight: 1.8,
+              textAlign: "justify",
+              whiteSpace: "pre-wrap",
+              minHeight: "150px",
+              transition: "all 0.5s ease-in-out",
+            }}
+          >
+            {inView &&
+              "Founded in 2025, Vidyardhi School is a vibrant educational community focused on nurturing minds and inspiring hearts. Our vision is to go beyond books and equip every learner with curiosity, courage, and compassion. With a strong foundation of ethics, creativity, and inquiry-based learning, Vidyardhi School helps every student uncover their best self."}
           </Typography>
         </Box>
 
-        {/* 🔥 School Features */}
+        {/* Features */}
         <Grid container spacing={4} sx={{ mb: 10 }}>
           {schoolFeatures.map((feature, i) => (
             <Grid item xs={12} sm={6} md={4} key={i}>
@@ -167,13 +210,22 @@ const AboutSchool: React.FC = () => {
           ))}
         </Grid>
 
-        {/* 📸 Gallery Section */}
+        {/* Gallery */}
         <Box sx={{ mb: 12 }}>
           <GallerySection />
         </Box>
 
-        {/* 💬 Testimonials */}
-        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 4, textAlign: "center" }}>
+        {/* Testimonials */}
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: "bold",
+            mb: 4,
+            textAlign: "center",
+            px: 2,
+            py: 3,
+          }}
+        >
           What Parents Say
         </Typography>
         <Grid container spacing={4}>
@@ -187,7 +239,6 @@ const AboutSchool: React.FC = () => {
                   background: "rgba(255, 255, 255, 0.1)",
                   backdropFilter: "blur(12px)",
                   color: "#fff",
-                  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.4)",
                   transition: "0.3s",
                   "&:hover": {
                     transform: "scale(1.03)",
@@ -206,7 +257,7 @@ const AboutSchool: React.FC = () => {
         </Grid>
       </Container>
 
-      {/* 🏠 Home Button */}
+      {/* Home Button */}
       <Fab
         color="primary"
         sx={{
