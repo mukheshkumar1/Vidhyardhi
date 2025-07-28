@@ -151,7 +151,7 @@ const StudentsByClass: React.FC = () => {
 
         <div className="flex flex-wrap justify-center gap-4 mb-8 items-center">
           <div className="flex items-center border rounded px-3 py-2 w-full sm:w-auto sm:min-w-[250px]">
-            <Search className="text-gray-500 w-5 h-5 mr-1" />
+            <Search className="text-white w-5 h-5 mr-1" />
             <input
               type="text"
               placeholder="Search by name"
@@ -181,7 +181,12 @@ const StudentsByClass: React.FC = () => {
           Object.entries(filteredStudentsByClass).map(([className, students]) => (
             <div key={className} className="mb-10 relative">
               <div className="flex items-center justify-between flex-wrap">
-                <h3 className="text-xl font-semibold text-blue-600 mx-auto mb-2 sm:mb-0">{className}</h3>
+              <h3
+  className="bg-white text-transparent bg-clip-text font-extrabold text-3xl tracking-wide drop-shadow-xl text-center mx-auto"
+>
+  {className}
+</h3>
+
 
                 {className !== "Old Students" && (
                   <div className="ml-auto">
