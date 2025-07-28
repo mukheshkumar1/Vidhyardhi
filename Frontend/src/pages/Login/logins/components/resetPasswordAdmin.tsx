@@ -59,7 +59,7 @@ const ResetPasswordAdmin = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/admin/reset-password", {
+      const res = await fetch("https://vidhyardhi.onrender.com/api/auth/admin/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mobileNumber, otp, newPassword }),
