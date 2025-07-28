@@ -6,7 +6,9 @@ import {
   studentLogin,
   logout,
   forgotPassword,
-  verifyOtpAndResetPassword
+  verifyOtpAndResetPassword,
+  forgotPasswordAdmin,
+  verifyOtpAndResetPasswordAdmin
 } from "../controllers/auth.controller.js";
 import {isAdmin} from "../middleware/isAdmin.js";
 import protectRoute from "../middleware/protectRoute.js";
@@ -25,6 +27,8 @@ router.post("/login/student", studentLogin);
 //forgot and reset
 router.post("/forgot-password",  forgotPassword);
 router.post("/reset-password", verifyOtpAndResetPassword);
+
+//admin frogot
 
 router.post("/admin/forgot-password",  forgotPasswordAdmin);
 router.post("/admin/reset-password", verifyOtpAndResetPasswordAdmin);
