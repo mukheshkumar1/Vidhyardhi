@@ -326,3 +326,100 @@ export const verifyOtpAndResetPasswordStaff = async (req, res) => {
   }
 };
 
+//--------------------------admin frogot password
+
+export const forgotPasswordAdmin = async (req, res) => {
+  try {
+    const { mobileNumber } = req.body;
+
+    const admin = await Staff.findOne({ mobileNumber, role: "admin" });
+
+    if (!admin) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    await Staff.updateOne(
+      { _id: admin._id },
+      { $set: { otp, otpExpires } }
+    );
+
+    await sendEmail(
+      admin.email,
+      "OTP for Admin Password Reset",
+      `
+        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;">
+          <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 30px;">
+            <div style="text-align: center;">
+              <img src="https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png" alt="Vidhyardhi School Logo" style="max-width: 120px; margin-bottom: 20px;" />
+            </div>
+            <p style="text-align: center;">Hello ${admin.fullName},</p>
+            <p>Your OTP for password reset is:</p>
+            <h2 style="text-align: center;">${otp}</h2>
+            <p>This OTP is valid for 10 minutes.</p>
+          </div>
+        </div>
+      `
+    );
+
+    res.status(200).json({ message: "OTP sent to registered email" });
+  } catch (error) {
+    console.error("Admin Forgot Password Error:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+export const verifyOtpAndResetPasswordAdmin = async (req, res) => {
+  try {
+    const { mobileNumber, otp, newPassword } = req.body;
+
+    const admin = await Staff.findOne({ mobileNumber, role: "admin" });
+
+    if (!admin || admin.otp !== otp || admin.otpExpires < new Date()) {
+      return res.status(400).json({ error: "Invalid or expired OTP" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await Staff.updateOne(
+      { _id: admin._id },
+      {
+        $set: {
+          password: hashedPassword,
+          otp: null,
+          otpExpires: null,
+        },
+      }
+    );
+
+    await sendEmail(
+      admin.email,
+      "Admin Password Reset Successful",
+      `
+        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;">
+          <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 30px;">
+            <div style="text-align: center;">
+              <img src="https://res.cloudinary.com/demj86hzs/image/upload/v1749547385/logo1_qlduf9.png" alt="Vidhyardhi School Logo" style="max-width: 120px; margin-bottom: 20px;" />
+            </div>
+            <h2 style="text-align: center;">Hello ${admin.fullName},</h2>
+            <p style="text-align: center;">Your admin password has been successfully reset.</p>
+            <p>If this wasn't you, please contact the school administrator immediately.</p>
+            <p style="text-align: center; font-size: 14px; color: #888;">- Vidhyardhi School</p>
+          </div>
+        </div>
+      `
+    );
+
+    res.status(200).json({ message: "Admin password reset successful and confirmation email sent" });
+  } catch (error) {
+    console.error("Admin Reset Password Error:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
+
