@@ -42,7 +42,7 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#80cb2e] to-[#69306d] transition-all px-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#69306d] to-[#69306d] transition-all px-4">
       <Card className="w-full max-w-md bg-white bg-opacity-40 backdrop-blur-xl shadow-xl shadow-gray-900 text-white">
         <form onSubmit={handleSubmit}>
           <CardHeader className="flex flex-col items-center space-y-4">
@@ -99,7 +99,7 @@ const AdminLogin = () => {
           </CardContent>
 
           <CardFooter className="flex flex-col gap-3">
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-40 rounded-xl bg-green-500" disabled={loading}>
               {loading ? "Logging in..." : "Login"}
             </Button>
             <p className="text-xs text-white/70 text-center">
