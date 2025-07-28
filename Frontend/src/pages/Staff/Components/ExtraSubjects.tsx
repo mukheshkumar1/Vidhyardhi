@@ -11,13 +11,14 @@ const classOptions = [
   "Grade 5", "Grade 6", "Grade 7"
 ];
 
+const gradeOptions = ["A+", "A", "B+", "B", "C+", "C"];
+
 const ExtraCurricularForm = () => {
   const [className, setClassName] = useState("");
   const [students, setStudents] = useState<any[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [activityName, setActivityName] = useState("");
-  const [outOf, setOutOf] = useState<number>(10);
-  const [scored, setScored] = useState<number>(0);
+  const [grade, setGrade] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Fetch students when class changes
@@ -27,7 +28,7 @@ const ExtraCurricularForm = () => {
     const fetchStudents = async () => {
       try {
         const res = await fetch(`https://vidhyardhi.onrender.com/api/staff/class/${className}`, {
-          credentials: "include", // ✅ Important for cookie-based auth
+          credentials: "include",
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Failed to fetch students");
@@ -41,8 +42,8 @@ const ExtraCurricularForm = () => {
   }, [className]);
 
   const handleSubmit = async () => {
-    if (!selectedStudentId || !activityName || outOf <= 0 || scored < 0 || scored > outOf) {
-      toast.error("Please fill all fields correctly.");
+    if (!selectedStudentId || !activityName || !grade) {
+      toast.error("Please fill all fields.");
       return;
     }
 
@@ -53,17 +54,16 @@ const ExtraCurricularForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // ✅ Correct placement
-        body: JSON.stringify({ activityName, outOf, scored }),
+        credentials: "include",
+        body: JSON.stringify({ activityName, grade }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to submit activity");
 
-      toast.success("Extra-curricular marks added!");
+      toast.success("Extra-curricular grade added!");
       setActivityName("");
-      setOutOf(10);
-      setScored(0);
+      setGrade("");
     } catch (err: any) {
       toast.error(err.message || "Something went wrong");
     } finally {
@@ -76,7 +76,7 @@ const ExtraCurricularForm = () => {
       <CardContent className="p-6">
         <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-indigo-700">
           <Plus className="w-5 h-5" />
-          Add Extra-Curricular Marks
+          Add Extra-Curricular Grade
         </h2>
 
         {/* Class Select */}
@@ -101,7 +101,7 @@ const ExtraCurricularForm = () => {
 
         {/* Student Select */}
         {students.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block mb-1 font-medium">Select Student</label>
             <select
               value={selectedStudentId}
@@ -118,39 +118,33 @@ const ExtraCurricularForm = () => {
           </div>
         )}
 
-        {/* Form Inputs */}
+        {/* Activity Name and Grade */}
         {selectedStudentId && (
           <div className="grid gap-4">
             <div>
               <label className="block mb-1 font-medium">Activity Name</label>
               <Input
                 type="text"
-                placeholder="e.g., Essay Writing"
+                placeholder="e.g., Debate Competition"
                 value={activityName}
                 onChange={(e) => setActivityName(e.target.value)}
               />
             </div>
 
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <label className="block mb-1 font-medium">Out of</label>
-                <Input
-                  type="number"
-                  min={1}
-                  value={outOf}
-                  onChange={(e) => setOutOf(Number(e.target.value))}
-                />
-              </div>
-              <div className="flex-1">
-                <label className="block mb-1 font-medium">Scored</label>
-                <Input
-                  type="number"
-                  min={0}
-                  max={outOf}
-                  value={scored}
-                  onChange={(e) => setScored(Number(e.target.value))}
-                />
-              </div>
+            <div>
+              <label className="block mb-1 font-medium">Grade</label>
+              <select
+                value={grade}
+                onChange={(e) => setGrade(e.target.value)}
+                className="border px-3 py-2 rounded w-full"
+              >
+                <option value="">-- Select Grade --</option>
+                {gradeOptions.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <Button
@@ -164,7 +158,7 @@ const ExtraCurricularForm = () => {
                   Submitting...
                 </>
               ) : (
-                "Add Marks"
+                "Add Activity Grade"
               )}
             </Button>
           </div>
