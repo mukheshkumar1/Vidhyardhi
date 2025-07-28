@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
 
   return (
     <footer
-      className="bg-gradient-to-br from-[#69306d] to-[#80cb2e] text-white py-10 rounded-xl"
+      className="bg-gradient-to-br from-[#69306d] to-[#69306d] text-white py-10 rounded-xl"
       data-aos="fade-up"
       data-aos-duration="1000"
     >
