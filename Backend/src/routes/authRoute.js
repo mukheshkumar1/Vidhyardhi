@@ -26,6 +26,9 @@ router.post("/login/student", studentLogin);
 router.post("/forgot-password",  forgotPassword);
 router.post("/reset-password", verifyOtpAndResetPassword);
 
+router.post("/admin/forgot-password",  forgotPasswordAdmin);
+router.post("/admin/reset-password", verifyOtpAndResetPasswordAdmin);
+
 // Auth
 router.post("/logout", logout);
 
