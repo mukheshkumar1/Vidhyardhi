@@ -4,7 +4,7 @@ const studentSchema = new mongoose.Schema({
   fullName: String,
   className: String,
   dob: {
-    type: String, 
+    type: String, // or Date if you want
     required: true,
   },
   address: String,
@@ -190,8 +190,7 @@ const studentSchema = new mongoose.Schema({
   extraCurricular: [
     {
       activityName: String,
-      outOf: Number,
-      scored: Number,
+       grade: String,
       addedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Staff",
