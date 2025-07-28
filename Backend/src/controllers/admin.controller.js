@@ -1693,7 +1693,7 @@ export const addBulkStudents = async (req, res) => {
             </table>
 
             <div style="text-align: center; margin: 20px 0;">
-              <a href="https://localhost:5173/forgot-password" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+              <a href="https://www.vidhyardhischool.com/login/student" style="background-color: #2a7ae2; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
                 Go to Student Portal
               </a>
             </div>
