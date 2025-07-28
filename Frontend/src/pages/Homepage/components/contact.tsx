@@ -54,15 +54,15 @@ export default function ContactSection() {
       </p>
 
       <div className="mt-6 flex justify-center">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d966.0478433861601!2d79.9616579695136!3d14.41612889800603!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a4cf2e193e314e1%3A0x58930f56e5d739d8!2s26-1-106-5%2C%20Gayathri%20Nagar%2C%20Police%20Colony%2C%20Nellore%2C%20Andhra%20Pradesh%20524004%2C%20India!5e0!3m2!1sen!2sus!4v1749718146272!5m2!1sen!2sus"
-          className="w-full max-w-md h-64 md:h-80 rounded-lg border-0"
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        ></iframe>
+  <iframe
+    src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d811.32924201284!2d79.96177026951358!3d14.416129298005995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTTCsDI0JzU4LjEiTiA3OcKwNTcnNDQuNyJF!5e1!3m2!1sen!2sin!4v1753668250935!5m2!1sen!2sin"
+    className="w-full max-w-md h-64 md:h-80 rounded-lg border-0"
+    allowFullScreen
+    loading="lazy"
+    referrerPolicy="no-referrer-when-downgrade"
+  ></iframe>
+</div>
 
-      </div>
 
       <div className="mt-6 text-center">
         <button
@@ -80,7 +80,7 @@ export default function ContactSection() {
           <a href="#" className="hover:text-sky-500"><FaLinkedin /></a>
           <a href="https://www.instagram.com/vidhyardhi_25/" className="hover:text-pink-500"><FaInstagram /></a>
           <a href="#" className="hover:text-red-500"><FaYoutube /></a>
-          <a href="#" className="hover:text-green-500"><FaWhatsapp /></a>
+          <a href="https://wa.me/+919000332697" className="hover:text-green-500"><FaWhatsapp /></a>
         </div>
       </div>
 
@@ -108,7 +108,7 @@ function RegisterModal({ onClose }: { onClose: () => void }) {
     setStatus("Submitting...");
 
     try {
-      const res = await fetch("https://vidhyardhi.onrender.com/api/register", {
+      const res = await fetch("http://localhost:5000/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
