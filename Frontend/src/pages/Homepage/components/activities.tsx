@@ -4,6 +4,8 @@ import scienceImage from "../../../assets/images/science.png";
 import chessImage from "../../../assets/images/chess.jpg";
 import FieldTripImage from "../../../assets/images/Field Trip.jpg"
 import HelpingHandImage from "../../../assets/images/helpinghands.jpg"
+import academicImage from "../../../assets/images/academics.jpg";
+import danceImage from "../../../assets/images/dance.png";
 
 type CardProps = {
   title: string;
@@ -43,19 +45,32 @@ const academicsCards: CardProps[] = [
   In addition to classroom training, students engage in regular practice matches, puzzle-solving contests, and inter-house tournaments. These tournaments not only boost competitive spirit but also teach students sportsmanship, focus under pressure, and resilience after defeat — all within a safe and encouraging environment.
   The Chess Club also organizes a yearly Chess Championship. The event is conducted in a Swiss-style format, ensuring every student plays multiple matches regardless of performance. Winners and outstanding performers are recognized with medals, certificates, and trophies. Top players are even nominated to represent the school at district and state-level chess meets.
   Moreover, the club runs thematic events like “Blindfold Chess,” “Simultaneous Exhibition Matches,” and “Parent-Child Tournaments” to involve the wider school community and demonstrate the universal appeal of the game.
-  Chess at Vidhyardhi School is more than a game — it’s a mental gymnasium where students exercise their brains, develop focus, and learn patience, humility, and confidence. The club encourages students to think critically before acting, a habit that has positive ripple effects on their academics and personal development.
-  Students also explore chess history, studying famous grandmasters like Garry Kasparov, Bobby Fischer, and Judit Polgár. They are taught to analyze classic games, understand famous openings like the Sicilian Defense, Ruy López, and Queen’s Gambit, and evaluate positions using both intuition and calculation.
-  Digital tools like chess.com and Lichess are integrated into our learning process. Students use these platforms to practice puzzles, play timed matches, and analyze games with powerful engines. These resources make learning chess both engaging and tech-savvy, keeping students excited and connected with the global chess community.
-  Our in-house coaches — many of whom hold international ratings — provide personalized feedback and encourage healthy peer-to-peer mentorship. Advanced students are given opportunities to lead small workshops, reinforcing their knowledge through teaching.
-  The Chess Club is not just about winning games; it’s about building character. Every move on the board reflects a decision, and every decision teaches responsibility. It builds habits of logical reasoning, quiet concentration, and thoughtful action — attributes that empower children far beyond the 64 squares.
-  Parents often report that their children become calmer, more focused, and academically stronger after consistent chess practice. These positive effects are reinforced by research showing that chess improves memory, comprehension, and even mathematical performance.
-  We also collaborate with national and international chess federations to host webinars and guest sessions. Visiting masters often conduct game dissections, share personal stories, and inspire students with their journeys.
-  In summary, the Chess Club at Vidhyardhi School is a vibrant, evolving platform where minds are honed, friendships are built, and life lessons are learned — all under the quiet intensity of a well-played game of chess.
     `,
     modalImages: [
       // "/assets/chess1.jpg",
       // "/assets/chess2.jpg",
       // "/assets/chess3.jpg",
+    ],
+  },
+  {
+    title: "Academic Activities",
+    description: "Competitions and intellectual challenges that enrich learning.",
+    imageSrc: academicImage, // Make sure to import or define this image
+    altText: "Academic Activities",
+    modalTitle: "Academic Activities",
+    modalDescription: `
+      Our academic activities program is designed to supplement classroom learning through engaging competitions and intellectual challenges.
+      Students participate in events like quiz competitions, debates, essay writing, spelling bees, and mental math contests. These activities
+      nurture critical thinking, creativity, articulation, and a love for knowledge.
+      
+      Throughout the academic year, various inter-house and inter-school events are held to promote healthy competition and academic excellence.
+      Our students are frequently recognized for their achievements at zonal, district, and state levels. We believe such exposure fosters confidence,
+      teamwork, and a lifelong passion for learning.
+    `,
+    modalImages: [
+      // "/assets/academic1.jpg",
+      // "/assets/academic2.jpg",
+      // "/assets/academic3.jpg",
     ],
   }
   
@@ -103,6 +118,29 @@ Parents play an active role as partners in this journey, often volunteering alon
       // "/assets/helpinghands3.jpg",
     ],
   },
+
+  {
+    title: "Western & Classical Dance",
+    description: "Fusion of culture and expression through dance.",
+    imageSrc: danceImage, // Make sure to import or define `danceImage` (e.g., `import danceImage from "@/assets/dance.jpg"`)
+    altText: "Dance Program",
+    modalTitle: "Western & Classical Dance",
+    modalDescription: `
+  Our dance program celebrates artistic expression by blending the rich heritage of classical Indian dance forms like Bharatanatyam and Kuchipudi with the vibrant energy of Western styles such as hip-hop, jazz, and contemporary.
+  
+  Students are trained in posture, rhythm, coordination, and storytelling through movement. Dance not only promotes fitness and flexibility but also cultivates discipline, confidence, and stage presence.
+  
+  Throughout the academic year, students perform at cultural fests, national celebrations, and inter-school competitions. Our curriculum is designed for all age groups and skill levels with weekly classes, choreography sessions, and group performances.
+  
+  We also invite guest choreographers and classical dance gurus to conduct masterclasses and workshops. These immersive experiences help our students develop a broader artistic perspective while remaining rooted in tradition.
+    `,
+    modalImages: [
+      // "/assets/dance1.jpg",
+      // "/assets/dance2.jpg",
+      // "/assets/dance3.jpg",
+    ],
+  }
+  
 ];
 
 // Modal animation variants for Framer Motion
